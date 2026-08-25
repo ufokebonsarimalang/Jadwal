@@ -342,18 +342,15 @@
                 let [resKaryawan, resAbsen, resJadwalCloud] = await Promise.all([
                     fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_karyawan" }) }).then(r => r.json()),
                     fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_laporan" }) }).then(r => r.json()),
-                    fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_jadwal_off" }) }).catch(() => null)
+                    fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_jadwal_off" }) }).then(r => r.json()).catch(() => ({}))
                 ]);
 
                 if (Array.isArray(resKaryawan) && resKaryawan.length > 0) daftarKaryawan = resKaryawan;
                 dataLaporanGlobal = Array.isArray(resAbsen) ? resAbsen : [];
 
-                if (resJadwalCloud && resJadwalCloud.ok) {
-                    let dataServer = await resJadwalCloud.json();
-                    if (dataServer && typeof dataServer === 'object') {
-                        databaseJadwal = dataServer;
-                        localStorage.setItem('db_jadwal_karyawan_cloud', JSON.stringify(databaseJadwal));
-                    }
+                if (resJadwalCloud && typeof resJadwalCloud === 'object') {
+                    databaseJadwal = resJadwalCloud;
+                    localStorage.setItem('db_jadwal_karyawan_cloud', JSON.stringify(databaseJadwal));
                 }
 
                 if (Array.isArray(resAbsen)) {
@@ -600,14 +597,25 @@
             localStorage.setItem('db_jadwal_karyawan_cloud', JSON.stringify(databaseJadwal));
 
             try {
-                await fetch(URL_WEB_APP_GS, {
+                let res = await fetch(URL_WEB_APP_GS, {
                     method: "POST",
-                    body: JSON.stringify({ aksi: "simpan_jadwal_off", data: databaseJadwal })
+                    body: JSON.stringify({ 
+                        aksi: "simpan_jadwal_off_admin", 
+                        nama: karyawan,
+                        tanggal: tanggal,
+                        status: status
+                    })
                 });
-            } catch (err) { console.error(err); }
+                let result = await res.json();
+                showModal("Sukses", result.pesan || `Jadwal ${karyawan} berhasil disinkronkan ke Cloud!`);
+            } catch (err) { 
+                console.error(err);
+                showModal("Info", "Tersimpan lokal, gagal koneksi ke Cloud Sheet.");
+            }
 
-            showModal("Sukses", `Jadwal ${karyawan} berhasil diperbarui & disinkronkan ke Cloud!`);
-            renderJadwalKaryawan(); renderTabelRekap(); renderTabelSemuaJadwal();
+            renderJadwalKaryawan(); 
+            renderTabelRekap(); 
+            renderTabelSemuaJadwal();
         }
 
         async function tambahKaryawanOnline() {
