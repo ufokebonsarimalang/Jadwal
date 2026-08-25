@@ -13,7 +13,7 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #030712; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
-        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
         .glass-card {
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.7) 0%, rgba(3, 7, 18, 0.8) 100%);
             backdrop-filter: blur(20px);
@@ -44,7 +44,7 @@
             <button onclick="switchTab('jadwal')" id="btnJadwal" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-300 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30 ring-1 ring-white/20">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span class="hidden sm:inline">Jadwal Pribadi</span>
+                <span class="hidden sm:inline">Jadwal & Real-Time Absen</span>
             </button>
             <button onclick="switchTab('semuaJadwal')" id="btnSemuaJadwal" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent hover:border-slate-700/50">
@@ -63,33 +63,41 @@
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
-            <span class="font-semibold text-slate-300">Periode 26 Agt - 25 Sep</span>
+            <span class="font-semibold text-slate-300">Sinkron Google Sheet Aktif</span>
         </div>
     </aside>
 
     <!-- KONTEN UTAMA -->
     <main class="flex-1 p-4 md:p-10 overflow-y-auto z-10">
         
-        <!-- HALAMAN 1: JADWAL PRIBADI -->
+        <!-- HALAMAN 1: JADWAL & REAL-TIME ABSENSI -->
         <section id="tabJadwal" class="space-y-6 max-w-5xl mx-auto">
             <div class="glass-card p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">Jadwal Pribadi Karyawan</h2>
-                    <p class="text-xs text-slate-400 mt-1">Full: <span class="text-emerald-400 font-bold">08:00 - 20:00</span> | PS (Pulang Sore): <span class="text-orange-400 font-bold">Oranye</span> | OFF (Libur): <span class="text-rose-500 font-bold">Merah</span></p>
+                    <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">Jadwal & Absensi Real-Time</h2>
+                    <p class="text-xs text-slate-400 mt-1">Data jam masuk & pulang tersinkron langsung dari Google Sheet (misal masuk <span class="text-emerald-400 font-bold">08:03</span>).</p>
                 </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pilih Nama Karyawan:</label>
-                    <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+                <div class="flex items-center gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
+                        <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+                    </div>
+                    <button onclick="sinkronisasiDataSheet()" class="mt-5 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-2">
+                        🔄 Tarik Data Sheet
+                    </button>
                 </div>
             </div>
 
+            <!-- Kalender Jadwal Periode Cut-Off (26 Agt - 25 Sep) dengan Jam Asli -->
             <div class="glass-card p-6 rounded-3xl space-y-4">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-                    <h3 class="font-extrabold text-white text-sm">Kalender Shift Cut-Off (26 Agustus s.d 25 September)</h3>
-                    <span class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl font-bold">Periode Aktif</span>
+                    <h3 class="font-extrabold text-white text-sm">Kalender Shift & Jam Riwayat Absen (26 Agt - 25 Sep)</h3>
+                    <span id="statusSync" class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl font-bold">Siap Sinkron</span>
                 </div>
                 
-                <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
+                <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3">
+                    <!-- Diisi JavaScript -->
+                </div>
             </div>
         </section>
 
@@ -219,10 +227,14 @@
 
     </main>
 
-    <!-- LOGIKA SCRIPT -->
+    <!-- LOGIKA SCRIPT & SINKRONISASI GOOGLE SHEET -->
     <script>
+        // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT KAMU DI SINI:
+        const URL_WEB_APP_GS = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
+
         let daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Budi", "Siti", "Andi", "Dewi"];
         let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
+        let databaseAbsenSheet = JSON.parse(localStorage.getItem('db_absen_sheet')) || {};
 
         window.switchTab = function(tabName) {
             const tabs = ['tabJadwal', 'tabSemuaJadwal', 'tabAdmin'];
@@ -246,6 +258,73 @@
             if (tabName === 'admin') {
                 renderListKaryawanAdmin();
                 renderTabelRekap();
+            }
+        }
+
+        // FUNGSI TARIK DATA REAL-TIME DARI GOOGLE SHEET (GS)
+        async function sinkronisasiDataSheet() {
+            const badgeSync = document.getElementById('statusSync');
+            badgeSync.className = "text-xs px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-xl font-bold animate-pulse";
+            badgeSync.innerText = "Sedang Menarik Data...";
+
+            if (URL_WEB_APP_GS === "MASUKKAN_URL_WEB_APP_GOOGLE_SCRIPT_DISINI") {
+                alert("⚠️ Harap masukkan URL Web App Google Apps Script pada variabel URL_WEB_APP_GS di script baris atas terlebih dahulu!");
+                badgeSync.className = "text-xs px-3 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl font-bold";
+                badgeSync.innerText = "URL Belum Diset";
+                return;
+            }
+
+            try {
+                let response = await fetch(URL_WEB_APP_GS, {
+                    method: "POST",
+                    body: JSON.stringify({ aksi: "get_laporan" })
+                });
+                let result = await response.json();
+
+                if (Array.isArray(result)) {
+                    databaseAbsenSheet = {}; // Reset data lokal
+                    
+                    // Format dari sheet: [Timestamp, Nama, Status, Lat, Lng, Foto]
+                    for (let i = 1; i < result.length; i++) {
+                        let row = result[i];
+                        let waktuStr = String(row[0] || ""); // contoh: "26-08-2026 08:03:15"
+                        let nama = String(row[1] || "").trim();
+                        let statusAbsen = String(row[2] || "").trim(); // "Check In" atau "Check Out"
+
+                        if (waktuStr && nama) {
+                            let parts = waktuStr.split(" ");
+                            let tglParts = parts[0].split("-"); // [dd, mm, yyyy]
+                            if (tglParts.length === 3) {
+                                let tglIso = `${tglParts[2]}-${tglParts[1]}-${tglParts[0]}`; // yyyy-mm-dd
+                                let jamMenit = parts[1] ? parts[1].substring(0, 5) : ""; // HH:mm
+
+                                let key = `${nama}_${tglIso}`;
+                                if (!databaseAbsenSheet[key]) {
+                                    databaseAbsenSheet[key] = { checkIn: "-", checkOut: "-" };
+                                }
+
+                                if (statusAbsen.toLowerCase().includes("in")) {
+                                    databaseAbsenSheet[key].checkIn = jamMenit;
+                                } else if (statusAbsen.toLowerCase().includes("out")) {
+                                    databaseAbsenSheet[key].checkOut = jamMenit;
+                                }
+                            }
+                        }
+                    }
+
+                    localStorage.setItem('db_absen_sheet', JSON.stringify(databaseAbsenSheet));
+                    badgeSync.className = "text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl font-bold";
+                    badgeSync.innerText = "Sinkron Sukses ✓";
+                    
+                    renderJadwalKaryawan();
+                    renderTabelSemuaJadwal();
+                } else {
+                    throw new Error("Format data tidak valid");
+                }
+            } catch (err) {
+                console.error(err);
+                badgeSync.className = "text-xs px-3 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl font-bold";
+                badgeSync.innerText = "Gagal Sinkron";
             }
         }
 
@@ -352,20 +431,23 @@
             
             let html = "";
             dates.forEach(item => {
-                let key = `${karyawan}_${item.dateStr}`;
-                let status = databaseJadwal[key];
+                let keyJadwal = `${karyawan}_${item.dateStr}`;
+                let statusJadwal = databaseJadwal[keyJadwal]; // 'OFF', 'PS', atau 'FULL' (default)
                 
-                let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-                let jamKerja = "08:00 - 20:00 (Full)";
-                let statusLabel = "FULL";
+                // Ambil data real-time absen dari Google Sheet
+                let keyAbsen = `${karyawan}_${item.dateStr}`;
+                let dataAbsen = databaseAbsenSheet[keyAbsen] || { checkIn: "-", checkOut: "-" };
 
-                if (status === "OFF") {
+                let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                let statusLabel = "FULL";
+                let jamTampil = `In: ${dataAbsen.checkIn} | Out: ${dataAbsen.checkOut}`;
+
+                if (statusJadwal === "OFF") {
                     badgeClass = "bg-red-500/15 text-red-400 border-red-500/30";
-                    jamKerja = "LIBUR";
                     statusLabel = "OFF";
-                } else if (status === "PS") {
+                    jamTampil = "LIBUR";
+                } else if (statusJadwal === "PS") {
                     badgeClass = "bg-orange-500/15 text-orange-400 border-orange-500/30";
-                    jamKerja = "PULANG SORE (PS)";
                     statusLabel = "PS";
                 }
 
@@ -376,7 +458,7 @@
                             <span class="text-[10px] px-2 py-0.5 rounded-lg border font-black ${badgeClass}">${statusLabel}</span>
                         </div>
                         <div class="py-1">
-                            <span class="text-xs font-extrabold text-white">${jamKerja}</span>
+                            <span class="text-[11px] font-extrabold text-white block">${jamTampil}</span>
                         </div>
                     </div>
                 `;
@@ -405,16 +487,17 @@
                 daftarKaryawan.forEach(nama => {
                     let key = `${nama}_${item.dateStr}`;
                     let status = databaseJadwal[key];
+                    let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
 
                     let badgeStyle = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-                    let label = "Full";
+                    let label = absen.checkIn !== "-" ? `${absen.checkIn}` : "Full";
 
                     if (status === "OFF") {
                         badgeStyle = "bg-red-500/15 text-red-400 border-red-500/30";
                         label = "OFF";
                     } else if (status === "PS") {
                         badgeStyle = "bg-orange-500/15 text-orange-400 border-orange-500/30";
-                        label = "PS";
+                        label = `PS (${absen.checkIn})`;
                     }
 
                     bodyHtml += `
@@ -477,9 +560,7 @@
             }
 
             let key = `${karyawan}_${tanggal}`;
-            
             if (status === "FULL") {
-                // Jika dipilih masuk normal, hapus dari database khusus agar kembali ke default
                 delete databaseJadwal[key];
             } else {
                 databaseJadwal[key] = status;
