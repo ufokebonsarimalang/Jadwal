@@ -44,7 +44,7 @@
             <button onclick="switchTab('jadwal')" id="btnJadwal" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-300 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30 ring-1 ring-white/20">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span class="hidden sm:inline">Jadwal & Real-Time Absen</span>
+                <span class="hidden sm:inline">Jadwal & Absen</span>
             </button>
             <button onclick="switchTab('semuaJadwal')" id="btnSemuaJadwal" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent hover:border-slate-700/50">
@@ -54,7 +54,7 @@
             <button onclick="switchTab('admin')" id="btnAdmin" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent hover:border-slate-700/50">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
-                <span class="hidden sm:inline">Panel Admin & Rekap</span>
+                <span class="hidden sm:inline">Panel Admin & Statistik</span>
             </button>
         </nav>
 
@@ -70,12 +70,12 @@
     <!-- KONTEN UTAMA -->
     <main class="flex-1 p-4 md:p-10 overflow-y-auto z-10">
         
-        <!-- HALAMAN 1: JADWAL & REAL-TIME ABSENSI -->
+        <!-- HALAMAN 1: JADWAL & ABSENSI -->
         <section id="tabJadwal" class="space-y-6 max-w-5xl mx-auto">
             <div class="glass-card p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">Jadwal & Absensi Real-Time</h2>
-                    <p class="text-xs text-slate-400 mt-1">Data jam masuk & pulang tersinkron langsung dari Google Sheet (misal masuk <span class="text-emerald-400 font-bold">08:03</span>).</p>
+                    <p class="text-xs text-slate-400 mt-1">Data jam masuk & pulang tersinkron langsung dari Google Sheet.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <div>
@@ -88,20 +88,38 @@
                 </div>
             </div>
 
-            <!-- Kalender Jadwal Periode Cut-Off (26 Agt - 25 Sep) dengan Jam Asli -->
+            <!-- Kartu Statistik Ringkasan Karyawan Terpilih -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="glass-card p-4 rounded-2xl border border-emerald-500/20 flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase">Total Masuk</span>
+                    <span id="statMasuk" class="text-xl font-black text-emerald-400 mt-1">0 Hari</span>
+                </div>
+                <div class="glass-card p-4 rounded-2xl border border-red-500/20 flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase">Total OFF (Libur)</span>
+                    <span id="statOff" class="text-xl font-black text-red-400 mt-1">0 Hari</span>
+                </div>
+                <div class="glass-card p-4 rounded-2xl border border-orange-500/20 flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase">Total PS (Pulang Sore)</span>
+                    <span id="statPs" class="text-xl font-black text-orange-400 mt-1">0 Hari</span>
+                </div>
+                <div class="glass-card p-4 rounded-2xl border border-amber-500/20 flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase">Total Terlambat</span>
+                    <span id="statTerlambat" class="text-xl font-black text-amber-400 mt-1">0 Hari</span>
+                </div>
+            </div>
+
+            <!-- Kalender Jadwal Periode Cut-Off (26 Agt - 25 Sep) -->
             <div class="glass-card p-6 rounded-3xl space-y-4">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-4">
                     <h3 class="font-extrabold text-white text-sm">Kalender Shift & Jam Riwayat Absen (26 Agt - 25 Sep)</h3>
                     <span id="statusSync" class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl font-bold">Siap Sinkron</span>
                 </div>
                 
-                <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3">
-                    <!-- Diisi JavaScript -->
-                </div>
+                <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
             </div>
         </section>
 
-        <!-- HALAMAN 2: JADWAL SEMUA KARYAWAN (MATRIKS MENURUN) -->
+        <!-- HALAMAN 2: JADWAL SEMUA KARYAWAN -->
         <section id="tabSemuaJadwal" class="hidden space-y-6 max-w-7xl mx-auto">
             <div class="glass-card p-6 rounded-3xl space-y-4">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-4">
@@ -124,7 +142,7 @@
         <!-- HALAMAN 3: PANEL ADMIN & REKAPITULASI -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-4xl mx-auto">
             
-            <!-- KOTAK 1: TABEL REKAPITULASI -->
+            <!-- KOTAK 1: TABEL REKAPITULASI STATISTIK DARI SHEET -->
             <div class="glass-card p-6 md:p-8 rounded-3xl space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-4">
                     <div class="flex items-center gap-3">
@@ -132,8 +150,8 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         </div>
                         <div>
-                            <h2 class="text-lg font-black text-white tracking-tight">Rekapitulasi Cut-Off (26 Agt - 25 Sep)</h2>
-                            <p class="text-xs text-slate-400">Total masuk, libur (OFF), dan Pulang Sore (PS) seluruh karyawan.</p>
+                            <h2 class="text-lg font-black text-white tracking-tight">Rekapitulasi Statistik Cut-Off (26 Agt - 25 Sep)</h2>
+                            <p class="text-xs text-slate-400">Total masuk, OFF, PS, dan terlambat berdasarkan data Google Sheet.</p>
                         </div>
                     </div>
                 </div>
@@ -143,9 +161,10 @@
                         <thead class="bg-slate-950 text-slate-400 uppercase font-bold tracking-wider border-b border-slate-800">
                             <tr>
                                 <th class="py-3 px-4">Nama Karyawan</th>
-                                <th class="py-3 px-4 text-center">Total Masuk (Full)</th>
-                                <th class="py-3 px-4 text-center">Total OFF (Merah)</th>
-                                <th class="py-3 px-4 text-center">Total PS (Oranye)</th>
+                                <th class="py-3 px-4 text-center">Masuk</th>
+                                <th class="py-3 px-4 text-center">OFF</th>
+                                <th class="py-3 px-4 text-center">PS</th>
+                                <th class="py-3 px-4 text-center">Terlambat</th>
                             </tr>
                         </thead>
                         <tbody id="tabelRekapBody" class="divide-y divide-slate-800/60"></tbody>
@@ -183,7 +202,7 @@
                 </div>
             </div>
 
-            <!-- KOTAK 3: UBAH JADWAL (FULL, OFF, ATAU PS) -->
+            <!-- KOTAK 3: UBAH JADWAL -->
             <div class="glass-card p-6 md:p-8 rounded-3xl">
                 <div class="flex items-center gap-4 mb-6">
                     <div class="p-3.5 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20 shadow-inner">
@@ -227,10 +246,9 @@
 
     </main>
 
-    <!-- LOGIKA SCRIPT & SINKRONISASI GOOGLE SHEET -->
+    <!-- LOGIKA SCRIPT -->
     <script>
-        // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT KAMU DI SINI:
-        const URL_WEB_APP_GS = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
+        const URL_WEB_APP_GS = "MASUKKAN_URL_WEB_APP_GOOGLE_SCRIPT_DISINI";
 
         let daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Budi", "Siti", "Andi", "Dewi"];
         let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
@@ -261,14 +279,13 @@
             }
         }
 
-        // FUNGSI TARIK DATA REAL-TIME DARI GOOGLE SHEET (GS)
         async function sinkronisasiDataSheet() {
             const badgeSync = document.getElementById('statusSync');
             badgeSync.className = "text-xs px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-xl font-bold animate-pulse";
             badgeSync.innerText = "Sedang Menarik Data...";
 
             if (URL_WEB_APP_GS === "MASUKKAN_URL_WEB_APP_GOOGLE_SCRIPT_DISINI") {
-                alert("⚠️ Harap masukkan URL Web App Google Apps Script pada variabel URL_WEB_APP_GS di script baris atas terlebih dahulu!");
+                alert("⚠️ Harap masukkan URL Web App Google Apps Script terlebih dahulu!");
                 badgeSync.className = "text-xs px-3 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl font-bold";
                 badgeSync.innerText = "URL Belum Diset";
                 return;
@@ -282,21 +299,20 @@
                 let result = await response.json();
 
                 if (Array.isArray(result)) {
-                    databaseAbsenSheet = {}; // Reset data lokal
+                    databaseAbsenSheet = {};
                     
-                    // Format dari sheet: [Timestamp, Nama, Status, Lat, Lng, Foto]
                     for (let i = 1; i < result.length; i++) {
                         let row = result[i];
-                        let waktuStr = String(row[0] || ""); // contoh: "26-08-2026 08:03:15"
+                        let waktuStr = String(row[0] || "");
                         let nama = String(row[1] || "").trim();
-                        let statusAbsen = String(row[2] || "").trim(); // "Check In" atau "Check Out"
+                        let statusAbsen = String(row[2] || "").trim();
 
                         if (waktuStr && nama) {
                             let parts = waktuStr.split(" ");
-                            let tglParts = parts[0].split("-"); // [dd, mm, yyyy]
+                            let tglParts = parts[0].split("-");
                             if (tglParts.length === 3) {
-                                let tglIso = `${tglParts[2]}-${tglParts[1]}-${tglParts[0]}`; // yyyy-mm-dd
-                                let jamMenit = parts[1] ? parts[1].substring(0, 5) : ""; // HH:mm
+                                let tglIso = `${tglParts[2]}-${tglParts[1]}-${tglParts[0]}`;
+                                let jamMenit = parts[1] ? parts[1].substring(0, 5) : "";
 
                                 let key = `${nama}_${tglIso}`;
                                 if (!databaseAbsenSheet[key]) {
@@ -318,6 +334,7 @@
                     
                     renderJadwalKaryawan();
                     renderTabelSemuaJadwal();
+                    renderTabelRekap();
                 } else {
                     throw new Error("Format data tidak valid");
                 }
@@ -429,26 +446,47 @@
             const container = document.getElementById('gridJadwal');
             const dates = getCutOffDates();
             
+            let countMasuk = 0, countOff = 0, countPs = 0, countTerlambat = 0;
             let html = "";
+
             dates.forEach(item => {
                 let keyJadwal = `${karyawan}_${item.dateStr}`;
-                let statusJadwal = databaseJadwal[keyJadwal]; // 'OFF', 'PS', atau 'FULL' (default)
-                
-                // Ambil data real-time absen dari Google Sheet
-                let keyAbsen = `${karyawan}_${item.dateStr}`;
-                let dataAbsen = databaseAbsenSheet[keyAbsen] || { checkIn: "-", checkOut: "-" };
+                let statusJadwal = databaseJadwal[keyJadwal];
+                let dataAbsen = databaseAbsenSheet[keyJadwal] || { checkIn: "-", checkOut: "-" };
 
                 let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
                 let statusLabel = "FULL";
                 let jamTampil = `In: ${dataAbsen.checkIn} | Out: ${dataAbsen.checkOut}`;
 
+                // Logika Statistik Otomatis Berdasarkan Data & Jadwal
                 if (statusJadwal === "OFF") {
                     badgeClass = "bg-red-500/15 text-red-400 border-red-500/30";
                     statusLabel = "OFF";
                     jamTampil = "LIBUR";
-                } else if (statusJadwal === "PS") {
-                    badgeClass = "bg-orange-500/15 text-orange-400 border-orange-500/30";
-                    statusLabel = "PS";
+                    countOff++;
+                } else {
+                    if (dataAbsen.checkIn !== "-") {
+                        countMasuk++;
+                        // Cek keterlambatan (> jam 08:10)
+                        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
+                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
+                            countTerlambat++;
+                        }
+                    }
+
+                    if (statusJadwal === "PS") {
+                        badgeClass = "bg-orange-500/15 text-orange-400 border-orange-500/30";
+                        statusLabel = "PS";
+                        countPs++;
+                    } else {
+                        // Deteksi Pulang Sore otomatis jika jam checkout jam 17 atau 18
+                        if (dataAbsen.checkOut !== "-") {
+                            let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]);
+                            if (jamOut === 17 || jamOut === 18) {
+                                countPs++;
+                            }
+                        }
+                    }
                 }
 
                 html += `
@@ -465,6 +503,12 @@
             });
 
             if (container) container.innerHTML = html;
+
+            // Update Angka Statistik di Atas
+            document.getElementById('statMasuk').innerText = `${countMasuk} Hari`;
+            document.getElementById('statOff').innerText = `${countOff} Hari`;
+            document.getElementById('statPs').innerText = `${countPs} Hari`;
+            document.getElementById('statTerlambat').innerText = `${countTerlambat} Hari`;
         }
 
         function renderTabelSemuaJadwal() {
@@ -516,20 +560,31 @@
         function renderTabelRekap() {
             const tbody = document.getElementById('tabelRekapBody');
             const dates = getCutOffDates();
-            let totalHariCutOff = dates.length;
 
             let html = "";
             daftarKaryawan.forEach(nama => {
-                let countOff = 0;
-                let countPs = 0;
+                let countMasuk = 0, countOff = 0, countPs = 0, countTerlambat = 0;
 
                 dates.forEach(item => {
                     let key = `${nama}_${item.dateStr}`;
-                    if (databaseJadwal[key] === "OFF") countOff++;
-                    if (databaseJadwal[key] === "PS") countPs++;
-                });
+                    let statusJadwal = databaseJadwal[key];
+                    let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
 
-                let countMasuk = totalHariCutOff - countOff;
+                    if (statusJadwal === "OFF") {
+                        countOff++;
+                    } else {
+                        if (absen.checkIn !== "-") {
+                            countMasuk++;
+                            let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
+                            if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
+                                countTerlambat++;
+                            }
+                        }
+                        if (statusJadwal === "PS" || (absen.checkOut !== "-" && (parseInt(absen.checkOut.split(":")[0]) === 17 || parseInt(absen.checkOut.split(":")[0]) === 18))) {
+                            countPs++;
+                        }
+                    }
+                });
 
                 html += `
                     <tr class="hover:bg-slate-900/50 transition-colors">
@@ -537,12 +592,13 @@
                         <td class="py-3 px-4 text-center font-extrabold text-emerald-400 text-sm">${countMasuk} Hari</td>
                         <td class="py-3 px-4 text-center font-extrabold text-red-400 text-sm">${countOff} Hari</td>
                         <td class="py-3 px-4 text-center font-extrabold text-orange-400 text-sm">${countPs} Hari</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-amber-400 text-sm">${countTerlambat} Hari</td>
                     </tr>
                 `;
             });
 
             if (daftarKaryawan.length === 0) {
-                html = `<tr><td colspan="4" class="py-6 text-center text-slate-500 italic">Belum ada data karyawan.</td></tr>`;
+                html = `<tr><td colspan="5" class="py-6 text-center text-slate-500 italic">Belum ada data karyawan.</td></tr>`;
             }
             if(tbody) tbody.innerHTML = html;
         }
