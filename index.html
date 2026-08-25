@@ -219,15 +219,15 @@
                 </div>
             </div>
 
-            <!-- Atur Jadwal (Manual) -->
+            <!-- Atur Jadwal (Tersimpan ke Server Cloud) -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 md:p-8 rounded-3xl shadow-xl">
                 <div class="flex items-center gap-4 mb-6">
                     <div class="p-3.5 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl border border-indigo-500/20 shadow-inner">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Atur Jadwal Karyawan (Manual)</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Atur hari libur atau status khusus secara manual.</p>
+                        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Atur Jadwal Karyawan (Cloud Sync)</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Atur hari libur atau status khusus; otomatis tersimpan online ke server.</p>
                     </div>
                 </div>
 
@@ -253,7 +253,7 @@
                     </div>
                     <button onclick="simpanJadwalAdmin()" 
                         class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/25">
-                        Simpan / Perbarui Jadwal
+                        Simpan ke Server Cloud
                     </button>
                     <p id="statusAdmin" class="text-xs font-medium text-center"></p>
                 </div>
@@ -280,7 +280,7 @@
         const URL_WEB_APP_GS = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
 
         let daftarKaryawan = ["Poniadi", "Eko", "Dedy", "Dwi", "Friza", "Rudi", "Demmy", "Bima", "Agung", "Zaenal"];
-        let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
+        let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan_cloud')) || {};
         let databaseAbsenSheet = JSON.parse(localStorage.getItem('db_absen_sheet')) || {};
 
         function toggleTheme() {
@@ -361,16 +361,25 @@
             
             if(syncIcon) syncIcon.classList.add('animate-spin');
             badgeSync.className = "text-xs px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-xl font-bold animate-pulse";
-            badgeSync.innerText = "Memuat dari Database...";
+            badgeSync.innerText = "Memuat dari Cloud...";
 
             try {
-                let [resKaryawan, resAbsen] = await Promise.all([
+                let [resKaryawan, resAbsen, resJadwalCloud] = await Promise.all([
                     fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_karyawan" }) }).then(r => r.json()),
-                    fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_laporan" }) }).then(r => r.json())
+                    fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_laporan" }) }).then(r => r.json()),
+                    fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_jadwal_off" }) }).catch(() => null)
                 ]);
 
                 if (Array.isArray(resKaryawan) && resKaryawan.length > 0) {
                     daftarKaryawan = resKaryawan;
+                }
+
+                if (resJadwalCloud && resJadwalCloud.ok) {
+                    let dataServer = await resJadwalCloud.json();
+                    if (dataServer && typeof dataServer === 'object') {
+                        databaseJadwal = dataServer;
+                        localStorage.setItem('db_jadwal_karyawan_cloud', JSON.stringify(databaseJadwal));
+                    }
                 }
 
                 if (Array.isArray(resAbsen)) {
@@ -405,7 +414,7 @@
                 }
 
                 badgeSync.className = "text-xs px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-xl font-bold";
-                badgeSync.innerText = "Sinkronisasi Berhasil ✓";
+                badgeSync.innerText = "Sinkronisasi Cloud ✓";
 
                 updateDropdownKaryawan();
                 renderJadwalKaryawan();
@@ -416,7 +425,7 @@
             } catch (err) {
                 console.error(err);
                 badgeSync.className = "text-xs px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-xl font-bold";
-                badgeSync.innerText = "Lokal Aktif";
+                badgeSync.innerText = "Mode Lokal Aktif";
             } finally {
                 if(syncIcon) syncIcon.classList.remove('animate-spin');
             }
@@ -488,7 +497,7 @@
                 let day = String(currDate.getDate()).padStart(2, '0');
                 let dateString = `${year}-${month}-${day}`;
                 
-                let dayOfWeek = currDate.getDay(); // 0 = Minggu, 6 = Sabtu
+                let dayOfWeek = currDate.getDay(); 
                 let namaHari = currDate.toLocaleDateString('id-ID', { weekday: 'short' });
                 let namaBulan = currDate.toLocaleDateString('id-ID', { month: 'short' });
                 
@@ -504,7 +513,7 @@
         }
 
         window.renderJadwalKaryawan = function() {
-            databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
+            databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan_cloud')) || {};
             const selectEl = document.getElementById('selectKaryawan');
             const karyawan = selectEl ? selectEl.value : (daftarKaryawan[0] || "Poniadi");
             const container = document.getElementById('gridJadwal');
@@ -566,7 +575,7 @@
         }
 
         function renderTabelSemuaJadwal() {
-            databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
+            databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan_cloud')) || {};
             const headerEl = document.getElementById('tabelSemuaHeader');
             const bodyEl = document.getElementById('tabelSemuaBody');
             const dates = getCutOffDates();
@@ -613,7 +622,7 @@
         }
 
         function renderTabelRekap() {
-            databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
+            databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan_cloud')) || {};
             const tbody = document.getElementById('tabelRekapBody');
             const dates = getCutOffDates();
 
@@ -660,7 +669,7 @@
             if(tbody) tbody.innerHTML = html;
         }
 
-        window.simpanJadwalAdmin = function() {
+        window.simpanJadwalAdmin = async function() {
             const karyawan = document.getElementById('adminKaryawan').value;
             const tanggal = document.getElementById('adminTanggal').value;
             const status = document.getElementById('adminStatus').value;
@@ -677,14 +686,25 @@
                 databaseJadwal[key] = status;
             }
             
-            localStorage.setItem('db_jadwal_karyawan', JSON.stringify(databaseJadwal));
-            showModal("Sukses", `Jadwal ${karyawan} berhasil diperbarui.`);
+            // Simpan ke memori lokal & kirim ke server cloud
+            localStorage.setItem('db_jadwal_karyawan_cloud', JSON.stringify(databaseJadwal));
+
+            try {
+                await fetch(URL_WEB_APP_GS, {
+                    method: "POST",
+                    body: JSON.stringify({ aksi: "simpan_jadwal_off", data: databaseJadwal })
+                });
+            } catch (err) {
+                console.error("Gagal simpan ke cloud:", err);
+            }
+
+            showModal("Sukses", `Jadwal ${karyawan} berhasil diperbarui & disinkronkan ke Cloud!`);
             renderJadwalKaryawan();
             renderTabelRekap();
             renderTabelSemuaJadwal();
         }
 
-        // Inisialisasi awal
+        // Inisialisasi awal sinkronisasi data
         sinkronisasiDataOnline();
     </script>
 </body>
