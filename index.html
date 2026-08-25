@@ -96,8 +96,11 @@
                         <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
                         <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
                     </div>
-                    <button onclick="sinkronisasiDataOnline()" class="mt-5 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-2">
-                        🔄 Tarik Data Server
+                    <button onclick="sinkronisasiDataOnline()" class="mt-5 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-2 group">
+                        <svg id="syncIcon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        <span>Tarik Data Server</span>
                     </button>
                 </div>
             </div>
@@ -354,6 +357,10 @@
 
         async function sinkronisasiDataOnline() {
             const badgeSync = document.getElementById('statusSync');
+            const syncIcon = document.getElementById('syncIcon');
+            
+            if(syncIcon) syncIcon.classList.add('animate-spin');
+
             badgeSync.className = "text-xs px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-xl font-bold animate-pulse";
             badgeSync.innerText = "Memuat dari Server...";
 
@@ -413,6 +420,8 @@
                 console.error(err);
                 badgeSync.className = "text-xs px-3 py-1 bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-xl font-bold";
                 badgeSync.innerText = "Gagal Sinkron";
+            } finally {
+                if(syncIcon) syncIcon.classList.remove('animate-spin');
             }
         }
 
@@ -499,12 +508,14 @@
                 let day = String(currDate.getDate()).padStart(2, '0');
                 let dateString = `${year}-${month}-${day}`;
                 
+                let dayOfWeek = currDate.getDay(); // 0 = Minggu, 6 = Sabtu
                 let namaHari = currDate.toLocaleDateString('id-ID', { weekday: 'short' });
                 let namaBulan = currDate.toLocaleDateString('id-ID', { month: 'short' });
                 
                 dates.push({
                     dateStr: dateString,
-                    label: `${namaHari}, ${day} ${namaBulan}`
+                    label: `${namaHari}, ${day} ${namaBulan}`,
+                    isWeekend: (dayOfWeek === 0 || dayOfWeek === 6)
                 });
                 currDate.setDate(currDate.getDate() + 1);
             }
@@ -517,7 +528,7 @@
             const container = document.getElementById('gridJadwal');
             const dates = getCutOffDates();
             
-            let countMasuk = 0, countOff = 0, countPs = 0, countTerlambat = 0;
+            let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
             let html = "";
 
             dates.forEach(item => {
@@ -533,10 +544,14 @@
                     badgeClass = "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30";
                     statusLabel = "OFF";
                     jamTampil = "LIBUR";
-                    countOff++;
+                    countOffTotal++;
+                    if (item.isWeekend) {
+                        countOffWeekend++;
+                    }
                 } else {
+                    countMasuk++;
+
                     if (dataAbsen.checkIn !== "-") {
-                        countMasuk++;
                         let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
                         if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
                             countTerlambat++;
@@ -573,7 +588,7 @@
             if (container) container.innerHTML = html;
 
             document.getElementById('statMasuk').innerText = `${countMasuk} Hari`;
-            document.getElementById('statOff').innerText = `${countOff} Hari`;
+            document.getElementById('statOff').innerHTML = `${countOffTotal} Hari <span class="text-[10px] font-normal block text-rose-500 dark:text-rose-400">Sab/Min: ${countOffWeekend}</span>`;
             document.getElementById('statPs').innerText = `${countPs} Hari`;
             document.getElementById('statTerlambat').innerText = `${countTerlambat} Hari`;
         }
@@ -630,7 +645,7 @@
 
             let html = "";
             daftarKaryawan.forEach(nama => {
-                let countMasuk = 0, countOff = 0, countPs = 0, countTerlambat = 0;
+                let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
 
                 dates.forEach(item => {
                     let key = `${nama}_${item.dateStr}`;
@@ -638,10 +653,13 @@
                     let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
 
                     if (statusJadwal === "OFF") {
-                        countOff++;
+                        countOffTotal++;
+                        if (item.isWeekend) {
+                            countOffWeekend++;
+                        }
                     } else {
+                        countMasuk++;
                         if (absen.checkIn !== "-") {
-                            countMasuk++;
                             let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
                             if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
                                 countTerlambat++;
@@ -657,7 +675,10 @@
                     <tr class="hover:bg-slate-100 dark:hover:bg-slate-900/50 transition-colors">
                         <td class="py-3 px-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">👤 ${nama}</td>
                         <td class="py-3 px-4 text-center font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">${countMasuk} Hari</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-red-600 dark:text-red-400 text-sm">${countOff} Hari</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-red-600 dark:text-red-400 text-sm">
+                            ${countOffTotal} Hari
+                            <span class="block text-[10px] font-normal text-slate-500 dark:text-slate-400">(Sab/Min: ${countOffWeekend})</span>
+                        </td>
                         <td class="py-3 px-4 text-center font-extrabold text-orange-600 dark:text-orange-400 text-sm">${countPs} Hari</td>
                         <td class="py-3 px-4 text-center font-extrabold text-amber-600 dark:text-amber-400 text-sm">${countTerlambat} Hari</td>
                     </tr>
