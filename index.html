@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexAbsent - Super Dashboard Admin & Jadwal</title>
+    <title>NexAbsent - Super Dashboard Admin & Jadwal (Manual Upload)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
+        tailwind.config = { darkMode: 'class' }
     </script>
     <!-- Google Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -58,11 +56,11 @@
             <button onclick="switchTab('admin')" id="btnAdmin" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
-                <span class="hidden sm:inline">Panel Admin & Log</span>
+                <span class="hidden sm:inline">Panel Admin & Upload</span>
             </button>
         </nav>
 
-        <!-- Tombol Pengganti Tema & Status Server -->
+        <!-- Tombol Pengganti Tema & Status -->
         <div class="hidden md:flex flex-col gap-3 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs">
             <div class="flex items-center justify-between bg-slate-100 dark:bg-slate-950 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
                 <span class="text-slate-700 dark:text-slate-300 font-semibold px-2">Tema</span>
@@ -72,10 +70,9 @@
             </div>
             <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400 px-1">
                 <span class="relative flex h-2.5 w-2.5">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
                 </span>
-                <span class="font-semibold text-slate-800 dark:text-slate-200">Server Terhubung</span>
+                <span class="font-semibold text-slate-800 dark:text-slate-200">Mode Manual Upload</span>
             </div>
         </div>
     </aside>
@@ -88,19 +85,11 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
                 <div>
                     <h2 class="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Jadwal & Riwayat Absensi</h2>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Data karyawan & riwayat absensi tersinkron langsung secara aman dari Google Sheet.</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Pilih nama karyawan untuk melihat rekapitulasi berdasarkan data Excel yang diunggah.</p>
                 </div>
-                <div class="flex items-center gap-3">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
-                        <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
-                    </div>
-                    <button onclick="sinkronisasiDataOnline()" class="mt-5 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-2 group">
-                        <svg id="syncIcon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                        </svg>
-                        <span>Sinkronisasi</span>
-                    </button>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
+                    <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
                 </div>
             </div>
 
@@ -128,7 +117,7 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
                     <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift & Jam Absen (26 Agt - 25 Sep)</h3>
-                    <span id="statusSync" class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 rounded-xl font-bold">Online Aktif</span>
+                    <span id="statusSync" class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 rounded-xl font-bold">Mode Upload Manual</span>
                 </div>
                 <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
             </div>
@@ -144,7 +133,7 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <button onclick="downloadExcelSemuaJadwal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow flex items-center gap-1.5">
-                            📥 Unduh Excel
+                            📥 Unduh Ringkasan
                         </button>
                         <button onclick="cetakPdfSemuaJadwal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow flex items-center gap-1.5">
                             🖨️ Cetak / PDF
@@ -160,8 +149,23 @@
             </div>
         </section>
 
-        <!-- HALAMAN 3: PANEL ADMIN LENGKAP -->
+        <!-- HALAMAN 3: PANEL ADMIN & UPLOAD MANUAL -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-6xl mx-auto">
+
+            <!-- KOTAK UPLOAD FILE EXCEL / CSV -->
+            <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/40 p-6 rounded-3xl shadow-xl space-y-4">
+                <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl text-xl">📁</div>
+                    <div>
+                        <h2 class="text-lg font-black text-slate-900 dark:text-white">Upload Data Absensi (Excel / CSV)</h2>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Unggah file rekap absen dari ufosmart untuk memperbarui seluruh statistik secara instan.</p>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center gap-4">
+                    <input type="file" id="csvFileInput" accept=".csv, .xlsx, .xls" class="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2"/>
+                    <button onclick="prosesUploadFile()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-xs shadow-lg whitespace-nowrap">Proses Data</button>
+                </div>
+            </div>
 
             <!-- Rekapitulasi Statistik -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
@@ -184,9 +188,9 @@
                 </div>
             </div>
 
-            <!-- Atur Jadwal Cloud Sync -->
+            <!-- Atur Jadwal Manual / OFF Karyawan -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl">
-                <h2 class="text-xl font-black text-slate-900 dark:text-white mb-4">⚙️ Atur Jadwal / OFF Karyawan (Cloud Sync)</h2>
+                <h2 class="text-xl font-black text-slate-900 dark:text-white mb-4">⚙️ Atur Jadwal / OFF Karyawan (Manual)</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Karyawan:</label>
@@ -205,7 +209,7 @@
                         </select>
                     </div>
                 </div>
-                <button onclick="simpanJadwalAdmin()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm shadow-lg">Simpan Jadwal ke Cloud</button>
+                <button onclick="simpanJadwalAdmin()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm shadow-lg">Simpan Perubahan Jadwal</button>
             </div>
 
             <!-- Tabel Log Absensi Harian Lengkap -->
@@ -213,7 +217,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
                         <h2 class="text-lg font-black text-slate-900 dark:text-white">Log Absensi Masuk & Foto</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Data lengkap koordinat GPS dan foto selfie karyawan.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Data lengkap koordinat GPS dan foto selfie karyawan dari hasil upload.</p>
                     </div>
                     <div class="flex items-center gap-3 w-full md:w-auto">
                         <select id="filterNamaAdmin" onchange="renderTabelAdminLog()" class="px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
@@ -246,7 +250,7 @@
                 <h2 class="text-xl font-black text-slate-900 dark:text-white mb-4">Kelola Daftar Karyawan</h2>
                 <div class="flex gap-3 mb-4">
                     <input type="text" id="inputNamaBaru" placeholder="Nama Karyawan Baru (cth: Budi)" class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
-                    <button onclick="tambahKaryawanOnline()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Tambah</button>
+                    <button onclick="tambahKaryawanBaru()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Tambah</button>
                 </div>
                 <div id="listKaryawanAdmin" class="flex flex-wrap gap-2"></div>
             </div>
@@ -267,14 +271,12 @@
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA -->
+    <!-- SCRIPT UTAMA (MANUAL UPLOAD & LOCAL STORAGE) -->
     <script>
-        const URL_WEB_APP_GS = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
-
-        let daftarKaryawan = ["Poniadi", "Eko", "Dedy", "Dwi", "Friza", "Rudi", "Demmy", "Bima", "Agung", "Zaenal"];
-        let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan_cloud')) || {};
-        let databaseAbsenSheet = JSON.parse(localStorage.getItem('db_absen_sheet')) || {};
-        let dataLaporanGlobal = [];
+        let daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Poniadi", "Eko", "Dedy", "Dwi", "Friza", "Rudi", "Demmy", "Bima", "Agung", "Zaenal"];
+        let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan_manual')) || {};
+        let databaseAbsenSheet = JSON.parse(localStorage.getItem('db_absen_sheet_manual')) || {};
+        let dataLaporanGlobal = JSON.parse(localStorage.getItem('db_laporan_global_manual')) || [];
 
         function toggleTheme() {
             const root = document.getElementById('htmlRoot');
@@ -293,23 +295,10 @@
             document.getElementById('htmlRoot').className = savedTheme;
         })();
 
-        function showModal(title, message, isConfirm = false, onConfirm = null) {
+        function showModal(title, message) {
             const modal = document.getElementById('customModal');
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalMessage').innerText = message;
-            const container = document.getElementById('modalActionContainer');
-
-            if (isConfirm) {
-                container.innerHTML = `
-                    <button onclick="closeModal()" class="flex-1 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-xs">Batal</button>
-                    <button id="modalConfirmBtn" class="flex-1 bg-rose-600 text-white font-bold py-2.5 rounded-xl text-xs">Ya, Lanjutkan</button>
-                `;
-                document.getElementById('modalConfirmBtn').onclick = function() {
-                    closeModal(); if(onConfirm) onConfirm();
-                };
-            } else {
-                container.innerHTML = `<button onclick="closeModal()" class="flex-1 bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg">OK</button>`;
-            }
             modal.classList.remove('hidden');
         }
 
@@ -339,39 +328,44 @@
             }
         }
 
-     async function sinkronisasiDataOnline() {
-            const badgeSync = document.getElementById('statusSync');
-            const syncIcon = document.getElementById('syncIcon');
-            const selectKaryawanEl = document.getElementById('selectKaryawan');
+        // FUNGSI MEMPROSES UPLOAD FILE CSV / EXCEL
+        window.prosesUploadFile = function() {
+            const fileInput = document.getElementById('csvFileInput');
+            if (fileInput.files.length === 0) {
+                showModal("Peringatan", "Pilih file CSV / Excel terlebih dahulu!");
+                return;
+            }
 
-            // Simpan dulu nama karyawan yang sedang aktif dipilih saat ini
-            let currentSelectedEmployee = selectKaryawanEl ? selectKaryawanEl.value : "";
+            const file = fileInput.files[0];
+            const reader = new FileReader();
 
-            if(syncIcon) syncIcon.classList.add('animate-spin');
-            badgeSync.innerText = "Memuat dari Cloud...";
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const lines = text.split(/\r\n|\n/);
+                let parsedRows = [];
 
-            try {
-                let [resKaryawan, resAbsen, resJadwalCloud] = await Promise.all([
-                    fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_karyawan" }) }).then(r => r.json()),
-                    fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_laporan" }) }).then(r => r.json()),
-                    fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_jadwal_off" }) }).then(r => r.json()).catch(() => ({}))
-                ]);
+                lines.forEach(line => {
+                    if (!line.trim()) return;
+                    // Pisahkan berdasarkan koma atau titik koma
+                    let cols = line.split(/,|;/).map(val => val.replace(/^"|"$/g, '').trim());
+                    parsedRows.push(cols);
+                });
 
-                if (Array.isArray(resKaryawan) && resKaryawan.length > 0) daftarKaryawan = resKaryawan;
-                dataLaporanGlobal = Array.isArray(resAbsen) ? resAbsen : [];
+                if (parsedRows.length > 0) {
+                    dataLaporanGlobal = parsedRows;
+                    localStorage.setItem('db_laporan_global_manual', JSON.stringify(dataLaporanGlobal));
 
-                if (resJadwalCloud && typeof resJadwalCloud === 'object') {
-                    databaseJadwal = resJadwalCloud;
-                    localStorage.setItem('db_jadwal_karyawan_cloud', JSON.stringify(databaseJadwal));
-                }
-
-                if (Array.isArray(resAbsen)) {
+                    // Parse ke databaseAbsenSheet
                     databaseAbsenSheet = {};
-                    for (let i = 1; i < resAbsen.length; i++) {
-                        let row = resAbsen[i];
+                    let detectedNames = new Set(daftarKaryawan);
+
+                    for (let i = 1; i < parsedRows.length; i++) {
+                        let row = parsedRows[i];
                         let waktuStr = String(row[0] || "");
                         let nama = String(row[1] || "").trim();
                         let statusAbsen = String(row[2] || "").trim();
+
+                        if (nama) detectedNames.add(nama);
 
                         if (waktuStr && nama) {
                             let parts = waktuStr.split(" ");
@@ -382,76 +376,44 @@
                                 let key = `${nama}_${tglIso}`;
 
                                 if (!databaseAbsenSheet[key]) databaseAbsenSheet[key] = { checkIn: "-", checkOut: "-" };
-                                
+
                                 if (statusAbsen.toLowerCase().includes("in")) databaseAbsenSheet[key].checkIn = jamMenit;
                                 else if (statusAbsen.toLowerCase().includes("out")) databaseAbsenSheet[key].checkOut = jamMenit;
-                                else if (statusAbsen.toUpperCase() === "OFF") {
-                                    if (databaseJadwal[key] === "OFF" || databaseJadwal[key] === "PS") {
-                                        databaseAbsenSheet[key].checkIn = "OFF";
-                                    } else {
-                                        databaseAbsenSheet[key].checkIn = "-"; 
-                                    }
-                                }
+                                else if (statusAbsen.toUpperCase() === "OFF") databaseAbsenSheet[key].checkIn = "OFF";
                             }
                         }
                     }
+
+                    daftarKaryawan = Array.from(detectedNames);
+                    localStorage.setItem('db_karyawan', JSON.stringify(daftarKaryawan));
+                    localStorage.setItem('db_absen_sheet_manual', JSON.stringify(databaseAbsenSheet));
+
+                    updateDropdownKaryawan();
+                    renderJadwalKaryawan();
+                    renderTabelSemuaJadwal();
+                    renderTabelRekap();
+                    renderTabelAdminLog();
+
+                    showModal("Berhasil!", "Data laporan berhasil diunggah dan statistik diperbarui secara instan.");
                 }
+            };
 
-                badgeSync.innerText = "Sinkronisasi Cloud ✓";
-                updateDropdownKaryawan();
-
-                // Kembalikan pilihan dropdown ke nama karyawan yang sebelumnya dipilih jika masih ada
-                if (currentSelectedEmployee && daftarKaryawan.includes(currentSelectedEmployee)) {
-                    if(selectKaryawanEl) selectKaryawanEl.value = currentSelectedEmployee;
-                }
-
-                renderJadwalKaryawan();
-                renderTabelSemuaJadwal();
-                renderTabelRekap();
-                renderListKaryawanAdmin();
-                renderTabelAdminLog();
-
-            } catch (err) {
-                console.error(err);
-                badgeSync.innerText = "Mode Lokal Aktif";
-            } finally {
-                if(syncIcon) syncIcon.classList.remove('animate-spin');
-            }
+            reader.readAsText(file);
         }
 
-     function updateDropdownKaryawan() {
+        function updateDropdownKaryawan() {
             let selectKaryawanEl = document.getElementById('selectKaryawan');
             let adminKaryawanEl = document.getElementById('adminKaryawan');
             let filterAdminEl = document.getElementById('filterNamaAdmin');
 
-            // Simpan pilihan yang sedang aktif saat ini sebelum di-reset
-            let selectedJadwalVal = selectKaryawanEl ? selectKaryawanEl.value : "";
-            let selectedAdminVal = adminKaryawanEl ? adminKaryawanEl.value : "";
-            let selectedFilterVal = filterAdminEl ? filterAdminEl.value : "";
-
             let optionsHtml = "";
             daftarKaryawan.forEach(nama => { optionsHtml += `<option value="${nama}">${nama}</option>`; });
             
-            if(selectKaryawanEl) {
-                selectKaryawanEl.innerHTML = optionsHtml;
-                if (selectedJadwalVal && daftarKaryawan.includes(selectedJadwalVal)) {
-                    selectKaryawanEl.value = selectedJadwalVal;
-                }
-            }
-
-            if(adminKaryawanEl) {
-                adminKaryawanEl.innerHTML = optionsHtml;
-                if (selectedAdminVal && daftarKaryawan.includes(selectedAdminVal)) {
-                    adminKaryawanEl.value = selectedAdminVal;
-                }
-            }
-            
+            if(selectKaryawanEl) selectKaryawanEl.innerHTML = optionsHtml;
+            if(adminKaryawanEl) adminKaryawanEl.innerHTML = optionsHtml;
             if(filterAdminEl) {
                 filterAdminEl.innerHTML = '<option value="SEMUA">-- Semua Karyawan --</option>';
                 daftarKaryawan.forEach(nama => { filterAdminEl.innerHTML += `<option value="${nama}">${nama}</option>`; });
-                if (selectedFilterVal) {
-                    filterAdminEl.value = selectedFilterVal;
-                }
             }
         }
 
@@ -475,7 +437,7 @@
         }
 
         window.renderJadwalKaryawan = function() {
-            databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan_cloud')) || {};
+            databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan_manual')) || {};
             const karyawan = document.getElementById('selectKaryawan')?.value || daftarKaryawan[0];
             const container = document.getElementById('gridJadwal');
             const dates = getCutOffDates();
@@ -592,19 +554,20 @@
             if(tbody) tbody.innerHTML = html;
         }
 
-     function renderTabelAdminLog() {
+        function renderTabelAdminLog() {
             const tbody = document.getElementById('isiTabelAdminLog');
             const filterNama = document.getElementById('filterNamaAdmin')?.value || "SEMUA";
             if(!tbody) return;
 
             tbody.innerHTML = "";
             if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) {
-                tbody.innerHTML = "<tr><td colspan='5' class='text-center py-6 text-slate-500'>Belum ada data absensi.</td></tr>";
+                tbody.innerHTML = "<tr><td colspan='5' class='text-center py-6 text-slate-500'>Belum ada data laporan yang diunggah.</td></tr>";
                 return;
             }
 
             for (let i = 1; i < dataLaporanGlobal.length; i++) {
                 let row = dataLaporanGlobal[i];
+                if (!row || row.length < 3) continue;
                 let waktu = row[0] || "-";
                 let nama = String(row[1] || "").trim();
                 let status = row[2] || "-";
@@ -612,25 +575,9 @@
                 let lng = row[4];
                 let fotoUrl = row[5];
 
-                // Cek tanggal dari string waktu laporan (contoh format: "03-09-2026 8:00:00")
-                let tglIso = "";
-                let partsWaktu = String(waktu).split(" ");
-                if (partsWaktu.length > 0 && partsWaktu[0].includes("-")) {
-                    let tglParts = partsWaktu[0].split("-");
-                    if (tglParts.length === 3) {
-                        tglIso = `${tglParts[2]}-${tglParts[1]}-${tglParts[0]}`; // YYYY-MM-DD
-                    }
-                }
-                let keyJadwal = `${nama}_${tglIso}`;
-
-                // JIKA STATUS DI LAPORAN ADALAH OFF, TAPI DI DATABASE JADWAL SUDAH DIUBAH NORMAL (DIHAPUS), LEWATI/JANGAN TAMPILKAN DI LOG
-                if (status.toUpperCase() === "OFF" && tglIso && !databaseJadwal[keyJadwal]) {
-                    continue; 
-                }
-
                 if (filterNama === "SEMUA" || nama === filterNama) {
                     let badgeClass = status === 'Check In' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20' : (status === 'OFF' ? 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/30' : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20');
-                    let koordinat = (lat && lng && lat !== "-") ? `${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}` : '-';
+                    let koordinat = (lat && lng && lat !== "-") ? `${lat}, ${lng}` : '-';
                     let fotoLink = (fotoUrl && fotoUrl !== '-') ? `<a href="${fotoUrl}" target="_blank" class="px-2.5 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 rounded-lg font-bold border border-indigo-500/20">Lihat Foto</a>` : '<span class="text-slate-400">Tanpa Foto</span>';
 
                     tbody.innerHTML += `
@@ -645,40 +592,17 @@
                 }
             }
         }
-        // Fungsi Cetak / Simpan ke PDF untuk Matriks Semua Karyawan
+
         window.cetakPdfSemuaJadwal = function() {
-            const originalContent = document.body.innerHTML;
-            const matriksSection = document.getElementById('tabSemuaJadwal').innerHTML;
-
-            document.body.innerHTML = `
-                <div style="font-family: Arial, sans-serif; padding: 20px;">
-                    <h2 style="margin-bottom: 5px; color: #111;">Laporan Matriks Jadwal & Cut-Off Karyawan</h2>
-                    <p style="margin-top: 0; color: #555; font-size: 12px;">Periode: 26 Agt - 25 Sep | Dicetak tanggal: ${new Date().toLocaleDateString('id-ID')}</p>
-                    <hr style="border: 0; border-top: 1px solid #ccc; margin-bottom: 15px;"/>
-                    ${matriksSection}
-                </div>
-            `;
-
             window.print();
-
-            document.body.innerHTML = originalContent;
-            window.location.reload();
         }
-// Fungsi Unduh Excel untuk Matriks Semua Karyawan
+
         window.downloadExcelSemuaJadwal = function() {
             const dates = getCutOffDates();
-            if (!daftarKaryawan || daftarKaryawan.length === 0) {
-                showModal("Peringatan", "Belum ada data karyawan.");
-                return;
-            }
-
-            let csvContent = "\uFEFF"; // BOM untuk Excel agar karakter terbaca UTF-8 dengan baik
-            
-            // Baris Header Kolom (Tanggal + Nama-nama Karyawan)
+            let csvContent = "\uFEFF";
             let headerRow = ["Tanggal", ...daftarKaryawan];
             csvContent += headerRow.map(val => `"${String(val || "").replace(/"/g, '""')}"`).join(";") + "\r\n";
 
-            // Baris Isi Per Tanggal
             dates.forEach(item => {
                 let rowData = [item.label];
                 daftarKaryawan.forEach(nama => {
@@ -687,20 +611,16 @@
                     let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
                     let label = "Full";
 
-                    if (status === "OFF" || absen.checkIn === "OFF") {
-                        label = "OFF";
-                    } else if (absen.checkIn !== "-") {
+                    if (status === "OFF" || absen.checkIn === "OFF") label = "OFF";
+                    else if (absen.checkIn !== "-") {
                         label = absen.checkIn;
                         if (status === "PS") label += " (PS)";
-                    } else if (status === "PS") {
-                        label = "PS";
-                    }
+                    } else if (status === "PS") label = "PS";
                     rowData.push(label);
                 });
                 csvContent += rowData.map(val => `"${String(val || "").replace(/"/g, '""')}"`).join(";") + "\r\n";
             });
 
-            // Proses Unduh File .csv dengan pemisah titik koma (;)
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
@@ -708,59 +628,34 @@
             link.setAttribute("download", `Matriks_Jadwal_Karyawan_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
-        window.simpanJadwalAdmin = async function() {
+
+        window.simpanJadwalAdmin = function() {
             const karyawan = document.getElementById('adminKaryawan').value;
             const tanggal = document.getElementById('adminTanggal').value;
             const status = document.getElementById('adminStatus').value;
 
             if (!tanggal) { showModal("Peringatan", "Pilih tanggal terlebih dahulu!"); return; }
 
-            const btnSimpan = event.target;
-            const textAsli = btnSimpan.innerText;
-            btnSimpan.disabled = true;
-            btnSimpan.innerText = "⏳ Menyimpan ke Cloud...";
-            btnSimpan.classList.add('opacity-55', 'cursor-not-allowed');
-
             let key = `${karyawan}_${tanggal}`;
-            if (status === "FULL" || status === "Normal") delete databaseJadwal[key];
+            if (status === "FULL") delete databaseJadwal[key];
             else databaseJadwal[key] = status;
 
-            localStorage.setItem('db_jadwal_karyawan_cloud', JSON.stringify(databaseJadwal));
+            localStorage.setItem('db_jadwal_karyawan_manual', JSON.stringify(databaseJadwal));
+            showModal("Sukses", `Jadwal ${karyawan} pada ${tanggal} berhasil diperbarui.`);
 
-            try {
-                let res = await fetch(URL_WEB_APP_GS, {
-                    method: "POST",
-                    body: JSON.stringify({ 
-                        aksi: "simpan_jadwal_off_admin", 
-                        nama: karyawan,
-                        tanggal: tanggal,
-                        status: status
-                    })
-                });
-                let result = await res.json();
-                showModal("Sukses", result.pesan || `Jadwal ${karyawan} berhasil disinkronkan ke Cloud!`);
-            } catch (err) { 
-                console.error(err);
-                showModal("Info", "Tersimpan lokal, gagal koneksi ke Cloud Sheet.");
-            } finally {
-                btnSimpan.disabled = false;
-                btnSimpan.innerText = textAsli;
-                btnSimpan.classList.remove('opacity-55', 'cursor-not-allowed');
-            }
-
-            // Tarik ulang data terbaru dari cloud & render ulang tampilan secara otomatis
-            await sinkronisasiDataOnline();
             renderJadwalKaryawan();
             renderTabelRekap();
             renderTabelSemuaJadwal();
         }
 
-        async function tambahKaryawanOnline() {
+        window.tambahKaryawanBaru = function() {
             const input = document.getElementById('inputNamaBaru');
             const namaBaru = input.value.trim();
             if (!namaBaru) { showModal("Peringatan", "Masukkan nama karyawan!"); return; }
             if (!daftarKaryawan.includes(namaBaru)) daftarKaryawan.push(namaBaru);
-            input.value = ""; updateDropdownKaryawan(); renderListKaryawanAdmin();
+            input.value = ""; 
+            localStorage.setItem('db_karyawan', JSON.stringify(daftarKaryawan));
+            updateDropdownKaryawan(); renderListKaryawanAdmin();
             showModal("Sukses", `Karyawan "${namaBaru}" ditambahkan!`);
         }
 
@@ -788,7 +683,12 @@
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
-        sinkronisasiDataOnline();
+        updateDropdownKaryawan();
+        renderJadwalKaryawan();
+        renderTabelSemuaJadwal();
+        renderTabelRekap();
+        renderTabelAdminLog();
+        renderListKaryawanAdmin();
     </script>
 </body>
 </html>
