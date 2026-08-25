@@ -108,7 +108,7 @@
             <!-- Kartu Statistik Ringkasan -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-emerald-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Masuk</span>
+                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Masuk (Google Sheet)</span>
                     <span id="statMasuk" class="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">0 Hari</span>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-red-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
@@ -159,51 +159,6 @@
         <!-- HALAMAN 3: PANEL ADMIN -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-4xl mx-auto">
             
-            <!-- Tombol Generator Otomatis Sopir (Poniadi, Eko, Dedy) -->
-            <div class="app-card bg-gradient-to-r from-amber-600/10 via-rose-600/10 to-indigo-600/10 border border-amber-500/30 p-6 md:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="space-y-1 text-center md:text-left">
-                    <h2 class="text-base md:text-lg font-black text-slate-900 dark:text-white flex items-center justify-center md:justify-start gap-2">
-                        🚛 Generator Rutin Sopir (1x Seminggu / Hari Tetap)
-                    </h2>
-                    <p class="text-xs text-slate-600 dark:text-slate-400">
-                        Atur libur tetap seminggu sekali (Selasa-Jumat) untuk: <b>Poniadi, Eko, Dedy</b> (Tanpa bentrok di hari yang sama).
-                    </p>
-                </div>
-                <button onclick="generateOtomatisSopir()" class="bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white font-black px-5 py-3 rounded-2xl text-xs transition-all shadow-lg shadow-amber-600/30 shrink-0">
-                    GENERATE RUTIN SOPIR
-                </button>
-            </div>
-
-            <!-- Tombol Generator Otomatis Kernet (Dwi, Friza, Rudi) -->
-            <div class="app-card bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-emerald-600/10 border border-blue-500/30 p-6 md:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="space-y-1 text-center md:text-left">
-                    <h2 class="text-base md:text-lg font-black text-slate-900 dark:text-white flex items-center justify-center md:justify-start gap-2">
-                        👥 Generator Rutin Kernet (1x Seminggu / Hari Tetap)
-                    </h2>
-                    <p class="text-xs text-slate-600 dark:text-slate-400">
-                        Atur libur tetap seminggu sekali (Selasa-Jumat) untuk: <b>Dwi, Friza, Rudi</b> (Tanpa bentrok di hari yang sama).
-                    </p>
-                </div>
-                <button onclick="generateOtomatisKernet()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black px-5 py-3 rounded-2xl text-xs transition-all shadow-lg shadow-blue-600/30 shrink-0">
-                    GENERATE RUTIN KERNET
-                </button>
-            </div>
-
-            <!-- Tombol Generator Otomatis Teknisi & Helper -->
-            <div class="app-card bg-gradient-to-r from-violet-600/10 via-indigo-600/10 to-emerald-600/10 border border-indigo-500/30 p-6 md:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
-                <div class="space-y-1 text-center md:text-left">
-                    <h2 class="text-base md:text-lg font-black text-slate-900 dark:text-white flex items-center justify-center md:justify-start gap-2">
-                        ⚙️ Generator Rutin Teknisi & Helper
-                    </h2>
-                    <p class="text-xs text-slate-600 dark:text-slate-400">
-                        Atur libur tetap seminggu sekali (Selasa-Jumat) untuk: <b>Demmy, Bima, Agung, Zaenal</b>.
-                    </p>
-                </div>
-                <button onclick="generateOtomatisTeknisiHelper()" class="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-black px-5 py-3 rounded-2xl text-xs transition-all shadow-lg shadow-indigo-600/30 shrink-0">
-                    GENERATE RUTIN TEKNISI & HELPER
-                </button>
-            </div>
-
             <!-- Rekapitulasi -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 md:p-8 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
@@ -213,7 +168,7 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Rekapitulasi Statistik Cut-Off (26 Agt - 25 Sep)</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Total masuk, OFF, PS, dan terlambat berdasarkan data Server.</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Total masuk, OFF, PS, dan terlambat murni dari data Google Sheet.</p>
                         </div>
                     </div>
                 </div>
@@ -264,15 +219,15 @@
                 </div>
             </div>
 
-            <!-- Atur Jadwal -->
+            <!-- Atur Jadwal (Manual) -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 md:p-8 rounded-3xl shadow-xl">
                 <div class="flex items-center gap-4 mb-6">
                     <div class="p-3.5 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl border border-indigo-500/20 shadow-inner">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Atur Jadwal Karyawan</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Pilih Full, OFF, atau PS untuk tanggal tertentu.</p>
+                        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Atur Jadwal Karyawan (Manual)</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Atur hari libur atau status khusus secara manual sesuka Boss.</p>
                     </div>
                 </div>
 
@@ -290,9 +245,9 @@
                         <div>
                             <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Status:</label>
                             <select id="adminStatus" class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <option value="FULL">Masuk Normal (08:00 - 20:00)</option>
-                                <option value="OFF">OFF (Merah / Libur)</option>
-                                <option value="PS">PS (Oranye / Pulang Sore)</option>
+                                <option value="FULL">Normal</option>
+                                <option value="OFF">OFF (Libur)</option>
+                                <option value="PS">PS (Pulang Sore)</option>
                             </select>
                         </div>
                     </div>
@@ -370,7 +325,7 @@
             } else {
                 container.innerHTML = `<button onclick="closeModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg">OK</button>`;
             }
-            modal.classList.add('hidden');
+            modal.classList.remove('hidden');
         }
 
         function closeModal() {
@@ -540,83 +495,11 @@
                 dates.push({
                     dateStr: dateString,
                     label: `${namaHari}, ${day} ${namaBulan}`,
-                    dayOfWeek: dayOfWeek, // 2: Selasa, 3: Rabu, 4: Kamis, 5: Jumat
-                    isAllowedOff: (dayOfWeek >= 2 && dayOfWeek <= 5)
+                    dayOfWeek: dayOfWeek
                 });
                 currDate.setDate(currDate.getDate() + 1);
             }
             return dates;
-        }
-
-        // FUNGSI UTAMA: GENERATOR RUTIN (1x Seminggu di Hari Tetap, Tanpa Bentrok dalam 1 Kelompok)
-        function generateJadwalRutinKelompok(listAnggota) {
-            const dates = getCutOffDates();
-            
-            // Kelompokkan tanggal berdasarkan Minggu (Minggu ke-1, ke-2, ke-3, dst)
-            let weeks = [];
-            let currentWeek = [];
-            
-            dates.forEach(d => {
-                currentWeek.push(d);
-                // Jika hari Senin atau akhir array, anggap pergantian minggu
-                if (d.dayOfWeek === 1 || d === dates[dates.length - 1]) {
-                    if (currentWeek.length > 0) {
-                        weeks.push([...currentWeek]);
-                        currentWeek = [];
-                    }
-                }
-            });
-
-            // Hapus jadwal OFF lama khusus anggota kelompok ini
-            listAnggota.forEach(nama => {
-                dates.forEach(d => {
-                    let k = `${nama}_${d.dateStr}`;
-                    if (databaseJadwal[k] === "OFF") delete databaseJadwal[k];
-                });
-            });
-
-            // Untuk setiap minggu, pastikan setiap anggota mendapat tepat 1 hari OFF di hari Selasa s.d. Jumat, dan TIDAK BENTROK di hari yang sama
-            weeks.forEach(week => {
-                let allowedInWeek = week.filter(d => d.isAllowedOff);
-                // Acak urutan hari yang tersedia untuk minggu ini
-                let shuffledDays = [...allowedInWeek].sort(() => 0.5 - Math.random());
-                
-                listAnggota.forEach((nama, index) => {
-                    if (shuffledDays[index]) {
-                        let targetDate = shuffledDays[index].dateStr;
-                        databaseJadwal[`${nama}_${targetDate}`] = "OFF";
-                    }
-                });
-            });
-
-            localStorage.setItem('db_jadwal_karyawan', JSON.stringify(databaseJadwal));
-            renderJadwalKaryawan();
-            renderTabelRekap();
-            renderTabelSemuaJadwal();
-        }
-
-        // 1. Tombol Generator Sopir (Poniadi, Eko, Dedy)
-        window.generateOtomatisSopir = function() {
-            showModal("Konfirmasi Generator", "Generate jadwal rutin 1x seminggu (hari tetap, Selasa-Jumat) untuk kelompok Sopir (Poniadi, Eko, Dedy) tanpa bentrok?", true, function() {
-                generateJadwalRutinKelompok(["Poniadi", "Eko", "Dedy"]);
-                showModal("Berhasil!", "Jadwal rutin Sopir berhasil dibuat konsisten 1x seminggu!");
-            });
-        };
-
-        // 2. Tombol Generator Kernet (Dwi, Friza, Rudi)
-        window.generateOtomatisKernet = function() {
-            showModal("Konfirmasi Generator", "Generate jadwal rutin 1x seminggu (hari tetap, Selasa-Jumat) untuk kelompok Kernet (Dwi, Friza, Rudi) tanpa bentrok?", true, function() {
-                generateJadwalRutinKelompok(["Dwi", "Friza", "Rudi"]);
-                showModal("Berhasil!", "Jadwal rutin Kernet berhasil dibuat konsisten 1x seminggu!");
-            });
-        };
-
-        // 3. Tombol Generator Teknisi & Helper (Demmy, Bima, Agung, Zaenal)
-        window.generateOtomatisTeknisiHelper = function() {
-            showModal("Konfirmasi Generator", "Generate jadwal rutin 1x seminggu (hari tetap, Selasa-Jumat) untuk Teknisi & Helper?", true, function() {
-                generateJadwalRutinKelompok(["Demmy", "Bima", "Agung", "Zaenal"]);
-                showModal("Berhasil!", "Jadwal rutin Teknisi & Helper berhasil dibuat!");
-            });
         }
 
         window.renderJadwalKaryawan = function() {
@@ -635,21 +518,31 @@
                 let dataAbsen = databaseAbsenSheet[keyJadwal] || { checkIn: "-", checkOut: "-" };
 
                 let badgeClass = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
-                let statusLabel = "FULL";
+                let statusLabel = "Full";
                 let jamTampil = `In: ${dataAbsen.checkIn} | Out: ${dataAbsen.checkOut}`;
 
+                // Jika ada data check-in dari Google Sheet, hitung sebagai Masuk
+                if (dataAbsen.checkIn !== "-") {
+                    countMasuk++;
+                    // Cek keterlambatan (> 08:10)
+                    let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
+                    if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
+                        countTerlambat++;
+                    }
+                    // Cek Pulang Sore (PS)
+                    if (statusJadwal === "PS" || (dataAbsen.checkOut !== "-" && parseInt(dataAbsen.checkOut.split(":")[0]) < 19)) {
+                        badgeClass = "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30";
+                        statusLabel = "PS";
+                        countPs++;
+                    }
+                }
+
+                // Jika diatur manual sebagai OFF (Libur)
                 if (statusJadwal === "OFF") {
                     badgeClass = "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30";
                     statusLabel = "OFF";
                     jamTampil = "LIBUR";
                     countOffTotal++;
-                } else {
-                    countMasuk++;
-                    if (statusJadwal === "PS") {
-                        badgeClass = "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30";
-                        statusLabel = "PS";
-                        countPs++;
-                    }
                 }
 
                 html += `
@@ -693,16 +586,18 @@
                 daftarKaryawan.forEach(nama => {
                     let key = `${nama}_${item.dateStr}`;
                     let status = databaseJadwal[key];
+                    let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
 
-                    let badgeStyle = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
-                    let label = "Full";
+                    let badgeStyle = "bg-slate-500/10 text-slate-500 border-slate-500/20";
+                    let label = "-";
 
                     if (status === "OFF") {
                         badgeStyle = "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30";
                         label = "OFF";
-                    } else if (status === "PS") {
-                        badgeStyle = "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30";
-                        label = "PS";
+                    } else if (absen.checkIn !== "-") {
+                        badgeStyle = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
+                        label = absen.checkIn;
+                        if (status === "PS") label += " (PS)";
                     }
 
                     bodyHtml += `
@@ -729,11 +624,19 @@
                 dates.forEach(item => {
                     let key = `${nama}_${item.dateStr}`;
                     let statusJadwal = databaseJadwal[key];
+                    let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
+
                     if (statusJadwal === "OFF") {
                         countOffTotal++;
-                    } else {
+                    } else if (absen.checkIn !== "-") {
                         countMasuk++;
-                        if (statusJadwal === "PS") countPs++;
+                        let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
+                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
+                            countTerlambat++;
+                        }
+                        if (statusJadwal === "PS" || (absen.checkOut !== "-" && parseInt(absen.checkOut.split(":")[0]) < 19)) {
+                            countPs++;
+                        }
                     }
                 });
 
@@ -775,12 +678,8 @@
             renderTabelSemuaJadwal();
         }
 
-        // Inisialisasi awal
-        updateDropdownKaryawan();
-        renderJadwalKaryawan();
-        renderTabelSemuaJadwal();
-        renderTabelRekap();
-        renderListKaryawanAdmin();
+        // Inisialisasi awal & sinkronisasi otomatis data dari Google Sheet
+        sinkronisasiDataOnline();
     </script>
 </body>
 </html>
