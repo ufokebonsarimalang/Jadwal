@@ -75,7 +75,7 @@
             <div class="glass-card p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">Jadwal Pribadi Karyawan</h2>
-                    <p class="text-xs text-slate-400 mt-1">Default Jam Kerja: <span class="text-emerald-400 font-bold">08:00 - 20:00 (Full)</span> | PS: <span class="text-orange-400 font-bold">Oranye</span> | OFF: <span class="text-rose-500 font-bold">Merah</span></p>
+                    <p class="text-xs text-slate-400 mt-1">Full: <span class="text-emerald-400 font-bold">08:00 - 20:00</span> | PS (Pulang Sore): <span class="text-orange-400 font-bold">Oranye</span> | OFF (Libur): <span class="text-rose-500 font-bold">Merah</span></p>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pilih Nama Karyawan:</label>
@@ -125,7 +125,7 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-black text-white tracking-tight">Rekapitulasi Cut-Off (26 Agt - 25 Sep)</h2>
-                            <p class="text-xs text-slate-400">Total masuk, libur (OFF), dan panggilan (PS) seluruh karyawan.</p>
+                            <p class="text-xs text-slate-400">Total masuk, libur (OFF), dan Pulang Sore (PS) seluruh karyawan.</p>
                         </div>
                     </div>
                 </div>
@@ -175,15 +175,15 @@
                 </div>
             </div>
 
-            <!-- KOTAK 3: UBAH JADWAL KHUSUS (OFF / PS) -->
+            <!-- KOTAK 3: UBAH JADWAL (FULL, OFF, ATAU PS) -->
             <div class="glass-card p-6 md:p-8 rounded-3xl">
                 <div class="flex items-center gap-4 mb-6">
                     <div class="p-3.5 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20 shadow-inner">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-black text-white tracking-tight">Atur Jadwal Khusus (OFF / PS)</h2>
-                        <p class="text-xs text-slate-400">Atur tanggal tertentu jika ada penukaran shift atau libur khusus.</p>
+                        <h2 class="text-xl font-black text-white tracking-tight">Atur Jadwal Karyawan</h2>
+                        <p class="text-xs text-slate-400">Pilih Full (Masuk Normal), OFF (Libur), atau PS (Pulang Sore) untuk tanggal tertentu.</p>
                     </div>
                 </div>
 
@@ -199,16 +199,17 @@
                                 class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Status Khusus:</label>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Status:</label>
                             <select id="adminStatus" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="FULL">Masuk Normal (08:00 - 20:00)</option>
                                 <option value="OFF">OFF (Merah / Libur)</option>
-                                <option value="PS">PS (Oranye / Panggilan)</option>
+                                <option value="PS">PS (Oranye / Pulang Sore)</option>
                             </select>
                         </div>
                     </div>
                     <button onclick="simpanJadwalAdmin()" 
                         class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/25">
-                        Simpan Perubahan Jadwal
+                        Simpan / Perbarui Jadwal
                     </button>
                     <p id="statusAdmin" class="text-xs font-medium text-center"></p>
                 </div>
@@ -352,19 +353,19 @@
             let html = "";
             dates.forEach(item => {
                 let key = `${karyawan}_${item.dateStr}`;
-                let statusKhusus = databaseJadwal[key];
+                let status = databaseJadwal[key];
                 
                 let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-                let jamKerja = "08:00 - 20:00";
+                let jamKerja = "08:00 - 20:00 (Full)";
                 let statusLabel = "FULL";
 
-                if (statusKhusus === "OFF") {
-                    badgeClass = "bg-red-500/15 text-red-400 border-red-500/30"; // Merah untuk OFF
+                if (status === "OFF") {
+                    badgeClass = "bg-red-500/15 text-red-400 border-red-500/30";
                     jamKerja = "LIBUR";
                     statusLabel = "OFF";
-                } else if (statusKhusus === "PS") {
-                    badgeClass = "bg-orange-500/15 text-orange-400 border-orange-500/30"; // Oranye untuk PS
-                    jamKerja = "PANGGILAN / PS";
+                } else if (status === "PS") {
+                    badgeClass = "bg-orange-500/15 text-orange-400 border-orange-500/30";
+                    jamKerja = "PULANG SORE (PS)";
                     statusLabel = "PS";
                 }
 
@@ -384,7 +385,6 @@
             if (container) container.innerHTML = html;
         }
 
-        // Render Tabel Matriks (Warna Merah untuk OFF, Oranye untuk PS)
         function renderTabelSemuaJadwal() {
             const headerEl = document.getElementById('tabelSemuaHeader');
             const bodyEl = document.getElementById('tabelSemuaBody');
@@ -407,13 +407,13 @@
                     let status = databaseJadwal[key];
 
                     let badgeStyle = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-                    let label = "08:00 - 20:00";
+                    let label = "Full";
 
                     if (status === "OFF") {
-                        badgeStyle = "bg-red-500/15 text-red-400 border-red-500/30"; // Merah
+                        badgeStyle = "bg-red-500/15 text-red-400 border-red-500/30";
                         label = "OFF";
                     } else if (status === "PS") {
-                        badgeStyle = "bg-orange-500/15 text-orange-400 border-orange-500/30"; // Oranye
+                        badgeStyle = "bg-orange-500/15 text-orange-400 border-orange-500/30";
                         label = "PS";
                     }
 
@@ -477,11 +477,18 @@
             }
 
             let key = `${karyawan}_${tanggal}`;
-            databaseJadwal[key] = status;
+            
+            if (status === "FULL") {
+                // Jika dipilih masuk normal, hapus dari database khusus agar kembali ke default
+                delete databaseJadwal[key];
+            } else {
+                databaseJadwal[key] = status;
+            }
+            
             localStorage.setItem('db_jadwal_karyawan', JSON.stringify(databaseJadwal));
 
             statusEl.className = "text-xs font-medium text-emerald-400";
-            statusEl.innerText = `✨ Berhasil! Jadwal ${karyawan} pada tanggal ${tanggal} diubah menjadi ${status}.`;
+            statusEl.innerText = `✨ Berhasil! Jadwal ${karyawan} pada tanggal ${tanggal} diperbarui.`;
             
             renderJadwalKaryawan();
             renderTabelRekap();
