@@ -583,51 +583,53 @@
             }
         }
 
-      window.simpanJadwalAdmin = async function() {
-    const karyawan = document.getElementById('adminKaryawan').value;
-    const tanggal = document.getElementById('adminTanggal').value;
-    const status = document.getElementById('adminStatus').value;
+        window.simpanJadwalAdmin = async function() {
+            const karyawan = document.getElementById('adminKaryawan').value;
+            const tanggal = document.getElementById('adminTanggal').value;
+            const status = document.getElementById('adminStatus').value;
 
-    if (!tanggal) { showModal("Peringatan", "Pilih tanggal terlebih dahulu!"); return; }
+            if (!tanggal) { showModal("Peringatan", "Pilih tanggal terlebih dahulu!"); return; }
 
-    // Ambil tombol simpan untuk diberi efek loading
-    const btnSimpan = event.target;
-    const textAsli = btnSimpan.innerText;
-    btnSimpan.disabled = true;
-    btnSimpan.innerText = "⏳ Menyimpan ke Cloud...";
-    btnSimpan.classList.add('opacity-55', 'cursor-not-allowed');
+            const btnSimpan = event.target;
+            const textAsli = btnSimpan.innerText;
+            btnSimpan.disabled = true;
+            btnSimpan.innerText = "⏳ Menyimpan ke Cloud...";
+            btnSimpan.classList.add('opacity-55', 'cursor-not-allowed');
 
-    let key = `${karyawan}_${tanggal}`;
-    if (status === "FULL") delete databaseJadwal[key];
-    else databaseJadwal[key] = status;
+            let key = `${karyawan}_${tanggal}`;
+            if (status === "FULL" || status === "Normal") delete databaseJadwal[key];
+            else databaseJadwal[key] = status;
 
-    localStorage.setItem('db_jadwal_karyawan_cloud', JSON.stringify(databaseJadwal));
+            localStorage.setItem('db_jadwal_karyawan_cloud', JSON.stringify(databaseJadwal));
 
-    try {
-        let res = await fetch(URL_WEB_APP_GS, {
-            method: "POST",
-            body: JSON.stringify({ 
-                aksi: "simpan_jadwal_off_admin", 
-                nama: karyawan,
-                tanggal: tanggal,
-                status: status
-            })
-        });
-        let result = await res.json();
-        showModal("Sukses", result.pesan || `Jadwal ${karyawan} berhasil disinkronkan ke Cloud!`);
-    } catch (err) { 
-        console.error(err);
-        showModal("Info", "Tersimpan lokal, gagal koneksi ke Cloud Sheet.");
-    } finally {
-        // Kembalikan tombol seperti semula setelah proses selesai
-        btnSimpan.disabled = false;
-        btnSimpan.innerText = textAsli;
-        btnSimpan.classList.remove('opacity-55', 'cursor-not-allowed');
-    }
+            try {
+                let res = await fetch(URL_WEB_APP_GS, {
+                    method: "POST",
+                    body: JSON.stringify({ 
+                        aksi: "simpan_jadwal_off_admin", 
+                        nama: karyawan,
+                        tanggal: tanggal,
+                        status: status
+                    })
+                });
+                let result = await res.json();
+                showModal("Sukses", result.pesan || `Jadwal ${karyawan} berhasil disinkronkan ke Cloud!`);
+            } catch (err) { 
+                console.error(err);
+                showModal("Info", "Tersimpan lokal, gagal koneksi ke Cloud Sheet.");
+            } finally {
+                btnSimpan.disabled = false;
+                btnSimpan.innerText = textAsli;
+                btnSimpan.classList.remove('opacity-55', 'cursor-not-allowed');
+            }
 
-    // TARIK ULANG DATA TERBARU DARI CLOUD AGAR TAMPILAN BERSIH
-    await sinkronisasiDataOnline();
-}
+            // Tarik ulang data terbaru dari cloud & render ulang tampilan secara otomatis
+            await sinkronisasiDataOnline();
+            renderJadwalKaryawan();
+            renderTabelRekap();
+            renderTabelSemuaJadwal();
+        }
+
         async function tambahKaryawanOnline() {
             const input = document.getElementById('inputNamaBaru');
             const namaBaru = input.value.trim();
