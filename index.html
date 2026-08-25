@@ -89,7 +89,7 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
                 <div>
                     <h2 class="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Jadwal & Absensi Real-Time</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Data karyawan & jam absensi tersinkron langsung secara online dari Server.</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Data karyawan & riwayat absensi tersinkron langsung secara aman dari Database Absensi.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <div>
@@ -100,7 +100,7 @@
                         <svg id="syncIcon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
-                        <span>Tarik Data Server</span>
+                        <span>Sinkronisasi Data</span>
                     </button>
                 </div>
             </div>
@@ -108,7 +108,7 @@
             <!-- Kartu Statistik Ringkasan -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-emerald-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Masuk (Google Sheet)</span>
+                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Masuk (Database)</span>
                     <span id="statMasuk" class="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">0 Hari</span>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-red-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
@@ -168,7 +168,7 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Rekapitulasi Statistik Cut-Off (26 Agt - 25 Sep)</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Total masuk, OFF, PS, dan terlambat murni dari data Google Sheet.</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Total masuk, OFF, PS, dan deteksi khusus libur akhir pekan.</p>
                         </div>
                     </div>
                 </div>
@@ -197,7 +197,7 @@
                     </div>
                     <div>
                         <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Kelola Daftar Karyawan</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Tambah atau hapus karyawan langsung tersimpan ke Server.</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Tambah atau hapus karyawan langsung tersimpan ke sistem.</p>
                     </div>
                 </div>
 
@@ -227,7 +227,7 @@
                     </div>
                     <div>
                         <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Atur Jadwal Karyawan (Manual)</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Atur hari libur atau status khusus secara manual sesuka Boss.</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Atur hari libur atau status khusus secara manual.</p>
                     </div>
                 </div>
 
@@ -361,7 +361,7 @@
             
             if(syncIcon) syncIcon.classList.add('animate-spin');
             badgeSync.className = "text-xs px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-xl font-bold animate-pulse";
-            badgeSync.innerText = "Memuat dari Server...";
+            badgeSync.innerText = "Memuat dari Database...";
 
             try {
                 let [resKaryawan, resAbsen] = await Promise.all([
@@ -405,7 +405,7 @@
                 }
 
                 badgeSync.className = "text-xs px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-xl font-bold";
-                badgeSync.innerText = "Server Sinkron ✓";
+                badgeSync.innerText = "Sinkronisasi Berhasil ✓";
 
                 updateDropdownKaryawan();
                 renderJadwalKaryawan();
@@ -488,14 +488,15 @@
                 let day = String(currDate.getDate()).padStart(2, '0');
                 let dateString = `${year}-${month}-${day}`;
                 
-                let dayOfWeek = currDate.getDay(); 
+                let dayOfWeek = currDate.getDay(); // 0 = Minggu, 6 = Sabtu
                 let namaHari = currDate.toLocaleDateString('id-ID', { weekday: 'short' });
                 let namaBulan = currDate.toLocaleDateString('id-ID', { month: 'short' });
                 
                 dates.push({
                     dateStr: dateString,
                     label: `${namaHari}, ${day} ${namaBulan}`,
-                    dayOfWeek: dayOfWeek
+                    dayOfWeek: dayOfWeek,
+                    isWeekend: (dayOfWeek === 0 || dayOfWeek === 6)
                 });
                 currDate.setDate(currDate.getDate() + 1);
             }
@@ -509,7 +510,7 @@
             const container = document.getElementById('gridJadwal');
             const dates = getCutOffDates();
             
-            let countMasuk = 0, countOffTotal = 0, countPs = 0, countTerlambat = 0;
+            let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
             let html = "";
 
             dates.forEach(item => {
@@ -521,15 +522,12 @@
                 let statusLabel = "Full";
                 let jamTampil = `In: ${dataAbsen.checkIn} | Out: ${dataAbsen.checkOut}`;
 
-                // Jika ada data check-in dari Google Sheet, hitung sebagai Masuk
                 if (dataAbsen.checkIn !== "-") {
                     countMasuk++;
-                    // Cek keterlambatan (> 08:10)
                     let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
                     if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
                         countTerlambat++;
                     }
-                    // Cek Pulang Sore (PS)
                     if (statusJadwal === "PS" || (dataAbsen.checkOut !== "-" && parseInt(dataAbsen.checkOut.split(":")[0]) < 19)) {
                         badgeClass = "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30";
                         statusLabel = "PS";
@@ -537,12 +535,14 @@
                     }
                 }
 
-                // Jika diatur manual sebagai OFF (Libur)
                 if (statusJadwal === "OFF") {
                     badgeClass = "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30";
                     statusLabel = "OFF";
                     jamTampil = "LIBUR";
                     countOffTotal++;
+                    if (item.isWeekend) {
+                        countOffWeekend++;
+                    }
                 }
 
                 html += `
@@ -560,7 +560,7 @@
 
             if (container) container.innerHTML = html;
             document.getElementById('statMasuk').innerText = `${countMasuk} Hari`;
-            document.getElementById('statOff').innerText = `${countOffTotal} Hari`;
+            document.getElementById('statOff').innerHTML = `${countOffTotal} Hari <span class="text-[10px] font-normal block text-rose-500 dark:text-rose-400">Sab/Min: ${countOffWeekend}</span>`;
             document.getElementById('statPs').innerText = `${countPs} Hari`;
             document.getElementById('statTerlambat').innerText = `${countTerlambat} Hari`;
         }
@@ -619,7 +619,7 @@
 
             let html = "";
             daftarKaryawan.forEach(nama => {
-                let countMasuk = 0, countOffTotal = 0, countPs = 0, countTerlambat = 0;
+                let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
 
                 dates.forEach(item => {
                     let key = `${nama}_${item.dateStr}`;
@@ -628,6 +628,9 @@
 
                     if (statusJadwal === "OFF") {
                         countOffTotal++;
+                        if (item.isWeekend) {
+                            countOffWeekend++;
+                        }
                     } else if (absen.checkIn !== "-") {
                         countMasuk++;
                         let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
@@ -644,7 +647,10 @@
                     <tr class="hover:bg-slate-100 dark:hover:bg-slate-900/50 transition-colors">
                         <td class="py-3 px-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">👤 ${nama}</td>
                         <td class="py-3 px-4 text-center font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">${countMasuk} Hari</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-red-600 dark:text-red-400 text-sm">${countOffTotal} Hari</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-red-600 dark:text-red-400 text-sm">
+                            ${countOffTotal} Hari
+                            <span class="block text-[10px] font-normal text-slate-500 dark:text-slate-400">(Sab/Min: ${countOffWeekend})</span>
+                        </td>
                         <td class="py-3 px-4 text-center font-extrabold text-orange-600 dark:text-orange-400 text-sm">${countPs} Hari</td>
                         <td class="py-3 px-4 text-center font-extrabold text-amber-600 dark:text-amber-400 text-sm">${countTerlambat} Hari</td>
                     </tr>
@@ -678,7 +684,7 @@
             renderTabelSemuaJadwal();
         }
 
-        // Inisialisasi awal & sinkronisasi otomatis data dari Google Sheet
+        // Inisialisasi awal
         sinkronisasiDataOnline();
     </script>
 </body>
