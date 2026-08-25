@@ -1,69 +1,91 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="dark" id="htmlRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NexAttend - Sistem Jadwal & Absensi Karyawan</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
     <!-- Google Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #030712; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-        .glass-card {
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.7) 0%, rgba(3, 7, 18, 0.8) 100%);
+        .dark ::-webkit-scrollbar-track { background: #030712; }
+        .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+        .light ::-webkit-scrollbar-track { background: #f1f5f9; }
+        .light ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+
+        .glass-card-dark {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.75) 0%, rgba(3, 7, 18, 0.85) 100%);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.07);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
         }
+        .glass-card-light {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.07);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+        }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col md:flex-row selection:bg-indigo-500 selection:text-white relative overflow-x-hidden">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col md:flex-row selection:bg-indigo-500 selection:text-white relative overflow-x-hidden transition-colors duration-300">
 
     <!-- Background Ambient Glow -->
     <div class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute bottom-10 right-10 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
     <!-- SIDEBAR NAVIGASI -->
-    <aside class="w-full md:w-72 h-auto md:h-screen sticky top-0 bg-slate-900/80 backdrop-blur-2xl border-r border-slate-800/80 flex flex-row md:flex-col justify-between p-4 md:p-6 shrink-0 z-30 items-center md:items-stretch shadow-2xl overflow-y-auto">
+    <aside class="w-full md:w-72 h-auto md:h-screen sticky top-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 flex flex-row md:flex-col justify-between p-4 md:p-6 shrink-0 z-30 items-center md:items-stretch shadow-xl">
         <div class="flex items-center gap-3.5">
-            <div class="p-2.5 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 text-white rounded-2xl shadow-lg shadow-indigo-500/30 ring-1 ring-white/20">
+            <div class="p-2.5 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 text-white rounded-2xl shadow-lg shadow-indigo-500/30">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             </div>
             <div class="hidden sm:block">
-                <h1 class="font-black text-white text-base tracking-tight flex items-center gap-1.5">NexAttend <span class="text-[10px] bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">PRO</span></h1>
-                <p class="text-[11px] text-slate-400 font-medium tracking-wide">Cut-Off: 26 Agt - 25 Sep</p>
+                <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight flex items-center gap-1.5">NexAttend <span class="text-[10px] bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">PRO</span></h1>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">Cut-Off: 26 Agt - 25 Sep</p>
             </div>
         </div>
 
         <nav class="flex md:flex-col gap-2 mt-0 md:mt-6">
             <button onclick="switchTab('jadwal')" id="btnJadwal" 
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-300 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30 ring-1 ring-white/20">
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-300 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <span class="hidden sm:inline">Jadwal & Absen</span>
             </button>
             <button onclick="switchTab('semuaJadwal')" id="btnSemuaJadwal" 
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent hover:border-slate-700/50">
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                <span class="hidden sm:inline">Jadwal Semua Karyawan</span>
+                <span class="hidden sm:inline">Semua Karyawan</span>
             </button>
             <button onclick="switchTab('admin')" id="btnAdmin" 
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent hover:border-slate-700/50">
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
-                <span class="hidden sm:inline">Panel Admin & Statistik</span>
+                <span class="hidden sm:inline">Panel Admin</span>
             </button>
         </nav>
 
-        <div class="hidden md:flex pt-6 border-t border-slate-800/80 text-xs items-center gap-3 text-slate-400">
-            <span class="relative flex h-2.5 w-2.5">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-            </span>
-            <span class="font-semibold text-slate-300">100% Online Database</span>
+        <!-- Tombol Pengganti Tema & Status Server -->
+        <div class="hidden md:flex flex-col gap-3 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs">
+            <div class="flex items-center justify-between bg-slate-100 dark:bg-slate-950 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
+                <span class="text-slate-600 dark:text-slate-400 font-semibold px-2">Tema Tampilan</span>
+                <button onclick="toggleTheme()" class="p-2 bg-white dark:bg-slate-800 text-slate-800 dark:text-yellow-400 rounded-lg shadow transition-all hover:scale-105">
+                    <span id="themeIcon">☀️ Terang</span>
+                </button>
+            </div>
+            <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400 px-1">
+                <span class="relative flex h-2.5 w-2.5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span class="font-semibold text-slate-700 dark:text-slate-300">Server Terhubung</span>
+            </div>
         </div>
     </aside>
 
@@ -72,47 +94,47 @@
         
         <!-- HALAMAN 1: JADWAL & ABSENSI -->
         <section id="tabJadwal" class="space-y-6 max-w-5xl mx-auto">
-            <div class="glass-card p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div class="card-dynamic glass-card-dark dark:glass-card-dark p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">Jadwal & Absensi Real-Time</h2>
-                    <p class="text-xs text-slate-400 mt-1">Data karyawan & jam absensi tersinkron langsung secara online dari Google Sheet.</p>
+                    <h2 class="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Jadwal & Absensi Real-Time</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Data karyawan & jam absensi tersinkron langsung secara online dari Server.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
-                        <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+                        <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
+                        <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="px-4 py-2.5 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
                     </div>
                     <button onclick="sinkronisasiDataOnline()" class="mt-5 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-2">
-                        🔄 Tarik Data Online
+                        🔄 Tarik Data Server
                     </button>
                 </div>
             </div>
 
             <!-- Kartu Statistik Ringkasan -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                <div class="glass-card p-4 rounded-2xl border border-emerald-500/20 flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-400 uppercase">Total Masuk</span>
-                    <span id="statMasuk" class="text-xl font-black text-emerald-400 mt-1">0 Hari</span>
+                <div class="glass-card-dark p-4 rounded-2xl border border-emerald-500/20 flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Masuk</span>
+                    <span id="statMasuk" class="text-xl font-black text-emerald-500 dark:text-emerald-400 mt-1">0 Hari</span>
                 </div>
-                <div class="glass-card p-4 rounded-2xl border border-red-500/20 flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-400 uppercase">Total OFF (Libur)</span>
-                    <span id="statOff" class="text-xl font-black text-red-400 mt-1">0 Hari</span>
+                <div class="glass-card-dark p-4 rounded-2xl border border-red-500/20 flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total OFF (Libur)</span>
+                    <span id="statOff" class="text-xl font-black text-red-500 dark:text-red-400 mt-1">0 Hari</span>
                 </div>
-                <div class="glass-card p-4 rounded-2xl border border-orange-500/20 flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-400 uppercase">Total PS (Pulang Sore)</span>
-                    <span id="statPs" class="text-xl font-black text-orange-400 mt-1">0 Hari</span>
+                <div class="glass-card-dark p-4 rounded-2xl border border-orange-500/20 flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total PS (Pulang Sore)</span>
+                    <span id="statPs" class="text-xl font-black text-orange-500 dark:text-orange-400 mt-1">0 Hari</span>
                 </div>
-                <div class="glass-card p-4 rounded-2xl border border-amber-500/20 flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-400 uppercase">Total Terlambat</span>
-                    <span id="statTerlambat" class="text-xl font-black text-amber-400 mt-1">0 Hari</span>
+                <div class="glass-card-dark p-4 rounded-2xl border border-amber-500/20 flex flex-col justify-between">
+                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Terlambat</span>
+                    <span id="statTerlambat" class="text-xl font-black text-amber-500 dark:text-amber-400 mt-1">0 Hari</span>
                 </div>
             </div>
 
             <!-- Kalender Jadwal -->
-            <div class="glass-card p-6 rounded-3xl space-y-4">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-                    <h3 class="font-extrabold text-white text-sm">Kalender Shift & Jam Riwayat Absen (26 Agt - 25 Sep)</h3>
-                    <span id="statusSync" class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl font-bold">Online Aktif</span>
+            <div class="glass-card-dark p-6 rounded-3xl space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift & Jam Riwayat Absen (26 Agt - 25 Sep)</h3>
+                    <span id="statusSync" class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/20 rounded-xl font-bold">Online Aktif</span>
                 </div>
                 
                 <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
@@ -121,44 +143,44 @@
 
         <!-- HALAMAN 2: JADWAL SEMUA KARYAWAN -->
         <section id="tabSemuaJadwal" class="hidden space-y-6 max-w-7xl mx-auto">
-            <div class="glass-card p-6 rounded-3xl space-y-4">
-                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+            <div class="glass-card-dark p-6 rounded-3xl space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
-                        <h2 class="text-xl font-black text-white tracking-tight">Jadwal Semua Karyawan (Cut-Off 26 Agt - 25 Sep)</h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Tanggal disusun menurun ke bawah di sisi kiri, nama karyawan berderet di atas.</p>
+                        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Jadwal Semua Karyawan (Cut-Off 26 Agt - 25 Sep)</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Tanggal disusun menurun ke bawah di sisi kiri, nama karyawan berderet di atas.</p>
                     </div>
-                    <span class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl font-bold">Matriks Lengkap</span>
+                    <span class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 border border-indigo-500/20 rounded-xl font-bold">Matriks Lengkap</span>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-300 border-collapse">
-                        <thead id="tabelSemuaHeader" class="bg-slate-950 text-slate-300 uppercase font-bold tracking-wider border-b border-slate-800"></thead>
-                        <tbody id="tabelSemuaBody" class="divide-y divide-slate-800/60"></tbody>
+                    <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300 border-collapse">
+                        <thead id="tabelSemuaHeader" class="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-800"></thead>
+                        <tbody id="tabelSemuaBody" class="divide-y divide-slate-200 dark:divide-slate-800/60"></tbody>
                     </table>
                 </div>
             </div>
         </section>
 
-        <!-- HALAMAN 3: PANEL ADMIN & REKAPITULASI -->
+        <!-- HALAMAN 3: PANEL ADMIN -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-4xl mx-auto">
             
-            <!-- KOTAK 1: TABEL REKAPITULASI -->
-            <div class="glass-card p-6 md:p-8 rounded-3xl space-y-4">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <!-- Rekapitulasi -->
+            <div class="glass-card-dark p-6 md:p-8 rounded-3xl space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div class="flex items-center gap-3">
-                        <div class="p-3 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20">
+                        <div class="p-3 bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 rounded-2xl border border-indigo-500/20">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         </div>
                         <div>
-                            <h2 class="text-lg font-black text-white tracking-tight">Rekapitulasi Statistik Cut-Off (26 Agt - 25 Sep)</h2>
-                            <p class="text-xs text-slate-400">Total masuk, OFF, PS, dan terlambat berdasarkan data online Server.</p>
+                            <h2 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Rekapitulasi Statistik Cut-Off (26 Agt - 25 Sep)</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Total masuk, OFF, PS, dan terlambat berdasarkan data Server.</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-300">
-                        <thead class="bg-slate-950 text-slate-400 uppercase font-bold tracking-wider border-b border-slate-800">
+                    <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300">
+                        <thead class="bg-slate-100 dark:bg-slate-950 text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-800">
                             <tr>
                                 <th class="py-3 px-4">Nama Karyawan</th>
                                 <th class="py-3 px-4 text-center">Masuk</th>
@@ -167,67 +189,67 @@
                                 <th class="py-3 px-4 text-center">Terlambat</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelRekapBody" class="divide-y divide-slate-800/60"></tbody>
+                        <tbody id="tabelRekapBody" class="divide-y divide-slate-200 dark:divide-slate-800/60"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- KOTAK 2: KELOLA KARYAWAN ONLINE -->
-            <div class="glass-card p-6 md:p-8 rounded-3xl">
+            <!-- Kelola Karyawan -->
+            <div class="glass-card-dark p-6 md:p-8 rounded-3xl">
                 <div class="flex items-center gap-4 mb-6">
-                    <div class="p-3.5 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20 shadow-inner">
+                    <div class="p-3.5 bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 rounded-2xl border border-emerald-500/20 shadow-inner">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-black text-white tracking-tight">Kelola Daftar Karyawan Online</h2>
-                        <p class="text-xs text-slate-400">Tambah atau hapus karyawan langsung tersimpan ke server.</p>
+                        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Kelola Daftar Karyawan</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Tambah atau hapus karyawan langsung tersimpan ke Server.</p>
                     </div>
                 </div>
 
-                <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800/80 space-y-4 shadow-inner">
+                <div class="bg-slate-100 dark:bg-slate-950/80 p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 space-y-4 shadow-inner">
                     <div class="flex gap-3">
                         <input type="text" id="inputNamaBaru" placeholder="Nama Karyawan Baru (cth: Budi)" 
-                            class="flex-1 px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-sm font-medium text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            class="flex-1 px-4 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                         <button onclick="tambahKaryawanOnline()" 
                             class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all shadow-lg shadow-emerald-600/25">
-                            Tambah Online
+                            Tambah
                         </button>
                     </div>
                     
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Daftar Karyawan Aktif:</label>
+                        <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Daftar Karyawan Aktif:</label>
                         <div id="listKaryawanAdmin" class="flex flex-wrap gap-2"></div>
                     </div>
                     <p id="statusKaryawanMsg" class="text-xs font-medium text-center"></p>
                 </div>
             </div>
 
-            <!-- KOTAK 3: UBAH JADWAL -->
-            <div class="glass-card p-6 md:p-8 rounded-3xl">
+            <!-- Atur Jadwal -->
+            <div class="glass-card-dark p-6 md:p-8 rounded-3xl">
                 <div class="flex items-center gap-4 mb-6">
-                    <div class="p-3.5 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20 shadow-inner">
+                    <div class="p-3.5 bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 rounded-2xl border border-indigo-500/20 shadow-inner">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-black text-white tracking-tight">Atur Jadwal Karyawan</h2>
-                        <p class="text-xs text-slate-400">Pilih Full, OFF, atau PS untuk tanggal tertentu.</p>
+                        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Atur Jadwal Karyawan</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Pilih Full, OFF, atau PS untuk tanggal tertentu.</p>
                     </div>
                 </div>
 
-                <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800/80 space-y-4 shadow-inner">
+                <div class="bg-slate-100 dark:bg-slate-950/80 p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 space-y-4 shadow-inner">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Karyawan:</label>
-                            <select id="adminKaryawan" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+                            <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Karyawan:</label>
+                            <select id="adminKaryawan" class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Tanggal (26 Agt - 25 Sep):</label>
+                            <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Tanggal (26 Agt - 25 Sep):</label>
                             <input type="date" id="adminTanggal" min="2026-08-26" max="2026-09-25" 
-                                class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Status:</label>
-                            <select id="adminStatus" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Status:</label>
+                            <select id="adminStatus" class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                                 <option value="FULL">Masuk Normal (08:00 - 20:00)</option>
                                 <option value="OFF">OFF (Merah / Libur)</option>
                                 <option value="PS">PS (Oranye / Pulang Sore)</option>
@@ -246,14 +268,77 @@
 
     </main>
 
-    <!-- LOGIKA SCRIPT ONLINE -->
+    <!-- MODAL POP-UP MODERN (PENGGANTI ALERT/CONFIRM JADUL) -->
+    <div id="customModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl text-center">
+            <div id="modalIcon" class="text-3xl">✨</div>
+            <h3 id="modalTitle" class="text-lg font-black text-slate-900 dark:text-white">Informasi</h3>
+            <p id="modalMessage" class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed"></p>
+            <div id="modalActionContainer" class="flex gap-2 pt-2">
+                <button onclick="closeModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIKA SCRIPT & TEMA -->
     <script>
-        // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT KAMU DI SINI:
         const URL_WEB_APP_GS = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
 
         let daftarKaryawan = [];
         let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
         let databaseAbsenSheet = JSON.parse(localStorage.getItem('db_absen_sheet')) || {};
+
+        // FITUR TEMA GELAP & TERANG
+        function toggleTheme() {
+            const root = document.getElementById('htmlRoot');
+            const icon = document.getElementById('themeIcon');
+            if (root.classList.contains('dark')) {
+                root.classList.remove('dark');
+                root.classList.add('light');
+                localStorage.setItem('theme', 'light');
+                icon.innerText = "🌙 Gelap";
+            } else {
+                root.classList.remove('light');
+                root.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                icon.innerText = "☀️ Terang";
+            }
+        }
+
+        // Muat preferensi tema saat halaman dibuka
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const root = document.getElementById('htmlRoot');
+            const icon = document.getElementById('themeIcon');
+            root.className = savedTheme;
+            if(icon) icon.innerText = savedTheme === 'dark' ? "☀️ Terang" : "🌙 Gelap";
+        })();
+
+        // MODAL MODERN PENGGANTI ALERT BROWSER
+        function showModal(title, message, isConfirm = false, onConfirm = null) {
+            const modal = document.getElementById('customModal');
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalMessage').innerText = message;
+            const container = document.getElementById('modalActionContainer');
+            
+            if (isConfirm) {
+                container.innerHTML = `
+                    <button onclick="closeModal()" class="flex-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-xs transition-all">Batal</button>
+                    <button id="modalConfirmBtn" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg">Ya, Hapus</button>
+                `;
+                document.getElementById('modalConfirmBtn').onclick = function() {
+                    closeModal();
+                    if(onConfirm) onConfirm();
+                };
+            } else {
+                container.innerHTML = `<button onclick="closeModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg">OK</button>`;
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
 
         window.switchTab = function(tabName) {
             const tabs = ['tabJadwal', 'tabSemuaJadwal', 'tabAdmin'];
@@ -264,35 +349,26 @@
                 const btn = document.getElementById(btns[i]);
                 if (t === 'tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)) {
                     el.classList.remove('hidden');
-                    btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-300 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30 ring-1 ring-white/20";
+                    btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-300 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30";
                 } else {
                     el.classList.add('hidden');
-                    btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent hover:border-slate-700/50";
+                    btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60";
                 }
             });
 
-            if (tabName === 'semuaJadwal') {
-                renderTabelSemuaJadwal();
-            }
+            if (tabName === 'semuaJadwal') renderTabelSemuaJadwal();
             if (tabName === 'admin') {
                 renderListKaryawanAdmin();
                 renderTabelRekap();
             }
         }
 
-        // FUNGSI TARIK DATA ONLINE (KARYAWAN & ABSENSI DARI SHEET)
         async function sinkronisasiDataOnline() {
             const badgeSync = document.getElementById('statusSync');
-            badgeSync.className = "text-xs px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-xl font-bold animate-pulse";
-            badgeSync.innerText = "Mengambil Data Online...";
-
-            if (URL_WEB_APP_GS === "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec") {
-                alert("⚠️ Harap masukkan URL Web App Google Apps Script pada variabel URL_WEB_APP_GS di file HTML terlebih dahulu!");
-                return;
-            }
+            badgeSync.className = "text-xs px-3 py-1 bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/20 rounded-xl font-bold animate-pulse";
+            badgeSync.innerText = "Memuat dari Server...";
 
             try {
-                // 1. Ambil Daftar Karyawan & Laporan Absen secara Bersamaan dari Google Sheet
                 let [resKaryawan, resAbsen] = await Promise.all([
                     fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_karyawan" }) }).then(r => r.json()),
                     fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_laporan" }) }).then(r => r.json())
@@ -335,8 +411,8 @@
                     localStorage.setItem('db_absen_sheet', JSON.stringify(databaseAbsenSheet));
                 }
 
-                badgeSync.className = "text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl font-bold";
-                badgeSync.innerText = "Online Sinkron ✓";
+                badgeSync.className = "text-xs px-3 py-1 bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/20 rounded-xl font-bold";
+                badgeSync.innerText = "Server Sinkron ✓";
 
                 updateDropdownKaryawan();
                 renderJadwalKaryawan();
@@ -346,7 +422,7 @@
 
             } catch (err) {
                 console.error(err);
-                badgeSync.className = "text-xs px-3 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl font-bold";
+                badgeSync.className = "text-xs px-3 py-1 bg-rose-500/10 text-rose-500 dark:text-rose-400 border border-rose-500/20 rounded-xl font-bold";
                 badgeSync.innerText = "Gagal Sinkron";
             }
         }
@@ -370,13 +446,12 @@
             const msg = document.getElementById('statusKaryawanMsg');
 
             if (!namaBaru) {
-                msg.className = "text-xs font-medium text-rose-400";
-                msg.innerText = "⚠️ Masukkan nama karyawan!";
+                showModal("Peringatan", "Masukkan nama karyawan terlebih dahulu!");
                 return;
             }
 
-            msg.className = "text-xs font-medium text-amber-400";
-            msg.innerText = "Menyimpan ke Google Sheet...";
+            msg.className = "text-xs font-medium text-amber-500";
+            msg.innerText = "Menyimpan ke Server...";
 
             try {
                 await fetch(URL_WEB_APP_GS, {
@@ -385,18 +460,16 @@
                 });
 
                 input.value = "";
-                msg.className = "text-xs font-medium text-emerald-400";
-                msg.innerText = `✨ Karyawan "${namaBaru}" berhasil ditambahkan ke Google Sheet!`;
-                
+                msg.innerText = "";
+                showModal("Sukses", `Karyawan "${namaBaru}" berhasil ditambahkan ke Server!`);
                 sinkronisasiDataOnline(); 
             } catch (err) {
-                msg.className = "text-xs font-medium text-rose-400";
-                msg.innerText = "⚠️ Gagal menambah karyawan secara online.";
+                showModal("Gagal", "Terjadi kesalahan saat menambah karyawan.");
             }
         }
 
         async function hapusKaryawanOnline(nama) {
-            if (confirm(`Yakin ingin menghapus ${nama} dari Google Sheet?`)) {
+            showModal("Konfirmasi Hapus", `Yakin ingin menghapus ${nama} dari Server?`, true, async function() {
                 try {
                     await fetch(URL_WEB_APP_GS, {
                         method: "POST",
@@ -404,9 +477,9 @@
                     });
                     sinkronisasiDataOnline();
                 } catch (err) {
-                    alert("Gagal menghapus karyawan.");
+                    showModal("Gagal", "Gagal menghapus karyawan.");
                 }
-            }
+            });
         }
 
         function renderListKaryawanAdmin() {
@@ -414,14 +487,14 @@
             let html = "";
             daftarKaryawan.forEach(nama => {
                 html += `
-                    <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs font-bold text-white">
+                    <div class="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
                         <span>👤 ${nama}</span>
-                        <button onclick="hapusKaryawanOnline('${nama}')" class="text-rose-400 hover:text-rose-300 font-bold ml-1">✕</button>
+                        <button onclick="hapusKaryawanOnline('${nama}')" class="text-rose-500 hover:text-rose-400 font-bold ml-1">✕</button>
                     </div>
                 `;
             });
             if (daftarKaryawan.length === 0) {
-                html = `<span class="text-xs text-slate-500 italic">Belum ada karyawan terdaftar di Google Sheet.</span>`;
+                html = `<span class="text-xs text-slate-400 italic">Belum ada karyawan terdaftar di Server.</span>`;
             }
             if(container) container.innerHTML = html;
         }
@@ -463,12 +536,12 @@
                 let statusJadwal = databaseJadwal[keyJadwal];
                 let dataAbsen = databaseAbsenSheet[keyJadwal] || { checkIn: "-", checkOut: "-" };
 
-                let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                let badgeClass = "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border-emerald-500/20";
                 let statusLabel = "FULL";
                 let jamTampil = `In: ${dataAbsen.checkIn} | Out: ${dataAbsen.checkOut}`;
 
                 if (statusJadwal === "OFF") {
-                    badgeClass = "bg-red-500/15 text-red-400 border-red-500/30";
+                    badgeClass = "bg-red-500/15 text-red-500 dark:text-red-400 border-red-500/30";
                     statusLabel = "OFF";
                     jamTampil = "LIBUR";
                     countOff++;
@@ -482,7 +555,7 @@
                     }
 
                     if (statusJadwal === "PS") {
-                        badgeClass = "bg-orange-500/15 text-orange-400 border-orange-500/30";
+                        badgeClass = "bg-orange-500/15 text-orange-500 dark:text-orange-400 border-orange-500/30";
                         statusLabel = "PS";
                         countPs++;
                     } else {
@@ -496,13 +569,13 @@
                 }
 
                 html += `
-                    <div class="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800/80 flex flex-col justify-between space-y-2 shadow-inner">
+                    <div class="bg-slate-50 dark:bg-slate-950/80 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col justify-between space-y-2 shadow-sm">
                         <div class="flex justify-between items-center">
-                            <span class="text-[11px] font-bold text-slate-400">${item.label}</span>
+                            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">${item.label}</span>
                             <span class="text-[10px] px-2 py-0.5 rounded-lg border font-black ${badgeClass}">${statusLabel}</span>
                         </div>
                         <div class="py-1">
-                            <span class="text-[11px] font-extrabold text-white block">${jamTampil}</span>
+                            <span class="text-[11px] font-extrabold text-slate-900 dark:text-white block">${jamTampil}</span>
                         </div>
                     </div>
                 `;
@@ -521,36 +594,36 @@
             const bodyEl = document.getElementById('tabelSemuaBody');
             const dates = getCutOffDates();
 
-            let headerHtml = `<tr><th class="py-3 px-4 border-b border-slate-800">Tanggal / Hari</th>`;
+            let headerHtml = `<tr><th class="py-3 px-4 border-b border-slate-200 dark:border-slate-800">Tanggal / Hari</th>`;
             daftarKaryawan.forEach(nama => {
-                headerHtml += `<th class="py-3 px-4 text-center border-b border-slate-800 font-extrabold text-indigo-300">${nama}</th>`;
+                headerHtml += `<th class="py-3 px-4 text-center border-b border-slate-200 dark:border-slate-800 font-extrabold text-indigo-500 dark:text-indigo-300">${nama}</th>`;
             });
             headerHtml += `</tr>`;
             if(headerEl) headerEl.innerHTML = headerHtml;
 
             let bodyHtml = "";
             dates.forEach(item => {
-                bodyHtml += `<tr class="hover:bg-slate-900/40 transition-colors">`;
-                bodyHtml += `<td class="py-2.5 px-4 font-bold text-slate-300 border-b border-slate-800/60 whitespace-nowrap">${item.label}</td>`;
+                bodyHtml += `<tr class="hover:bg-slate-100 dark:hover:bg-slate-900/40 transition-colors">`;
+                bodyHtml += `<td class="py-2.5 px-4 font-bold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800/60 whitespace-nowrap">${item.label}</td>`;
 
                 daftarKaryawan.forEach(nama => {
                     let key = `${nama}_${item.dateStr}`;
                     let status = databaseJadwal[key];
                     let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
 
-                    let badgeStyle = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                    let badgeStyle = "bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border-emerald-500/20";
                     let label = absen.checkIn !== "-" ? `${absen.checkIn}` : "Full";
 
                     if (status === "OFF") {
-                        badgeStyle = "bg-red-500/15 text-red-400 border-red-500/30";
+                        badgeStyle = "bg-red-500/15 text-red-500 dark:text-red-400 border-red-500/30";
                         label = "OFF";
                     } else if (status === "PS") {
-                        badgeStyle = "bg-orange-500/15 text-orange-400 border-orange-500/30";
+                        badgeStyle = "bg-orange-500/15 text-orange-500 dark:text-orange-400 border-orange-500/30";
                         label = `PS (${absen.checkIn})`;
                     }
 
                     bodyHtml += `
-                        <td class="py-2.5 px-4 text-center border-b border-slate-800/60">
+                        <td class="py-2.5 px-4 text-center border-b border-slate-200 dark:border-slate-800/60">
                             <span class="inline-block px-2.5 py-1 rounded-lg text-[10px] font-black border ${badgeStyle}">${label}</span>
                         </td>
                     `;
@@ -592,18 +665,18 @@
                 });
 
                 html += `
-                    <tr class="hover:bg-slate-900/50 transition-colors">
-                        <td class="py-3 px-4 font-bold text-white flex items-center gap-2">👤 ${nama}</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-emerald-400 text-sm">${countMasuk} Hari</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-red-400 text-sm">${countOff} Hari</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-orange-400 text-sm">${countPs} Hari</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-amber-400 text-sm">${countTerlambat} Hari</td>
+                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-900/50 transition-colors">
+                        <td class="py-3 px-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">👤 ${nama}</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-emerald-500 dark:text-emerald-400 text-sm">${countMasuk} Hari</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-red-500 dark:text-red-400 text-sm">${countOff} Hari</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-orange-500 dark:text-orange-400 text-sm">${countPs} Hari</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-amber-500 dark:text-amber-400 text-sm">${countTerlambat} Hari</td>
                     </tr>
                 `;
             });
 
             if (daftarKaryawan.length === 0) {
-                html = `<tr><td colspan="5" class="py-6 text-center text-slate-500 italic">Belum ada data karyawan.</td></tr>`;
+                html = `<tr><td colspan="5" class="py-6 text-center text-slate-400 italic">Belum ada data karyawan.</td></tr>`;
             }
             if(tbody) tbody.innerHTML = html;
         }
@@ -612,11 +685,9 @@
             const karyawan = document.getElementById('adminKaryawan').value;
             const tanggal = document.getElementById('adminTanggal').value;
             const status = document.getElementById('adminStatus').value;
-            const statusEl = document.getElementById('statusAdmin');
 
             if (!tanggal) {
-                statusEl.className = "text-xs font-medium text-rose-400";
-                statusEl.innerText = "⚠️ Pilih tanggal cut-off terlebih dahulu!";
+                showModal("Peringatan", "Pilih tanggal cut-off terlebih dahulu!");
                 return;
             }
 
@@ -629,8 +700,7 @@
             
             localStorage.setItem('db_jadwal_karyawan', JSON.stringify(databaseJadwal));
 
-            statusEl.className = "text-xs font-medium text-emerald-400";
-            statusEl.innerText = `✨ Berhasil! Jadwal ${karyawan} pada tanggal ${tanggal} diperbarui.`;
+            showModal("Sukses", `Jadwal ${karyawan} pada tanggal ${tanggal} berhasil diperbarui.`);
             
             renderJadwalKaryawan();
             renderTabelRekap();
