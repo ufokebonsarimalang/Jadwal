@@ -657,7 +657,7 @@
             
             // Baris Header Kolom (Tanggal + Nama-nama Karyawan)
             let headerRow = ["Tanggal", ...daftarKaryawan];
-            csvContent += headerRow.map(val => `"${String(val || "").replace(/"/g, '""')}"`).join(",") + "\r\n";
+            csvContent += headerRow.map(val => `"${String(val || "").replace(/"/g, '""')}"`).join(";") + "\r\n";
 
             // Baris Isi Per Tanggal
             dates.forEach(item => {
@@ -678,36 +678,16 @@
                     }
                     rowData.push(label);
                 });
-                csvContent += rowData.map(val => `"${String(val || "").replace(/"/g, '""')}"`).join(",") + "\r\n";
+                csvContent += rowData.map(val => `"${String(val || "").replace(/"/g, '""')}"`).join(";") + "\r\n";
             });
 
-            // Proses Unduh File .csv
+            // Proses Unduh File .csv dengan pemisah titik koma (;)
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.setAttribute("href", url);
             link.setAttribute("download", `Matriks_Jadwal_Karyawan_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        }
-
-        // Fungsi Cetak / Simpan ke PDF untuk Matriks Semua Karyawan
-        window.cetakPdfSemuaJadwal = function() {
-            const originalContent = document.body.innerHTML;
-            const matriksSection = document.getElementById('tabSemuaJadwal').innerHTML;
-
-            document.body.innerHTML = `
-                <div style="font-family: Arial, sans-serif; padding: 20px;">
-                    <h2 style="margin-bottom: 5px; color: #111;">Laporan Matriks Jadwal & Cut-Off Karyawan</h2>
-                    <p style="margin-top: 0; color: #555; font-size: 12px;">Periode: 26 Agt - 25 Sep | Dicetak tanggal: ${new Date().toLocaleDateString('id-ID')}</p>
-                    <hr style="border: 0; border-top: 1px solid #ccc; margin-bottom: 15px;"/>
-                    ${matriksSection}
-                </div>
-            `;
-
-            window.print();
-
-            document.body.innerHTML = originalContent;
-            window.location.reload();
         }
         window.simpanJadwalAdmin = async function() {
             const karyawan = document.getElementById('adminKaryawan').value;
