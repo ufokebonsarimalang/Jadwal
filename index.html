@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UFO KEBONSARI - Sistem Jadwal & Absensi Karyawan</title>
+    <title>NexAttend - Sistem Jadwal & Absensi Karyawan</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -40,7 +40,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             </div>
             <div class="hidden sm:block">
-                <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight flex items-center gap-1.5">UFO KEBONSARI <span class="text-[10px] bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">PRO</span></h1>
+                <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight flex items-center gap-1.5">NexAttend <span class="text-[10px] bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">PRO</span></h1>
                 <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">Cut-Off: 26 Agt - 25 Sep</p>
             </div>
         </div>
@@ -159,6 +159,21 @@
         <!-- HALAMAN 3: PANEL ADMIN -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-4xl mx-auto">
             
+            <!-- Tombol Generator Otomatis Khusus Teknisi & Helper -->
+            <div class="app-card bg-gradient-to-r from-violet-600/10 via-indigo-600/10 to-emerald-600/10 border border-indigo-500/30 p-6 md:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="space-y-1 text-center md:text-left">
+                    <h2 class="text-base md:text-lg font-black text-slate-900 dark:text-white flex items-center justify-center md:justify-start gap-2">
+                        ⚙️ Generator Otomatis Teknisi & Helper
+                    </h2>
+                    <p class="text-xs text-slate-600 dark:text-slate-400">
+                        Otomatis atur 4x OFF (Selasa-Jumat saja) untuk: <b>Demmy, Bima, Agung, Zaenal</b>.
+                    </p>
+                </div>
+                <button onclick="generateOtomatisTeknisiHelper()" class="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-black px-5 py-3 rounded-2xl text-xs transition-all shadow-lg shadow-indigo-600/30 shrink-0">
+                    GENERATE OTOMATIS JADWAL OFF TEKNISI DAN HELPER
+                </button>
+            </div>
+
             <!-- Rekapitulasi -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 md:p-8 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
@@ -316,7 +331,7 @@
             if (isConfirm) {
                 container.innerHTML = `
                     <button onclick="closeModal()" class="flex-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-xs transition-all">Batal</button>
-                    <button id="modalConfirmBtn" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg">Ya, Hapus</button>
+                    <button id="modalConfirmBtn" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg">Ya, Lanjutkan</button>
                 `;
                 document.getElementById('modalConfirmBtn').onclick = function() {
                     closeModal();
@@ -508,18 +523,64 @@
                 let day = String(currDate.getDate()).padStart(2, '0');
                 let dateString = `${year}-${month}-${day}`;
                 
-                let dayOfWeek = currDate.getDay(); // 0 = Minggu, 6 = Sabtu
+                let dayOfWeek = currDate.getDay(); // 0 = Minggu, 1 = Senin, ..., 6 = Sabtu
                 let namaHari = currDate.toLocaleDateString('id-ID', { weekday: 'short' });
                 let namaBulan = currDate.toLocaleDateString('id-ID', { month: 'short' });
                 
                 dates.push({
                     dateStr: dateString,
                     label: `${namaHari}, ${day} ${namaBulan}`,
-                    isWeekend: (dayOfWeek === 0 || dayOfWeek === 6)
+                    dayOfWeek: dayOfWeek,
+                    isAllowedOff: (dayOfWeek >= 2 && dayOfWeek <= 5) // Hanya Selasa (2), Rabu (3), Kamis (4), Jumat (5)
                 });
                 currDate.setDate(currDate.getDate() + 1);
             }
             return dates;
+        }
+
+        // FUNGSI GENERATOR OTOMATIS KHUSUS TEKNISI & HELPER
+        window.generateOtomatisTeknisiHelper = function() {
+            showModal("Konfirmasi Generator", "Generate otomatis jadwal OFF (maksimal 4x, khusus Selasa-Jumat) untuk kelompok Teknisi & Helper (Demmy, Bima, Agung, Zaenal)?", true, function() {
+                const listTeknisiHelper = ["Demmy", "Bima", "Agung", "Zaenal"];
+                const dates = getCutOffDates();
+                
+                // Ambil daftar tanggal yang diizinkan OFF (Selasa s.d. Jumat)
+                let allowedDates = dates.filter(d => d.isAllowedOff).map(d => d.dateStr);
+
+                listTeknisiHelper.forEach(nama => {
+                    // Hapus dulu jadwal OFF lama khusus karyawan ini agar bersih sebelum di-generate baru
+                    dates.forEach(d => {
+                        let k = `${nama}_${d.dateStr}`;
+                        if (databaseJadwal[k] === "OFF") {
+                            delete databaseJadwal[k];
+                        }
+                    });
+
+                    // Acak urutan tanggal yang diizinkan agar pembagian antar karyawan merata & tidak sama persis
+                    let shuffledDates = [...allowedDates].sort(() => 0.5 - Math.random());
+
+                    // Berikan tepat 4 kali OFF
+                    let assignedCount = 0;
+                    for (let i = 0; i < shuffledDates.length && assignedCount < 4; i++) {
+                        let tgl = shuffledDates[i];
+                        let key = `${nama}_${tgl}`;
+                        
+                        // Pastikan belum diset OFF
+                        databaseJadwal[key] = "OFF";
+                        assignedCount++;
+                    }
+                });
+
+                // Simpan ke localStorage
+                localStorage.setItem('db_jadwal_karyawan', JSON.stringify(databaseJadwal));
+
+                // Refresh tampilan
+                renderJadwalKaryawan();
+                renderTabelRekap();
+                renderTabelSemuaJadwal();
+
+                showModal("Berhasil!", "Jadwal OFF untuk Teknisi & Helper berhasil digenerate otomatis (4x per orang di hari Selasa-Jumat tanpa menyentuh Senin, Sabtu, & Minggu).");
+            });
         }
 
         window.renderJadwalKaryawan = function() {
@@ -540,12 +601,14 @@
                 let statusLabel = "FULL";
                 let jamTampil = `In: ${dataAbsen.checkIn} | Out: ${dataAbsen.checkOut}`;
 
+                let isWeekend = (item.dayOfWeek === 0 || item.dayOfWeek === 6);
+
                 if (statusJadwal === "OFF") {
                     badgeClass = "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30";
                     statusLabel = "OFF";
                     jamTampil = "LIBUR";
                     countOffTotal++;
-                    if (item.isWeekend) {
+                    if (isWeekend) {
                         countOffWeekend++;
                     }
                 } else {
@@ -652,9 +715,11 @@
                     let statusJadwal = databaseJadwal[key];
                     let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
 
+                    let isWeekend = (item.dayOfWeek === 0 || item.dayOfWeek === 6);
+
                     if (statusJadwal === "OFF") {
                         countOffTotal++;
-                        if (item.isWeekend) {
+                        if (isWeekend) {
                             countOffWeekend++;
                         }
                     } else {
