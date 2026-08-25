@@ -63,7 +63,7 @@
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
             </span>
-            <span class="font-semibold text-slate-300">Sinkron Google Sheet Aktif</span>
+            <span class="font-semibold text-slate-300">100% Online Google Sheet</span>
         </div>
     </aside>
 
@@ -75,20 +75,20 @@
             <div class="glass-card p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">Jadwal & Absensi Real-Time</h2>
-                    <p class="text-xs text-slate-400 mt-1">Data jam masuk & pulang tersinkron langsung dari Google Sheet.</p>
+                    <p class="text-xs text-slate-400 mt-1">Data karyawan & jam absensi tersinkron langsung secara online dari Google Sheet.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
                         <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
                     </div>
-                    <button onclick="sinkronisasiDataSheet()" class="mt-5 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-2">
-                        🔄 Tarik Data Sheet
+                    <button onclick="sinkronisasiDataOnline()" class="mt-5 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-2">
+                        🔄 Tarik Data Online
                     </button>
                 </div>
             </div>
 
-            <!-- Kartu Statistik Ringkasan Karyawan Terpilih -->
+            <!-- Kartu Statistik Ringkasan -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="glass-card p-4 rounded-2xl border border-emerald-500/20 flex flex-col justify-between">
                     <span class="text-[11px] font-bold text-slate-400 uppercase">Total Masuk</span>
@@ -108,11 +108,11 @@
                 </div>
             </div>
 
-            <!-- Kalender Jadwal Periode Cut-Off (26 Agt - 25 Sep) -->
+            <!-- Kalender Jadwal -->
             <div class="glass-card p-6 rounded-3xl space-y-4">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-4">
                     <h3 class="font-extrabold text-white text-sm">Kalender Shift & Jam Riwayat Absen (26 Agt - 25 Sep)</h3>
-                    <span id="statusSync" class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl font-bold">Siap Sinkron</span>
+                    <span id="statusSync" class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl font-bold">Online Aktif</span>
                 </div>
                 
                 <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
@@ -142,7 +142,7 @@
         <!-- HALAMAN 3: PANEL ADMIN & REKAPITULASI -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-4xl mx-auto">
             
-            <!-- KOTAK 1: TABEL REKAPITULASI STATISTIK DARI SHEET -->
+            <!-- KOTAK 1: TABEL REKAPITULASI -->
             <div class="glass-card p-6 md:p-8 rounded-3xl space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-4">
                     <div class="flex items-center gap-3">
@@ -151,7 +151,7 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-black text-white tracking-tight">Rekapitulasi Statistik Cut-Off (26 Agt - 25 Sep)</h2>
-                            <p class="text-xs text-slate-400">Total masuk, OFF, PS, dan terlambat berdasarkan data Google Sheet.</p>
+                            <p class="text-xs text-slate-400">Total masuk, OFF, PS, dan terlambat berdasarkan data online Google Sheet.</p>
                         </div>
                     </div>
                 </div>
@@ -172,15 +172,15 @@
                 </div>
             </div>
 
-            <!-- KOTAK 2: KELOLA KARYAWAN -->
+            <!-- KOTAK 2: KELOLA KARYAWAN ONLINE -->
             <div class="glass-card p-6 md:p-8 rounded-3xl">
                 <div class="flex items-center gap-4 mb-6">
                     <div class="p-3.5 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20 shadow-inner">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-black text-white tracking-tight">Kelola Daftar Karyawan</h2>
-                        <p class="text-xs text-slate-400">Tambah nama baru atau hapus karyawan dari sistem.</p>
+                        <h2 class="text-xl font-black text-white tracking-tight">Kelola Daftar Karyawan Online</h2>
+                        <p class="text-xs text-slate-400">Tambah atau hapus karyawan langsung tersimpan ke Google Sheet.</p>
                     </div>
                 </div>
 
@@ -188,9 +188,9 @@
                     <div class="flex gap-3">
                         <input type="text" id="inputNamaBaru" placeholder="Nama Karyawan Baru (cth: Budi)" 
                             class="flex-1 px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-sm font-medium text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        <button onclick="tambahKaryawan()" 
+                        <button onclick="tambahKaryawanOnline()" 
                             class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all shadow-lg shadow-emerald-600/25">
-                            Tambah
+                            Tambah Online
                         </button>
                     </div>
                     
@@ -210,7 +210,7 @@
                     </div>
                     <div>
                         <h2 class="text-xl font-black text-white tracking-tight">Atur Jadwal Karyawan</h2>
-                        <p class="text-xs text-slate-400">Pilih Full (Masuk Normal), OFF (Libur), atau PS (Pulang Sore) untuk tanggal tertentu.</p>
+                        <p class="text-xs text-slate-400">Pilih Full, OFF, atau PS untuk tanggal tertentu.</p>
                     </div>
                 </div>
 
@@ -246,12 +246,12 @@
 
     </main>
 
-    <!-- LOGIKA SCRIPT -->
+    <!-- LOGIKA SCRIPT ONLINE -->
     <script>
+        // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT KAMU DI SINI:
         const URL_WEB_APP_GS = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
 
-        // Ambil daftar karyawan dari localStorage (Admin input) atau default jika kosong
-        let daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Budi", "Siti", "Andi", "Dewi"];
+        let daftarKaryawan = [];
         let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
         let databaseAbsenSheet = JSON.parse(localStorage.getItem('db_absen_sheet')) || {};
 
@@ -280,30 +280,34 @@
             }
         }
 
-        async function sinkronisasiDataSheet() {
+        // FUNGSI TARIK DATA ONLINE (KARYAWAN & ABSENSI DARI SHEET)
+        async function sinkronisasiDataOnline() {
             const badgeSync = document.getElementById('statusSync');
             badgeSync.className = "text-xs px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-xl font-bold animate-pulse";
-            badgeSync.innerText = "Sedang Menarik Data...";
+            badgeSync.innerText = "Mengambil Data Online...";
 
             if (URL_WEB_APP_GS === "MASUKKAN_URL_WEB_APP_GOOGLE_SCRIPT_DISINI") {
-                alert("⚠️ Harap masukkan URL Web App Google Apps Script terlebih dahulu!");
-                badgeSync.className = "text-xs px-3 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl font-bold";
-                badgeSync.innerText = "URL Belum Diset";
+                alert("⚠️ Harap masukkan URL Web App Google Apps Script pada variabel URL_WEB_APP_GS di file HTML terlebih dahulu!");
                 return;
             }
 
             try {
-                let response = await fetch(URL_WEB_APP_GS, {
-                    method: "POST",
-                    body: JSON.stringify({ aksi: "get_laporan" })
-                });
-                let result = await response.json();
+                // 1. Ambil Daftar Karyawan & Laporan Absen secara Bersamaan dari Google Sheet
+                let [resKaryawan, resAbsen] = await Promise.all([
+                    fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_karyawan" }) }).then(r => r.json()),
+                    fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_laporan" }) }).then(r => r.json())
+                ]);
 
-                if (Array.isArray(result)) {
+                if (Array.isArray(resKaryawan) && resKaryawan.length > 0) {
+                    daftarKaryawan = resKaryawan;
+                } else {
+                    daftarKaryawan = ["Karyawan Kosong"];
+                }
+
+                if (Array.isArray(resAbsen)) {
                     databaseAbsenSheet = {};
-                    
-                    for (let i = 1; i < result.length; i++) {
-                        let row = result[i];
+                    for (let i = 1; i < resAbsen.length; i++) {
+                        let row = resAbsen[i];
                         let waktuStr = String(row[0] || "");
                         let nama = String(row[1] || "").trim();
                         let statusAbsen = String(row[2] || "").trim();
@@ -328,17 +332,18 @@
                             }
                         }
                     }
-
                     localStorage.setItem('db_absen_sheet', JSON.stringify(databaseAbsenSheet));
-                    badgeSync.className = "text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl font-bold";
-                    badgeSync.innerText = "Sinkron Sukses ✓";
-                    
-                    renderJadwalKaryawan();
-                    renderTabelSemuaJadwal();
-                    renderTabelRekap();
-                } else {
-                    throw new Error("Format data tidak valid");
                 }
+
+                badgeSync.className = "text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl font-bold";
+                badgeSync.innerText = "Online Sinkron ✓";
+
+                updateDropdownKaryawan();
+                renderJadwalKaryawan();
+                renderTabelSemuaJadwal();
+                renderTabelRekap();
+                renderListKaryawanAdmin();
+
             } catch (err) {
                 console.error(err);
                 badgeSync.className = "text-xs px-3 py-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl font-bold";
@@ -347,7 +352,6 @@
         }
 
         function updateDropdownKaryawan() {
-            daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Budi", "Siti", "Andi", "Dewi"];
             const selectJadwal = document.getElementById('selectKaryawan');
             const selectAdmin = document.getElementById('adminKaryawan');
             
@@ -360,62 +364,64 @@
             if(selectAdmin) selectAdmin.innerHTML = optionsHtml;
         }
 
-        window.tambahKaryawan = function() {
+        async function tambahKaryawanOnline() {
             const input = document.getElementById('inputNamaBaru');
             const namaBaru = input.value.trim();
             const msg = document.getElementById('statusKaryawanMsg');
 
             if (!namaBaru) {
                 msg.className = "text-xs font-medium text-rose-400";
-                msg.innerText = "⚠️ Masukkan nama karyawan terlebih dahulu!";
+                msg.innerText = "⚠️ Masukkan nama karyawan!";
                 return;
             }
 
-            if (daftarKaryawan.includes(namaBaru)) {
+            msg.className = "text-xs font-medium text-amber-400";
+            msg.innerText = "Menyimpan ke Google Sheet...";
+
+            try {
+                await fetch(URL_WEB_APP_GS, {
+                    method: "POST",
+                    body: JSON.stringify({ aksi: "tambah_karyawan", nama: namaBaru })
+                });
+
+                input.value = "";
+                msg.className = "text-xs font-medium text-emerald-400";
+                msg.innerText = `✨ Karyawan "${namaBaru}" berhasil ditambahkan ke Google Sheet!`;
+                
+                sinkronisasiDataOnline(); 
+            } catch (err) {
                 msg.className = "text-xs font-medium text-rose-400";
-                msg.innerText = "⚠️ Nama karyawan sudah ada di dalam sistem!";
-                return;
+                msg.innerText = "⚠️ Gagal menambah karyawan secara online.";
             }
-
-            daftarKaryawan.push(namaBaru);
-            localStorage.setItem('db_karyawan', JSON.stringify(daftarKaryawan));
-            input.value = "";
-            
-            updateDropdownKaryawan();
-            renderListKaryawanAdmin();
-            renderJadwalKaryawan();
-            renderTabelRekap();
-
-            msg.className = "text-xs font-medium text-emerald-400";
-            msg.innerText = `✨ Sukses! Karyawan "${namaBaru}" berhasil ditambahkan.`;
         }
 
-        window.hapusKaryawan = function(nama) {
-            if (confirm(`Yakin ingin menghapus ${nama} dari sistem?`)) {
-                daftarKaryawan = daftarKaryawan.filter(n => n !== nama);
-                localStorage.setItem('db_karyawan', JSON.stringify(daftarKaryawan));
-                
-                updateDropdownKaryawan();
-                renderListKaryawanAdmin();
-                renderJadwalKaryawan();
-                renderTabelRekap();
+        async function hapusKaryawanOnline(nama) {
+            if (confirm(`Yakin ingin menghapus ${nama} dari Google Sheet?`)) {
+                try {
+                    await fetch(URL_WEB_APP_GS, {
+                        method: "POST",
+                        body: JSON.stringify({ aksi: "hapus_karyawan", nama: nama })
+                    });
+                    sinkronisasiDataOnline();
+                } catch (err) {
+                    alert("Gagal menghapus karyawan.");
+                }
             }
         }
 
         function renderListKaryawanAdmin() {
-            daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Budi", "Siti", "Andi", "Dewi"];
             const container = document.getElementById('listKaryawanAdmin');
             let html = "";
             daftarKaryawan.forEach(nama => {
                 html += `
                     <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs font-bold text-white">
                         <span>👤 ${nama}</span>
-                        <button onclick="hapusKaryawan('${nama}')" class="text-rose-400 hover:text-rose-300 font-bold ml-1">✕</button>
+                        <button onclick="hapusKaryawanOnline('${nama}')" class="text-rose-400 hover:text-rose-300 font-bold ml-1">✕</button>
                     </div>
                 `;
             });
             if (daftarKaryawan.length === 0) {
-                html = `<span class="text-xs text-slate-500 italic">Belum ada karyawan terdaftar.</span>`;
+                html = `<span class="text-xs text-slate-500 italic">Belum ada karyawan terdaftar di Google Sheet.</span>`;
             }
             if(container) container.innerHTML = html;
         }
@@ -444,9 +450,8 @@
         }
 
         window.renderJadwalKaryawan = function() {
-            daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Budi", "Siti", "Andi", "Dewi"];
             const selectEl = document.getElementById('selectKaryawan');
-            const karyawan = selectEl ? selectEl.value : daftarKaryawan[0];
+            const karyawan = selectEl ? selectEl.value : (daftarKaryawan[0] || "Karyawan");
             const container = document.getElementById('gridJadwal');
             const dates = getCutOffDates();
             
@@ -512,7 +517,6 @@
         }
 
         function renderTabelSemuaJadwal() {
-            daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Budi", "Siti", "Andi", "Dewi"];
             const headerEl = document.getElementById('tabelSemuaHeader');
             const bodyEl = document.getElementById('tabelSemuaBody');
             const dates = getCutOffDates();
@@ -559,7 +563,6 @@
         }
 
         function renderTabelRekap() {
-            daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Budi", "Siti", "Andi", "Dewi"];
             const tbody = document.getElementById('tabelRekapBody');
             const dates = getCutOffDates();
 
@@ -634,8 +637,8 @@
             renderTabelSemuaJadwal();
         }
 
-        updateDropdownKaryawan();
-        renderJadwalKaryawan();
+        // Jalankan sinkronisasi online pertama kali saat halaman dimuat
+        sinkronisasiDataOnline();
     </script>
 </body>
 </html>
