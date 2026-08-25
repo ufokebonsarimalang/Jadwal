@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexAbsent - Super Dashboard Admin & Jadwal (Firebase Cloud)</title>
+    <title>NexAbsent - Super Dashboard Admin & Jadwal (Test Cut-Off)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -29,13 +29,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Global Firebase functions attach to window
         window.fbDB = db;
         window.fbDoc = doc;
         window.fbSetDoc = setDoc;
         window.fbGetDoc = getDoc;
 
-        // Auto load data from cloud on startup
         window.loadDataFromCloud();
     </script>
     <style>
@@ -65,7 +63,7 @@
             </div>
             <div class="hidden sm:block">
                 <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight flex items-center gap-1.5">NexAbsent<span class="text-[10px] bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">ADMIN</span></h1>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">Cut-Off: 26 Agt - 25 Sep</p>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">Cut-Off Tes: 26 Jul - 25 Agt</p>
             </div>
         </div>
 
@@ -113,7 +111,7 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
                 <div>
                     <h2 class="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Jadwal & Riwayat Absensi</h2>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Sinkronisasi otomatis lintas perangkat via Firebase Cloud.</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Uji Coba Periode: 26 Juli - 25 Agustus 2026</p>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
@@ -144,7 +142,7 @@
             <!-- Kalender Jadwal -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift & Jam Absen (26 Agt - 25 Sep)</h3>
+                    <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift (26 Jul - 25 Agt)</h3>
                     <button onclick="window.loadDataFromCloud()" class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 rounded-xl font-bold hover:bg-indigo-500/20">🔄 Muat Ulang Cloud</button>
                 </div>
                 <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
@@ -157,7 +155,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
                         <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Matriks Jadwal Semua Karyawan</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Tinjauan keseluruhan jadwal dan status cut-off.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Periode Tes: 26 Jul - 25 Agt</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <button onclick="downloadExcelSemuaJadwal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow flex items-center gap-1.5">
@@ -186,7 +184,7 @@
                     <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl text-xl">☁️</div>
                     <div>
                         <h2 class="text-lg font-black text-slate-900 dark:text-white">Upload Data Absensi ke Cloud (Firebase)</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Unggah file rekap absen untuk disinkronkan ke semua perangkat admin secara instan.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Unggah file rekap absen untuk disinkronkan ke semua perangkat admin.</p>
                     </div>
                 </div>
                 <div class="flex flex-col sm:flex-row items-center gap-4">
@@ -198,7 +196,7 @@
             <!-- Rekapitulasi Statistik -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <h2 class="text-lg font-black text-slate-900 dark:text-white">Rekapitulasi Statistik Cut-Off</h2>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-white">Rekapitulasi Statistik Cut-Off (26 Jul - 25 Agt)</h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-800 dark:text-slate-200">
@@ -226,7 +224,7 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Tanggal:</label>
-                        <input type="date" id="adminTanggal" min="2026-08-26" max="2026-09-25" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-900 dark:text-white">
+                        <input type="date" id="adminTanggal" min="2026-07-26" max="2026-08-25" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-900 dark:text-white">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Status:</label>
@@ -299,7 +297,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA (FIREBASE CLOUD SYNC) -->
+    <!-- SCRIPT UTAMA (TEST RENTANG 26 JUL - 25 AGT) -->
     <script>
         let daftarKaryawan = ["Poniadi", "Eko", "Dedy", "Dwi", "Friza", "Rudi", "Demmy", "Bima", "Agung", "Zaenal"];
         let databaseJadwal = {};
@@ -356,7 +354,6 @@
             }
         }
 
-        // FUNGSI TARIK DATA DARI FIREBASE CLOUD
         window.loadDataFromCloud = async function() {
             const cloudStatusText = document.getElementById('cloudStatusText');
             const cloudPing = document.getElementById('cloudPing');
@@ -401,7 +398,6 @@
             }
         }
 
-        // FUNGSI SIMPAN DATA KE FIREBASE CLOUD
         async function saveDataToCloud() {
             try {
                 const docRef = window.fbDoc(window.fbDB, "nexabsent_data", "main_database");
@@ -451,7 +447,6 @@
             daftarKaryawan = Array.from(detectedNames);
         }
 
-        // FUNGSI UPLOAD FILE EXCEL / CSV
         window.prosesUploadFile = async function() {
             const fileInput = document.getElementById('csvFileInput');
             const btnUpload = document.getElementById('btnUpload');
@@ -514,10 +509,11 @@
             }
         }
 
+        // RENTANG CUT-OFF DIUBAH KE: 26 Juli 2026 s.d 25 Agustus 2026 untuk Uji Coba
         function getCutOffDates() {
             let dates = [];
-            let currDate = new Date("2026-08-26");
-            let endDate = new Date("2026-09-25");
+            let currDate = new Date("2026-07-26");
+            let endDate = new Date("2026-08-25");
             while (currDate <= endDate) {
                 let year = currDate.getFullYear();
                 let month = String(currDate.getMonth() + 1).padStart(2, '0');
