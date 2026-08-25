@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexAttend - Sistem Jadwal & Absensi Karyawan</title>
+    <title>NexAttend - Super Dashboard Admin & Jadwal</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -20,7 +20,6 @@
         .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
         .light ::-webkit-scrollbar-track { background: #f1f5f9; }
         .light ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
-
         .app-card {
             backdrop-filter: blur(20px);
             transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
@@ -40,7 +39,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             </div>
             <div class="hidden sm:block">
-                <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight flex items-center gap-1.5">NexAttend <span class="text-[10px] bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">PRO</span></h1>
+                <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight flex items-center gap-1.5">NexAttend <span class="text-[10px] bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">ADMIN</span></h1>
                 <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">Cut-Off: 26 Agt - 25 Sep</p>
             </div>
         </div>
@@ -49,7 +48,7 @@
             <button onclick="switchTab('jadwal')" id="btnJadwal" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-300 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span class="hidden sm:inline">Jadwal & Absen</span>
+                <span class="hidden sm:inline">Jadwal Karyawan</span>
             </button>
             <button onclick="switchTab('semuaJadwal')" id="btnSemuaJadwal" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
@@ -59,7 +58,7 @@
             <button onclick="switchTab('admin')" id="btnAdmin" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
-                <span class="hidden sm:inline">Panel Admin</span>
+                <span class="hidden sm:inline">Panel Admin & Log</span>
             </button>
         </nav>
 
@@ -83,13 +82,13 @@
 
     <!-- KONTEN UTAMA -->
     <main class="flex-1 p-4 md:p-10 overflow-y-auto z-10">
-        
-        <!-- HALAMAN 1: JADWAL & ABSENSI -->
+
+        <!-- HALAMAN 1: JADWAL & STATISTIK KARYAWAN -->
         <section id="tabJadwal" class="space-y-6 max-w-5xl mx-auto">
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
                 <div>
-                    <h2 class="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Jadwal & Absensi Real-Time</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Data karyawan & riwayat absensi tersinkron langsung secara aman dari Database Absensi.</p>
+                    <h2 class="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Jadwal & Riwayat Absensi</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Data karyawan & riwayat absensi tersinkron langsung secara aman dari Google Sheet.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <div>
@@ -100,7 +99,7 @@
                         <svg id="syncIcon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
-                        <span>Sinkronisasi Data</span>
+                        <span>Sinkronisasi</span>
                     </button>
                 </div>
             </div>
@@ -108,7 +107,7 @@
             <!-- Kartu Statistik Ringkasan -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-emerald-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Masuk (Database)</span>
+                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Masuk</span>
                     <span id="statMasuk" class="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">0 Hari</span>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-red-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
@@ -116,7 +115,7 @@
                     <span id="statOff" class="text-xl font-black text-red-600 dark:text-red-400 mt-1">0 Hari</span>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-orange-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total PS (Pulang Sore)</span>
+                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total PS</span>
                     <span id="statPs" class="text-xl font-black text-orange-600 dark:text-orange-400 mt-1">0 Hari</span>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-amber-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
@@ -128,10 +127,9 @@
             <!-- Kalender Jadwal -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift & Jam Riwayat Absen (26 Agt - 25 Sep)</h3>
+                    <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift & Jam Absen (26 Agt - 25 Sep)</h3>
                     <span id="statusSync" class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-xl font-bold">Online Aktif</span>
                 </div>
-                
                 <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
             </div>
         </section>
@@ -141,12 +139,10 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
-                        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Jadwal Semua Karyawan (Cut-Off 26 Agt - 25 Sep)</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Tanggal disusun menurun ke bawah di sisi kiri, nama karyawan berderet di atas.</p>
+                        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Matriks Jadwal Semua Karyawan</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Tinjauan keseluruhan jadwal dan status cut-off.</p>
                     </div>
-                    <span class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 rounded-xl font-bold">Matriks Lengkap</span>
                 </div>
-
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300 border-collapse">
                         <thead id="tabelSemuaHeader" class="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-800"></thead>
@@ -156,23 +152,14 @@
             </div>
         </section>
 
-        <!-- HALAMAN 3: PANEL ADMIN -->
-        <section id="tabAdmin" class="hidden space-y-6 max-w-4xl mx-auto">
-            
-            <!-- Rekapitulasi -->
-            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 md:p-8 rounded-3xl space-y-4 shadow-xl">
-                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl border border-indigo-500/20">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        </div>
-                        <div>
-                            <h2 class="text-lg font-black text-slate-900 dark:text-white tracking-tight">Rekapitulasi Statistik Cut-Off (26 Agt - 25 Sep)</h2>
-                            <p class="text-xs text-slate-500 dark:text-slate-400">Total masuk, OFF, PS, dan deteksi khusus libur akhir pekan.</p>
-                        </div>
-                    </div>
-                </div>
+        <!-- HALAMAN 3: PANEL ADMIN LENGKAP -->
+        <section id="tabAdmin" class="hidden space-y-6 max-w-6xl mx-auto">
 
+            <!-- Rekapitulasi Statistik -->
+            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
+                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <h2 class="text-lg font-black text-slate-900 dark:text-white">Rekapitulasi Statistik Cut-Off</h2>
+                </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300">
                         <thead class="bg-slate-100 dark:bg-slate-950 text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-800">
@@ -189,122 +176,113 @@
                 </div>
             </div>
 
-            <!-- Kelola Karyawan -->
-            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 md:p-8 rounded-3xl shadow-xl">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="p-3.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl border border-emerald-500/20 shadow-inner">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+            <!-- Atur Jadwal Cloud Sync -->
+            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl">
+                <h2 class="text-xl font-black text-slate-900 dark:text-white mb-4">⚙️ Atur Jadwal / OFF Karyawan (Cloud Sync)</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1 uppercase">Karyawan:</label>
+                        <select id="adminKaryawan" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-bold"></select>
                     </div>
                     <div>
-                        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Kelola Daftar Karyawan</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Tambah atau hapus karyawan langsung tersimpan ke sistem.</p>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1 uppercase">Tanggal:</label>
+                        <input type="date" id="adminTanggal" min="2026-08-26" max="2026-09-25" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1 uppercase">Status:</label>
+                        <select id="adminStatus" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-bold">
+                            <option value="FULL">Normal</option>
+                            <option value="OFF">OFF (Libur)</option>
+                            <option value="PS">PS (Pulang Sore)</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="simpanJadwalAdmin()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm shadow-lg">Simpan Jadwal ke Cloud</button>
+            </div>
+
+            <!-- Tabel Log Absensi Harian Lengkap (Dari Web Lama) -->
+            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-lg font-black text-slate-900 dark:text-white">Log Absensi Masuk & Foto</h2>
+                        <p class="text-xs text-slate-500">Data lengkap koordinat GPS dan foto selfie karyawan.</p>
+                    </div>
+                    <div class="flex items-center gap-3 w-full md:w-auto">
+                        <select id="filterNamaAdmin" onchange="renderTabelAdminLog()" class="px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs font-bold">
+                            <option value="SEMUA">-- Semua Karyawan --</option>
+                        </select>
+                        <button onclick="downloadCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow">
+                            📥 Unduh CSV
+                        </button>
                     </div>
                 </div>
 
-                <div class="bg-slate-50 dark:bg-slate-950/80 p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 space-y-4 shadow-inner">
-                    <div class="flex gap-3">
-                        <input type="text" id="inputNamaBaru" placeholder="Nama Karyawan Baru (cth: Budi)" 
-                            class="flex-1 px-4 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        <button onclick="tambahKaryawanOnline()" 
-                            class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all shadow-lg shadow-emerald-600/25">
-                            Tambah
-                        </button>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Daftar Karyawan Aktif:</label>
-                        <div id="listKaryawanAdmin" class="flex flex-wrap gap-2"></div>
-                    </div>
-                    <p id="statusKaryawanMsg" class="text-xs font-medium text-center"></p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300 border-collapse">
+                        <thead class="bg-slate-100 dark:bg-slate-950 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800">
+                            <tr>
+                                <th class="py-3 px-4">Waktu</th>
+                                <th class="py-3 px-4">Nama</th>
+                                <th class="py-3 px-4 text-center">Status</th>
+                                <th class="py-3 px-4">Koordinat GPS</th>
+                                <th class="py-3 px-4 text-center">Foto Selfie</th>
+                            </tr>
+                        </thead>
+                        <tbody id="isiTabelAdminLog" class="divide-y divide-slate-200 dark:divide-slate-800/60"></tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- Atur Jadwal (Tersimpan ke Server Cloud) -->
-            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 md:p-8 rounded-3xl shadow-xl">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="p-3.5 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl border border-indigo-500/20 shadow-inner">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
-                    </div>
-                    <div>
-                        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Atur Jadwal Karyawan (Cloud Sync)</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">Atur hari libur atau status khusus; otomatis tersimpan online ke server.</p>
-                    </div>
+            <!-- Kelola Karyawan -->
+            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl">
+                <h2 class="text-xl font-black text-slate-900 dark:text-white mb-4">Kelola Daftar Karyawan</h2>
+                <div class="flex gap-3 mb-4">
+                    <input type="text" id="inputNamaBaru" placeholder="Nama Karyawan Baru (cth: Budi)" class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm">
+                    <button onclick="tambahKaryawanOnline()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Tambah</button>
                 </div>
-
-                <div class="bg-slate-50 dark:bg-slate-950/80 p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 space-y-4 shadow-inner">
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Karyawan:</label>
-                            <select id="adminKaryawan" class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Tanggal (26 Agt - 25 Sep):</label>
-                            <input type="date" id="adminTanggal" min="2026-08-26" max="2026-09-25" 
-                                class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-medium text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Status:</label>
-                            <select id="adminStatus" class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <option value="FULL">Normal</option>
-                                <option value="OFF">OFF (Libur)</option>
-                                <option value="PS">PS (Pulang Sore)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button onclick="simpanJadwalAdmin()" 
-                        class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/25">
-                        Simpan ke Server Cloud
-                    </button>
-                    <p id="statusAdmin" class="text-xs font-medium text-center"></p>
-                </div>
+                <div id="listKaryawanAdmin" class="flex flex-wrap gap-2"></div>
             </div>
 
         </section>
 
     </main>
 
-    <!-- MODAL POP-UP MODERN -->
+    <!-- MODAL POP-UP -->
     <div id="customModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl text-center">
             <div id="modalIcon" class="text-3xl">✨</div>
             <h3 id="modalTitle" class="text-lg font-black text-slate-900 dark:text-white">Informasi</h3>
             <p id="modalMessage" class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed"></p>
             <div id="modalActionContainer" class="flex gap-2 pt-2">
-                <button onclick="closeModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg">OK</button>
+                <button onclick="closeModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg">OK</button>
             </div>
         </div>
     </div>
 
-    <!-- LOGIKA SCRIPT & TEMA -->
+    <!-- SCRIPT UTAMA -->
     <script>
         const URL_WEB_APP_GS = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
 
         let daftarKaryawan = ["Poniadi", "Eko", "Dedy", "Dwi", "Friza", "Rudi", "Demmy", "Bima", "Agung", "Zaenal"];
         let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan_cloud')) || {};
         let databaseAbsenSheet = JSON.parse(localStorage.getItem('db_absen_sheet')) || {};
+        let dataLaporanGlobal = [];
 
         function toggleTheme() {
             const root = document.getElementById('htmlRoot');
             const icon = document.getElementById('themeIcon');
             if (root.classList.contains('dark')) {
-                root.classList.remove('dark');
-                root.classList.add('light');
-                localStorage.setItem('theme', 'light');
-                icon.innerText = "🌙 Gelap";
+                root.classList.remove('dark'); root.classList.add('light');
+                localStorage.setItem('theme', 'light'); icon.innerText = "🌙 Gelap";
             } else {
-                root.classList.remove('light');
-                root.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-                icon.innerText = "☀️ Terang";
+                root.classList.remove('light'); root.classList.add('dark');
+                localStorage.setItem('theme', 'dark'); icon.innerText = "☀️ Terang";
             }
         }
 
         (function() {
             const savedTheme = localStorage.getItem('theme') || 'dark';
-            const root = document.getElementById('htmlRoot');
-            const icon = document.getElementById('themeIcon');
-            root.className = savedTheme;
-            if(icon) icon.innerText = savedTheme === 'dark' ? "☀️ Terang" : "🌙 Gelap";
+            document.getElementById('htmlRoot').className = savedTheme;
         })();
 
         function showModal(title, message, isConfirm = false, onConfirm = null) {
@@ -312,39 +290,36 @@
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalMessage').innerText = message;
             const container = document.getElementById('modalActionContainer');
-            
+
             if (isConfirm) {
                 container.innerHTML = `
-                    <button onclick="closeModal()" class="flex-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-xs transition-all">Batal</button>
-                    <button id="modalConfirmBtn" class="flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg">Ya, Lanjutkan</button>
+                    <button onclick="closeModal()" class="flex-1 bg-slate-200 dark:bg-slate-800 font-bold py-2.5 rounded-xl text-xs">Batal</button>
+                    <button id="modalConfirmBtn" class="flex-1 bg-rose-600 text-white font-bold py-2.5 rounded-xl text-xs">Ya, Lanjutkan</button>
                 `;
                 document.getElementById('modalConfirmBtn').onclick = function() {
-                    closeModal();
-                    if(onConfirm) onConfirm();
+                    closeModal(); if(onConfirm) onConfirm();
                 };
             } else {
-                container.innerHTML = `<button onclick="closeModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg">OK</button>`;
+                container.innerHTML = `<button onclick="closeModal()" class="flex-1 bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg">OK</button>`;
             }
             modal.classList.remove('hidden');
         }
 
-        function closeModal() {
-            document.getElementById('customModal').classList.add('hidden');
-        }
+        function closeModal() { document.getElementById('customModal').classList.add('hidden'); }
 
         window.switchTab = function(tabName) {
             const tabs = ['tabJadwal', 'tabSemuaJadwal', 'tabAdmin'];
             const btns = ['btnJadwal', 'btnSemuaJadwal', 'btnAdmin'];
-            
+
             tabs.forEach((t, i) => {
                 const el = document.getElementById(t);
                 const btn = document.getElementById(btns[i]);
                 if (t === 'tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)) {
                     el.classList.remove('hidden');
-                    btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-300 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30";
+                    btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30";
                 } else {
                     el.classList.add('hidden');
-                    btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60";
+                    btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60";
                 }
             });
 
@@ -352,15 +327,15 @@
             if (tabName === 'admin') {
                 renderListKaryawanAdmin();
                 renderTabelRekap();
+                renderTabelAdminLog();
             }
         }
 
         async function sinkronisasiDataOnline() {
             const badgeSync = document.getElementById('statusSync');
             const syncIcon = document.getElementById('syncIcon');
-            
+
             if(syncIcon) syncIcon.classList.add('animate-spin');
-            badgeSync.className = "text-xs px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-xl font-bold animate-pulse";
             badgeSync.innerText = "Memuat dari Cloud...";
 
             try {
@@ -370,9 +345,8 @@
                     fetch(URL_WEB_APP_GS, { method: "POST", body: JSON.stringify({ aksi: "get_jadwal_off" }) }).catch(() => null)
                 ]);
 
-                if (Array.isArray(resKaryawan) && resKaryawan.length > 0) {
-                    daftarKaryawan = resKaryawan;
-                }
+                if (Array.isArray(resKaryawan) && resKaryawan.length > 0) daftarKaryawan = resKaryawan;
+                dataLaporanGlobal = Array.isArray(resAbsen) ? resAbsen : [];
 
                 if (resJadwalCloud && resJadwalCloud.ok) {
                     let dataServer = await resJadwalCloud.json();
@@ -396,35 +370,27 @@
                             if (tglParts.length === 3) {
                                 let tglIso = `${tglParts[2]}-${tglParts[1]}-${tglParts[0]}`;
                                 let jamMenit = parts[1] ? parts[1].substring(0, 5) : "";
-
                                 let key = `${nama}_${tglIso}`;
-                                if (!databaseAbsenSheet[key]) {
-                                    databaseAbsenSheet[key] = { checkIn: "-", checkOut: "-" };
-                                }
 
-                                if (statusAbsen.toLowerCase().includes("in")) {
-                                    databaseAbsenSheet[key].checkIn = jamMenit;
-                                } else if (statusAbsen.toLowerCase().includes("out")) {
-                                    databaseAbsenSheet[key].checkOut = jamMenit;
-                                }
+                                if (!databaseAbsenSheet[key]) databaseAbsenSheet[key] = { checkIn: "-", checkOut: "-" };
+                                if (statusAbsen.toLowerCase().includes("in")) databaseAbsenSheet[key].checkIn = jamMenit;
+                                else if (statusAbsen.toLowerCase().includes("out")) databaseAbsenSheet[key].checkOut = jamMenit;
+                                else if (statusAbsen.toUpperCase() === "OFF") databaseAbsenSheet[key].checkIn = "OFF";
                             }
                         }
                     }
-                    localStorage.setItem('db_absen_sheet', JSON.stringify(databaseAbsenSheet));
                 }
 
-                badgeSync.className = "text-xs px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-xl font-bold";
                 badgeSync.innerText = "Sinkronisasi Cloud ✓";
-
                 updateDropdownKaryawan();
                 renderJadwalKaryawan();
                 renderTabelSemuaJadwal();
                 renderTabelRekap();
                 renderListKaryawanAdmin();
+                renderTabelAdminLog();
 
             } catch (err) {
                 console.error(err);
-                badgeSync.className = "text-xs px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-xl font-bold";
                 badgeSync.innerText = "Mode Lokal Aktif";
             } finally {
                 if(syncIcon) syncIcon.classList.remove('animate-spin');
@@ -432,80 +398,32 @@
         }
 
         function updateDropdownKaryawan() {
-            const selectJadwal = document.getElementById('selectKaryawan');
-            const selectAdmin = document.getElementById('adminKaryawan');
-            
             let optionsHtml = "";
-            daftarKaryawan.forEach(nama => {
-                optionsHtml += `<option value="${nama}">${nama}</option>`;
-            });
-
-            if(selectJadwal) selectJadwal.innerHTML = optionsHtml;
-            if(selectAdmin) selectAdmin.innerHTML = optionsHtml;
-        }
-
-        async function tambahKaryawanOnline() {
-            const input = document.getElementById('inputNamaBaru');
-            const namaBaru = input.value.trim();
-
-            if (!namaBaru) {
-                showModal("Peringatan", "Masukkan nama karyawan terlebih dahulu!");
-                return;
+            daftarKaryawan.forEach(nama => { optionsHtml += `<option value="${nama}">${nama}</option>`; });
+            
+            if(document.getElementById('selectKaryawan')) document.getElementById('selectKaryawan').innerHTML = optionsHtml;
+            if(document.getElementById('adminKaryawan')) document.getElementById('adminKaryawan').innerHTML = optionsHtml;
+            
+            let filterAdmin = document.getElementById('filterNamaAdmin');
+            if(filterAdmin) {
+                filterAdmin.innerHTML = '<option value="SEMUA">-- Semua Karyawan --</option>';
+                daftarKaryawan.forEach(nama => { filterAdmin.innerHTML += `<option value="${nama}">${nama}</option>`; });
             }
-
-            if (!daftarKaryawan.includes(namaBaru)) {
-                daftarKaryawan.push(namaBaru);
-            }
-            input.value = "";
-            updateDropdownKaryawan();
-            renderListKaryawanAdmin();
-            renderTabelSemuaJadwal();
-            showModal("Sukses", `Karyawan "${namaBaru}" berhasil ditambahkan!`);
-        }
-
-        async function hapusKaryawanOnline(nama) {
-            showModal("Konfirmasi Hapus", `Yakin ingin menghapus ${nama}?`, true, function() {
-                daftarKaryawan = daftarKaryawan.filter(n => n !== nama);
-                updateDropdownKaryawan();
-                renderListKaryawanAdmin();
-                renderTabelSemuaJadwal();
-            });
-        }
-
-        function renderListKaryawanAdmin() {
-            const container = document.getElementById('listKaryawanAdmin');
-            let html = "";
-            daftarKaryawan.forEach(nama => {
-                html += `
-                    <div class="flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-900 dark:text-white shadow-sm">
-                        <span>👤 ${nama}</span>
-                        <button onclick="hapusKaryawanOnline('${nama}')" class="text-rose-600 dark:text-rose-400 font-bold ml-1">✕</button>
-                    </div>
-                `;
-            });
-            if(container) container.innerHTML = html;
         }
 
         function getCutOffDates() {
             let dates = [];
             let currDate = new Date("2026-08-26");
             let endDate = new Date("2026-09-25");
-
             while (currDate <= endDate) {
                 let year = currDate.getFullYear();
                 let month = String(currDate.getMonth() + 1).padStart(2, '0');
                 let day = String(currDate.getDate()).padStart(2, '0');
                 let dateString = `${year}-${month}-${day}`;
-                
-                let dayOfWeek = currDate.getDay(); 
-                let namaHari = currDate.toLocaleDateString('id-ID', { weekday: 'short' });
-                let namaBulan = currDate.toLocaleDateString('id-ID', { month: 'short' });
-                
                 dates.push({
                     dateStr: dateString,
-                    label: `${namaHari}, ${day} ${namaBulan}`,
-                    dayOfWeek: dayOfWeek,
-                    isWeekend: (dayOfWeek === 0 || dayOfWeek === 6)
+                    label: `${currDate.toLocaleDateString('id-ID', { weekday: 'short' })}, ${day} ${currDate.toLocaleDateString('id-ID', { month: 'short' })}`,
+                    isWeekend: (currDate.getDay() === 0 || currDate.getDay() === 6)
                 });
                 currDate.setDate(currDate.getDate() + 1);
             }
@@ -514,11 +432,10 @@
 
         window.renderJadwalKaryawan = function() {
             databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan_cloud')) || {};
-            const selectEl = document.getElementById('selectKaryawan');
-            const karyawan = selectEl ? selectEl.value : (daftarKaryawan[0] || "Poniadi");
+            const karyawan = document.getElementById('selectKaryawan')?.value || daftarKaryawan[0];
             const container = document.getElementById('gridJadwal');
             const dates = getCutOffDates();
-            
+
             let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
             let html = "";
 
@@ -531,142 +448,142 @@
                 let statusLabel = "Full";
                 let jamTampil = `In: ${dataAbsen.checkIn} | Out: ${dataAbsen.checkOut}`;
 
-                if (dataAbsen.checkIn !== "-") {
+                if (statusJadwal === "OFF" || dataAbsen.checkIn === "OFF") {
+                    badgeClass = "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30";
+                    statusLabel = "OFF"; jamTampil = "LIBUR"; countOffTotal++;
+                    if (item.isWeekend) countOffWeekend++;
+                } else if (dataAbsen.checkIn !== "-") {
                     countMasuk++;
                     let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
-                    if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-                        countTerlambat++;
-                    }
+                    if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) countTerlambat++;
                     if (statusJadwal === "PS" || (dataAbsen.checkOut !== "-" && parseInt(dataAbsen.checkOut.split(":")[0]) < 19)) {
                         badgeClass = "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30";
-                        statusLabel = "PS";
-                        countPs++;
-                    }
-                }
-
-                if (statusJadwal === "OFF") {
-                    badgeClass = "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30";
-                    statusLabel = "OFF";
-                    jamTampil = "LIBUR";
-                    countOffTotal++;
-                    if (item.isWeekend) {
-                        countOffWeekend++;
+                        statusLabel = "PS"; countPs++;
                     }
                 }
 
                 html += `
-                    <div class="bg-slate-50 dark:bg-slate-950/80 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col justify-between space-y-2 shadow-sm">
+                    <div class="bg-slate-50 dark:bg-slate-950/80 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col justify-between space-y-2">
                         <div class="flex justify-between items-center">
-                            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400">${item.label}</span>
+                            <span class="text-[11px] font-bold text-slate-500">${item.label}</span>
                             <span class="text-[10px] px-2 py-0.5 rounded-lg border font-black ${badgeClass}">${statusLabel}</span>
                         </div>
-                        <div class="py-1">
-                            <span class="text-[11px] font-extrabold text-slate-900 dark:text-white block">${jamTampil}</span>
-                        </div>
+                        <span class="text-[11px] font-extrabold text-slate-900 dark:text-white block">${jamTampil}</span>
                     </div>
                 `;
             });
 
             if (container) container.innerHTML = html;
             document.getElementById('statMasuk').innerText = `${countMasuk} Hari`;
-            document.getElementById('statOff').innerHTML = `${countOffTotal} Hari <span class="text-[10px] font-normal block text-rose-500 dark:text-rose-400">Sab/Min: ${countOffWeekend}</span>`;
+            document.getElementById('statOff').innerHTML = `${countOffTotal} Hari <span class="text-[10px] font-normal block text-rose-500">(Sab/Min: ${countOffWeekend})</span>`;
             document.getElementById('statPs').innerText = `${countPs} Hari`;
             document.getElementById('statTerlambat').innerText = `${countTerlambat} Hari`;
         }
 
         function renderTabelSemuaJadwal() {
-            databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan_cloud')) || {};
             const headerEl = document.getElementById('tabelSemuaHeader');
             const bodyEl = document.getElementById('tabelSemuaBody');
             const dates = getCutOffDates();
 
-            let headerHtml = `<tr><th class="py-3 px-4 border-b border-slate-200 dark:border-slate-800">Tanggal / Hari</th>`;
-            daftarKaryawan.forEach(nama => {
-                headerHtml += `<th class="py-3 px-4 text-center border-b border-slate-200 dark:border-slate-800 font-extrabold text-indigo-600 dark:text-indigo-300">${nama}</th>`;
-            });
+            let headerHtml = `<tr><th class="py-3 px-4">Tanggal</th>`;
+            daftarKaryawan.forEach(nama => { headerHtml += `<th class="py-3 px-4 text-center font-extrabold text-indigo-400">${nama}</th>`; });
             headerHtml += `</tr>`;
             if(headerEl) headerEl.innerHTML = headerHtml;
 
             let bodyHtml = "";
             dates.forEach(item => {
-                bodyHtml += `<tr class="hover:bg-slate-100 dark:hover:bg-slate-900/40 transition-colors">`;
-                bodyHtml += `<td class="py-2.5 px-4 font-bold text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-800/60 whitespace-nowrap">${item.label}</td>`;
-
+                bodyHtml += `<tr class="hover:bg-slate-900/40">`;
+                bodyHtml += `<td class="py-2.5 px-4 font-bold whitespace-nowrap">${item.label}</td>`;
                 daftarKaryawan.forEach(nama => {
                     let key = `${nama}_${item.dateStr}`;
                     let status = databaseJadwal[key];
                     let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
+                    let label = "-", badgeStyle = "bg-slate-500/10 text-slate-500";
 
-                    let badgeStyle = "bg-slate-500/10 text-slate-500 border-slate-500/20";
-                    let label = "-";
-
-                    if (status === "OFF") {
-                        badgeStyle = "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30";
-                        label = "OFF";
+                    if (status === "OFF" || absen.checkIn === "OFF") {
+                        badgeStyle = "bg-red-500/15 text-red-400 border-red-500/30"; label = "OFF";
                     } else if (absen.checkIn !== "-") {
-                        badgeStyle = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
-                        label = absen.checkIn;
+                        badgeStyle = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"; label = absen.checkIn;
                         if (status === "PS") label += " (PS)";
                     }
-
-                    bodyHtml += `
-                        <td class="py-2.5 px-4 text-center border-b border-slate-200 dark:border-slate-800/60">
-                            <span class="inline-block px-2.5 py-1 rounded-lg text-[10px] font-black border ${badgeStyle}">${label}</span>
-                        </td>
-                    `;
+                    bodyHtml += `<td class="py-2.5 px-4 text-center"><span class="inline-block px-2.5 py-1 rounded-lg text-[10px] font-black border ${badgeStyle}">${label}</span></td>`;
                 });
                 bodyHtml += `</tr>`;
             });
-
             if(bodyEl) bodyEl.innerHTML = bodyHtml;
         }
 
         function renderTabelRekap() {
-            databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan_cloud')) || {};
             const tbody = document.getElementById('tabelRekapBody');
             const dates = getCutOffDates();
-
             let html = "";
+
             daftarKaryawan.forEach(nama => {
                 let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
-
                 dates.forEach(item => {
                     let key = `${nama}_${item.dateStr}`;
                     let statusJadwal = databaseJadwal[key];
                     let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
 
-                    if (statusJadwal === "OFF") {
-                        countOffTotal++;
-                        if (item.isWeekend) {
-                            countOffWeekend++;
-                        }
+                    if (statusJadwal === "OFF" || absen.checkIn === "OFF") {
+                        countOffTotal++; if (item.isWeekend) countOffWeekend++;
                     } else if (absen.checkIn !== "-") {
                         countMasuk++;
                         let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
-                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-                            countTerlambat++;
-                        }
-                        if (statusJadwal === "PS" || (absen.checkOut !== "-" && parseInt(absen.checkOut.split(":")[0]) < 19)) {
-                            countPs++;
-                        }
+                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) countTerlambat++;
+                        if (statusJadwal === "PS" || (absen.checkOut !== "-" && parseInt(absen.checkOut.split(":")[0]) < 19)) countPs++;
                     }
                 });
 
                 html += `
-                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-900/50 transition-colors">
-                        <td class="py-3 px-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">👤 ${nama}</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">${countMasuk} Hari</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-red-600 dark:text-red-400 text-sm">
-                            ${countOffTotal} Hari
-                            <span class="block text-[10px] font-normal text-slate-500 dark:text-slate-400">(Sab/Min: ${countOffWeekend})</span>
-                        </td>
-                        <td class="py-3 px-4 text-center font-extrabold text-orange-600 dark:text-orange-400 text-sm">${countPs} Hari</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-amber-600 dark:text-amber-400 text-sm">${countTerlambat} Hari</td>
+                    <tr class="hover:bg-slate-900/50">
+                        <td class="py-3 px-4 font-bold text-white">👤 ${nama}</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-emerald-400">${countMasuk} Hari</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-red-400">${countOffTotal} Hari <span class="block text-[10px] text-slate-400">(Sab/Min: ${countOffWeekend})</span></td>
+                        <td class="py-3 px-4 text-center font-extrabold text-orange-400">${countPs} Hari</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-amber-400">${countTerlambat} Hari</td>
                     </tr>
                 `;
             });
-
             if(tbody) tbody.innerHTML = html;
+        }
+
+        function renderTabelAdminLog() {
+            const tbody = document.getElementById('isiTabelAdminLog');
+            const filterNama = document.getElementById('filterNamaAdmin')?.value || "SEMUA";
+            if(!tbody) return;
+
+            tbody.innerHTML = "";
+            if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) {
+                tbody.innerHTML = "<tr><td colspan='5' class='text-center py-6 text-slate-500'>Belum ada data absensi.</td></tr>";
+                return;
+            }
+
+            for (let i = 1; i < dataLaporanGlobal.length; i++) {
+                let row = dataLaporanGlobal[i];
+                let waktu = row[0] || "-";
+                let nama = String(row[1] || "").trim();
+                let status = row[2] || "-";
+                let lat = row[3];
+                let lng = row[4];
+                let fotoUrl = row[5];
+
+                if (filterNama === "SEMUA" || nama === filterNama) {
+                    let badgeClass = status === 'Check In' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : (status === 'OFF' ? 'bg-rose-500/15 text-rose-400 border-rose-500/30' : 'bg-amber-500/10 text-amber-400 border-amber-500/20');
+                    let koordinat = (lat && lng && lat !== "-") ? `${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}` : '-';
+                    let fotoLink = (fotoUrl && fotoUrl !== '-') ? `<a href="${fotoUrl}" target="_blank" class="px-2.5 py-1 bg-indigo-500/10 text-indigo-400 rounded-lg font-bold border border-indigo-500/20">Lihat Foto</a>` : '<span class="text-slate-600">Tanpa Foto</span>';
+
+                    tbody.innerHTML += `
+                        <tr class="hover:bg-slate-900/40">
+                            <td class="py-3 px-4 whitespace-nowrap font-medium">${waktu}</td>
+                            <td class="py-3 px-4 font-bold text-white">${nama}</td>
+                            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-lg text-[10px] font-black border ${badgeClass}">${status}</span></td>
+                            <td class="py-3 px-4 font-mono text-slate-400">${koordinat}</td>
+                            <td class="py-3 px-4 text-center">${fotoLink}</td>
+                        </tr>
+                    `;
+                }
+            }
         }
 
         window.simpanJadwalAdmin = async function() {
@@ -674,19 +591,12 @@
             const tanggal = document.getElementById('adminTanggal').value;
             const status = document.getElementById('adminStatus').value;
 
-            if (!tanggal) {
-                showModal("Peringatan", "Pilih tanggal terlebih dahulu!");
-                return;
-            }
+            if (!tanggal) { showModal("Peringatan", "Pilih tanggal terlebih dahulu!"); return; }
 
             let key = `${karyawan}_${tanggal}`;
-            if (status === "FULL") {
-                delete databaseJadwal[key];
-            } else {
-                databaseJadwal[key] = status;
-            }
-            
-            // Simpan ke memori lokal & kirim ke server cloud
+            if (status === "FULL") delete databaseJadwal[key];
+            else databaseJadwal[key] = status;
+
             localStorage.setItem('db_jadwal_karyawan_cloud', JSON.stringify(databaseJadwal));
 
             try {
@@ -694,17 +604,45 @@
                     method: "POST",
                     body: JSON.stringify({ aksi: "simpan_jadwal_off", data: databaseJadwal })
                 });
-            } catch (err) {
-                console.error("Gagal simpan ke cloud:", err);
-            }
+            } catch (err) { console.error(err); }
 
             showModal("Sukses", `Jadwal ${karyawan} berhasil diperbarui & disinkronkan ke Cloud!`);
-            renderJadwalKaryawan();
-            renderTabelRekap();
-            renderTabelSemuaJadwal();
+            renderJadwalKaryawan(); renderTabelRekap(); renderTabelSemuaJadwal();
         }
 
-        // Inisialisasi awal sinkronisasi data
+        async function tambahKaryawanOnline() {
+            const input = document.getElementById('inputNamaBaru');
+            const namaBaru = input.value.trim();
+            if (!namaBaru) { showModal("Peringatan", "Masukkan nama karyawan!"); return; }
+            if (!daftarKaryawan.includes(namaBaru)) daftarKaryawan.push(namaBaru);
+            input.value = ""; updateDropdownKaryawan(); renderListKaryawanAdmin();
+            showModal("Sukses", `Karyawan "${namaBaru}" ditambahkan!`);
+        }
+
+        function renderListKaryawanAdmin() {
+            const container = document.getElementById('listKaryawanAdmin');
+            if(!container) return;
+            let html = "";
+            daftarKaryawan.forEach(nama => {
+                html += `<div class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs font-bold text-white flex items-center gap-2"><span>👤 ${nama}</span></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        window.downloadCSV = function() {
+            if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) { alert("Belum ada data."); return; }
+            let csvContent = "\uFEFF";
+            dataLaporanGlobal.forEach(row => {
+                csvContent += row.map(val => `"${String(val || "").replace(/"/g, '""')}"`).join(",") + "\r\n";
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Rekap_Absen_UFO_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
         sinkronisasiDataOnline();
     </script>
 </body>
