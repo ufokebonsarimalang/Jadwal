@@ -49,7 +49,7 @@
             <button onclick="switchTab('admin')" id="btnAdmin" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent hover:border-slate-700/50">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
-                <span class="hidden sm:inline">Panel Admin (Ubah Jadwal)</span>
+                <span class="hidden sm:inline">Panel Admin (Kelola)</span>
             </button>
         </nav>
 
@@ -75,10 +75,7 @@
                 <div>
                     <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pilih Nama Karyawan:</label>
                     <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="Budi">Budi</option>
-                        <option value="Siti">Siti</option>
-                        <option value="Andi">Andi</option>
-                        <option value="Dewi">Dewi</option>
+                        <!-- Diisi otomatis via script -->
                     </select>
                 </div>
             </div>
@@ -96,16 +93,50 @@
             </div>
         </section>
 
-        <!-- HALAMAN 2: PANEL ADMIN (UBAH JADWAL OFF / PS) -->
+        <!-- HALAMAN 2: PANEL ADMIN (KELOLA KARYAWAN & JADWAL OFF/PS) -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-3xl mx-auto">
+            
+            <!-- KOTAK 1: TAMBAH / HAPUS NAMA KARYAWAN -->
+            <div class="glass-card p-6 md:p-8 rounded-3xl">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="p-3.5 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20 shadow-inner">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black text-white tracking-tight">Kelola Daftar Karyawan</h2>
+                        <p class="text-xs text-slate-400">Tambah nama baru atau hapus karyawan dari sistem.</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800/80 space-y-4 shadow-inner">
+                    <div class="flex gap-3">
+                        <input type="text" id="inputNamaBaru" placeholder="Nama Karyawan Baru (cth: Budi)" 
+                            class="flex-1 px-4 py-3 bg-slate-900 border border-slate-800 rounded-xl text-sm font-medium text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <button onclick="tambahKaryawan()" 
+                            class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-sm transition-all shadow-lg shadow-emerald-600/25">
+                            Tambah
+                        </button>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Daftar Karyawan Aktif (Klik Hapus untuk membuang):</label>
+                        <div id="listKaryawanAdmin" class="flex flex-wrap gap-2">
+                            <!-- List badge karyawan -->
+                        </div>
+                    </div>
+                    <p id="statusKaryawanMsg" class="text-xs font-medium text-center"></p>
+                </div>
+            </div>
+
+            <!-- KOTAK 2: UBAH JADWAL KHUSUS (OFF / PS) -->
             <div class="glass-card p-6 md:p-8 rounded-3xl">
                 <div class="flex items-center gap-4 mb-6">
                     <div class="p-3.5 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20 shadow-inner">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                     </div>
                     <div>
-                        <h2 class="text-xl font-black text-white tracking-tight">Panel Kontrol Admin (Ubah Jadwal)</h2>
-                        <p class="text-xs text-slate-400">Atur khusus hari **OFF** atau **PS**. Selain itu otomatis **08:00 - 20:00**.</p>
+                        <h2 class="text-xl font-black text-white tracking-tight">Atur Jadwal Khusus (OFF / PS)</h2>
+                        <p class="text-xs text-slate-400">Selain tanggal yang diatur di sini, otomatis karyawan masuk pukul **08:00 - 20:00**.</p>
                     </div>
                 </div>
 
@@ -114,10 +145,7 @@
                         <div>
                             <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Karyawan:</label>
                             <select id="adminKaryawan" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <option value="Budi">Budi</option>
-                                <option value="Siti">Siti</option>
-                                <option value="Andi">Andi</option>
-                                <option value="Dewi">Dewi</option>
+                                <!-- Diisi otomatis via script -->
                             </select>
                         </div>
                         <div>
@@ -135,23 +163,23 @@
                     </div>
                     <button onclick="simpanJadwalAdmin()" 
                         class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/25">
-                        Simpan Perubahan Jadwal Karyawan
+                        Simpan Perubahan Jadwal
                     </button>
                     <p id="statusAdmin" class="text-xs font-medium text-center"></p>
                 </div>
             </div>
+
         </section>
 
     </main>
 
     <!-- LOGIKA SCRIPT -->
     <script>
-        // Simulasi Database Penyimpanan Jadwal Khusus (OFF / PS)
-        // Format key: "NamaKaryawan_YYYY-MM-DD" -> Value: "OFF" atau "PS"
-        let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {
-            "Budi_2026-08-30": "OFF",
-            "Siti_2026-09-05": "PS"
-        };
+        // Database Daftar Karyawan
+        let daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Budi", "Siti", "Andi", "Dewi"];
+
+        // Database Jadwal Khusus (OFF / PS)
+        let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
 
         window.switchTab = function(tabName) {
             const tabs = ['tabJadwal', 'tabAdmin'];
@@ -168,6 +196,83 @@
                     btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent hover:border-slate-700/50";
                 }
             });
+            if (tabName === 'admin') {
+                renderListKaryawanAdmin();
+            }
+        }
+
+        // Sinkronisasi Pilihan Dropdown Karyawan
+        function updateDropdownKaryawan() {
+            const selectJadwal = document.getElementById('selectKaryawan');
+            const selectAdmin = document.getElementById('adminKaryawan');
+            
+            let optionsHtml = "";
+            daftarKaryawan.forEach(nama => {
+                optionsHtml += `<option value="${nama}">${nama}</option>`;
+            });
+
+            selectJadwal.innerHTML = optionsHtml;
+            selectAdmin.innerHTML = optionsHtml;
+        }
+
+        // Tambah Karyawan Baru oleh Admin
+        window.tambahKaryawan = function() {
+            const input = document.getElementById('inputNamaBaru');
+            const namaBaru = input.value.trim();
+            const msg = document.getElementById('statusKaryawanMsg');
+
+            if (!namaBaru) {
+                msg.className = "text-xs font-medium text-rose-400";
+                msg.innerText = "⚠️ Masukkan nama karyawan terlebih dahulu!";
+                return;
+            }
+
+            if (daftarKaryawan.includes(namaBaru)) {
+                msg.className = "text-xs font-medium text-rose-400";
+                msg.innerText = "⚠️ Nama karyawan sudah ada di dalam sistem!";
+                return;
+            }
+
+            daftarKaryawan.push(namaBaru);
+            localStorage.setItem('db_karyawan', JSON.stringify(daftarKaryawan));
+            input.value = "";
+            
+            updateDropdownKaryawan();
+            renderListKaryawanAdmin();
+            renderJadwalKaryawan();
+
+            msg.className = "text-xs font-medium text-emerald-400";
+            msg.innerText = `✨ Sukses! Karyawan "${namaBaru}" berhasil ditambahkan.`;
+        }
+
+        // Hapus Karyawan oleh Admin
+        window.hapusKaryawan = function(nama) {
+            if (confirm(`Yakin ingin menghapus ${nama} dari sistem?`)) {
+                daftarKaryawan = daftarKaryawan.filter(n => n !== nama);
+                localStorage.setItem('db_karyawan', JSON.stringify(daftarKaryawan));
+                
+                updateDropdownKaryawan();
+                renderListKaryawanAdmin();
+                renderJadwalKaryawan();
+            }
+        }
+
+        // Render List Badge Karyawan di Panel Admin
+        function renderListKaryawanAdmin() {
+            const container = document.getElementById('listKaryawanAdmin');
+            let html = "";
+            daftarKaryawan.forEach(nama => {
+                html += `
+                    <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl text-xs font-bold text-white">
+                        <span>👤 ${nama}</span>
+                        <button onclick="hapusKaryawan('${nama}')" class="text-rose-400 hover:text-rose-300 font-bold ml-1">✕</button>
+                    </div>
+                `;
+            });
+            if (daftarKaryawan.length === 0) {
+                html = `<span class="text-xs text-slate-500 italic">Belum ada karyawan terdaftar.</span>`;
+            }
+            container.innerHTML = html;
         }
 
         // Generate Daftar Tanggal Cut-Off (26 Agustus 2026 s.d 25 September 2026)
@@ -192,7 +297,8 @@
         }
 
         window.renderJadwalKaryawan = function() {
-            const karyawan = document.getElementById('selectKaryawan').value;
+            const selectEl = document.getElementById('selectKaryawan');
+            const karyawan = selectEl ? selectEl.value : daftarKaryawan[0];
             const container = document.getElementById('gridJadwal');
             const dates = getCutOffDates();
             
@@ -228,7 +334,7 @@
                 `;
             });
 
-            container.innerHTML = html;
+            if (container) container.innerHTML = html;
         }
 
         window.simpanJadwalAdmin = function() {
@@ -250,13 +356,13 @@
             statusEl.className = "text-xs font-medium text-emerald-400";
             statusEl.innerText = `✨ Berhasil! Jadwal ${karyawan} pada tanggal ${tanggal} diubah menjadi ${status}.`;
             
-            // Refresh tampilan jika karyawan yang dipilih sama
             if (document.getElementById('selectKaryawan').value === karyawan) {
                 renderJadwalKaryawan();
             }
         }
 
         // Inisialisasi awal saat halaman dibuka
+        updateDropdownKaryawan();
         renderJadwalKaryawan();
     </script>
 </body>
