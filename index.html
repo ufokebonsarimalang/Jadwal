@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexAbsent - Super Dashboard Admin & Jadwal (Manual Upload)</title>
+    <title>NexAbsent - Super Dashboard Admin & Jadwal (Firebase Cloud)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -11,6 +11,33 @@
     </script>
     <!-- Google Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Firebase SDK v10 (Modular via CDN) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzDlIWFWrpHyf2xgLYMifLcGmBqc10EW0",
+            authDomain: "masterharga.firebaseapp.com",
+            projectId: "masterharga",
+            storageBucket: "masterharga.firebasestorage.app",
+            messagingSenderId: "761584806568",
+            appId: "1:761584806568:web:c6672e8fc0c695f15eb09d",
+            measurementId: "G-N660XBC2L4"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Global Firebase functions attach to window
+        window.fbDB = db;
+        window.fbDoc = doc;
+        window.fbSetDoc = setDoc;
+        window.fbGetDoc = getDoc;
+
+        // Auto load data from cloud on startup
+        window.loadDataFromCloud();
+    </script>
     <style>
         body { font-family: 'Inter', sans-serif; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -70,9 +97,10 @@
             </div>
             <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400 px-1">
                 <span class="relative flex h-2.5 w-2.5">
-                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-indigo-500"></span>
+                  <span id="cloudPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                  <span id="cloudDot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
                 </span>
-                <span class="font-semibold text-slate-800 dark:text-slate-200">Mode Manual Upload</span>
+                <span id="cloudStatusText" class="font-semibold text-slate-800 dark:text-slate-200">Menghubungkan Cloud...</span>
             </div>
         </div>
     </aside>
@@ -85,7 +113,7 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
                 <div>
                     <h2 class="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Jadwal & Riwayat Absensi</h2>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Pilih nama karyawan untuk melihat rekapitulasi berdasarkan data Excel yang diunggah.</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Sinkronisasi otomatis lintas perangkat via Firebase Cloud.</p>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
@@ -117,7 +145,7 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
                     <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift & Jam Absen (26 Agt - 25 Sep)</h3>
-                    <span id="statusSync" class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 rounded-xl font-bold">Mode Upload Manual</span>
+                    <button onclick="window.loadDataFromCloud()" class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 rounded-xl font-bold hover:bg-indigo-500/20">🔄 Muat Ulang Cloud</button>
                 </div>
                 <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
             </div>
@@ -149,21 +177,21 @@
             </div>
         </section>
 
-        <!-- HALAMAN 3: PANEL ADMIN & UPLOAD MANUAL -->
+        <!-- HALAMAN 3: PANEL ADMIN & UPLOAD -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-6xl mx-auto">
 
             <!-- KOTAK UPLOAD FILE EXCEL / CSV -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/40 p-6 rounded-3xl shadow-xl space-y-4">
                 <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl text-xl">📁</div>
+                    <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl text-xl">☁️</div>
                     <div>
-                        <h2 class="text-lg font-black text-slate-900 dark:text-white">Upload Data Absensi (Excel / CSV)</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Unggah file rekap absen dari ufosmart untuk memperbarui seluruh statistik secara instan.</p>
+                        <h2 class="text-lg font-black text-slate-900 dark:text-white">Upload Data Absensi ke Cloud (Firebase)</h2>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Unggah file rekap absen untuk disinkronkan ke semua perangkat admin secara instan.</p>
                     </div>
                 </div>
                 <div class="flex flex-col sm:flex-row items-center gap-4">
                     <input type="file" id="csvFileInput" accept=".csv, .xlsx, .xls" class="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2"/>
-                    <button onclick="prosesUploadFile()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-xs shadow-lg whitespace-nowrap">Proses Data</button>
+                    <button onclick="prosesUploadFile()" id="btnUpload" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-xs shadow-lg whitespace-nowrap">Proses & Simpan ke Cloud</button>
                 </div>
             </div>
 
@@ -190,7 +218,7 @@
 
             <!-- Atur Jadwal Manual / OFF Karyawan -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl">
-                <h2 class="text-xl font-black text-slate-900 dark:text-white mb-4">⚙️ Atur Jadwal / OFF Karyawan (Manual)</h2>
+                <h2 class="text-xl font-black text-slate-900 dark:text-white mb-4">⚙️ Atur Jadwal / OFF Karyawan (Cloud Sync)</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Karyawan:</label>
@@ -209,7 +237,7 @@
                         </select>
                     </div>
                 </div>
-                <button onclick="simpanJadwalAdmin()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm shadow-lg">Simpan Perubahan Jadwal</button>
+                <button onclick="simpanJadwalAdmin()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm shadow-lg">Simpan Perubahan ke Cloud</button>
             </div>
 
             <!-- Tabel Log Absensi Harian Lengkap -->
@@ -217,7 +245,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
                         <h2 class="text-lg font-black text-slate-900 dark:text-white">Log Absensi Masuk & Foto</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Data lengkap koordinat GPS dan foto selfie karyawan dari hasil upload.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Data lengkap koordinat GPS dan foto selfie karyawan dari Cloud.</p>
                     </div>
                     <div class="flex items-center gap-3 w-full md:w-auto">
                         <select id="filterNamaAdmin" onchange="renderTabelAdminLog()" class="px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
@@ -271,12 +299,12 @@
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA (MANUAL UPLOAD & LOCAL STORAGE) -->
+    <!-- SCRIPT UTAMA (FIREBASE CLOUD SYNC) -->
     <script>
-        let daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Poniadi", "Eko", "Dedy", "Dwi", "Friza", "Rudi", "Demmy", "Bima", "Agung", "Zaenal"];
-        let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan_manual')) || {};
-        let databaseAbsenSheet = JSON.parse(localStorage.getItem('db_absen_sheet_manual')) || {};
-        let dataLaporanGlobal = JSON.parse(localStorage.getItem('db_laporan_global_manual')) || [];
+        let daftarKaryawan = ["Poniadi", "Eko", "Dedy", "Dwi", "Friza", "Rudi", "Demmy", "Bima", "Agung", "Zaenal"];
+        let databaseJadwal = {};
+        let databaseAbsenSheet = {};
+        let dataLaporanGlobal = [];
 
         function toggleTheme() {
             const root = document.getElementById('htmlRoot');
@@ -328,76 +356,145 @@
             }
         }
 
-        // FUNGSI MEMPROSES UPLOAD FILE CSV / EXCEL
-        window.prosesUploadFile = function() {
+        // FUNGSI TARIK DATA DARI FIREBASE CLOUD
+        window.loadDataFromCloud = async function() {
+            const cloudStatusText = document.getElementById('cloudStatusText');
+            const cloudPing = document.getElementById('cloudPing');
+            const cloudDot = document.getElementById('cloudDot');
+            
+            if (!window.fbDB) {
+                setTimeout(window.loadDataFromCloud, 1000);
+                return;
+            }
+
+            try {
+                cloudStatusText.innerText = "Menyinkronkan Cloud...";
+                const docRef = window.fbDoc(window.fbDB, "nexabsent_data", "main_database");
+                const docSnap = await window.fbGetDoc(docRef);
+
+                if (docSnap.exists()) {
+                    let cloudData = docSnap.data();
+                    if (cloudData.karyawan) daftarKaryawan = cloudData.karyawan;
+                    if (cloudData.jadwal) databaseJadwal = cloudData.jadwal;
+                    if (cloudData.laporan) {
+                        dataLaporanGlobal = cloudData.laporan;
+                        parseLaporanToAbsenSheet(dataLaporanGlobal);
+                    }
+                }
+
+                cloudStatusText.innerText = "Cloud Terhubung ✓";
+                cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
+                cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500";
+
+                updateDropdownKaryawan();
+                renderJadwalKaryawan();
+                renderTabelSemuaJadwal();
+                renderTabelRekap();
+                renderTabelAdminLog();
+                renderListKaryawanAdmin();
+
+            } catch (err) {
+                console.error(err);
+                cloudStatusText.innerText = "Gagal Koneksi Cloud";
+                cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75";
+                cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500";
+            }
+        }
+
+        // FUNGSI SIMPAN DATA KE FIREBASE CLOUD
+        async function saveDataToCloud() {
+            try {
+                const docRef = window.fbDoc(window.fbDB, "nexabsent_data", "main_database");
+                await window.fbSetDoc(docRef, {
+                    karyawan: daftarKaryawan,
+                    jadwal: databaseJadwal,
+                    laporan: dataLaporanGlobal,
+                    updatedAt: new Date().toISOString()
+                });
+                return true;
+            } catch (err) {
+                console.error(err);
+                showModal("Error Cloud", "Gagal menyimpan data ke Firebase.");
+                return false;
+            }
+        }
+
+        function parseLaporanToAbsenSheet(parsedRows) {
+            databaseAbsenSheet = {};
+            let detectedNames = new Set(daftarKaryawan);
+
+            for (let i = 1; i < parsedRows.length; i++) {
+                let row = parsedRows[i];
+                if(!row || row.length === 0) continue;
+                let waktuStr = String(row[0] || "");
+                let nama = String(row[1] || "").trim();
+                let statusAbsen = String(row[2] || "").trim();
+
+                if (nama) detectedNames.add(nama);
+
+                if (waktuStr && nama) {
+                    let parts = waktuStr.split(" ");
+                    let tglParts = parts[0].split("-");
+                    if (tglParts.length === 3) {
+                        let tglIso = `${tglParts[2]}-${tglParts[1]}-${tglParts[0]}`;
+                        let jamMenit = parts[1] ? parts[1].substring(0, 5) : "";
+                        let key = `${nama}_${tglIso}`;
+
+                        if (!databaseAbsenSheet[key]) databaseAbsenSheet[key] = { checkIn: "-", checkOut: "-" };
+
+                        if (statusAbsen.toLowerCase().includes("in")) databaseAbsenSheet[key].checkIn = jamMenit;
+                        else if (statusAbsen.toLowerCase().includes("out")) databaseAbsenSheet[key].checkOut = jamMenit;
+                        else if (statusAbsen.toUpperCase() === "OFF") databaseAbsenSheet[key].checkIn = "OFF";
+                    }
+                }
+            }
+            daftarKaryawan = Array.from(detectedNames);
+        }
+
+        // FUNGSI UPLOAD FILE EXCEL / CSV
+        window.prosesUploadFile = async function() {
             const fileInput = document.getElementById('csvFileInput');
+            const btnUpload = document.getElementById('btnUpload');
             if (fileInput.files.length === 0) {
                 showModal("Peringatan", "Pilih file CSV / Excel terlebih dahulu!");
                 return;
             }
 
+            btnUpload.disabled = true;
+            btnUpload.innerText = "⏳ Mengunggah ke Cloud...";
+
             const file = fileInput.files[0];
             const reader = new FileReader();
 
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 const text = e.target.result;
                 const lines = text.split(/\r\n|\n/);
                 let parsedRows = [];
 
                 lines.forEach(line => {
                     if (!line.trim()) return;
-                    // Pisahkan berdasarkan koma atau titik koma
                     let cols = line.split(/,|;/).map(val => val.replace(/^"|"$/g, '').trim());
                     parsedRows.push(cols);
                 });
 
                 if (parsedRows.length > 0) {
                     dataLaporanGlobal = parsedRows;
-                    localStorage.setItem('db_laporan_global_manual', JSON.stringify(dataLaporanGlobal));
+                    parseLaporanToAbsenSheet(dataLaporanGlobal);
 
-                    // Parse ke databaseAbsenSheet
-                    databaseAbsenSheet = {};
-                    let detectedNames = new Set(daftarKaryawan);
+                    let success = await saveDataToCloud();
+                    btnUpload.disabled = false;
+                    btnUpload.innerText = "Proses & Simpan ke Cloud";
 
-                    for (let i = 1; i < parsedRows.length; i++) {
-                        let row = parsedRows[i];
-                        let waktuStr = String(row[0] || "");
-                        let nama = String(row[1] || "").trim();
-                        let statusAbsen = String(row[2] || "").trim();
-
-                        if (nama) detectedNames.add(nama);
-
-                        if (waktuStr && nama) {
-                            let parts = waktuStr.split(" ");
-                            let tglParts = parts[0].split("-");
-                            if (tglParts.length === 3) {
-                                let tglIso = `${tglParts[2]}-${tglParts[1]}-${tglParts[0]}`;
-                                let jamMenit = parts[1] ? parts[1].substring(0, 5) : "";
-                                let key = `${nama}_${tglIso}`;
-
-                                if (!databaseAbsenSheet[key]) databaseAbsenSheet[key] = { checkIn: "-", checkOut: "-" };
-
-                                if (statusAbsen.toLowerCase().includes("in")) databaseAbsenSheet[key].checkIn = jamMenit;
-                                else if (statusAbsen.toLowerCase().includes("out")) databaseAbsenSheet[key].checkOut = jamMenit;
-                                else if (statusAbsen.toUpperCase() === "OFF") databaseAbsenSheet[key].checkIn = "OFF";
-                            }
-                        }
+                    if (success) {
+                        updateDropdownKaryawan();
+                        renderJadwalKaryawan();
+                        renderTabelSemuaJadwal();
+                        renderTabelRekap();
+                        renderTabelAdminLog();
+                        showModal("Sukses!", "Data berhasil diunggah dan disinkronkan ke Cloud Firebase secara real-time!");
                     }
-
-                    daftarKaryawan = Array.from(detectedNames);
-                    localStorage.setItem('db_karyawan', JSON.stringify(daftarKaryawan));
-                    localStorage.setItem('db_absen_sheet_manual', JSON.stringify(databaseAbsenSheet));
-
-                    updateDropdownKaryawan();
-                    renderJadwalKaryawan();
-                    renderTabelSemuaJadwal();
-                    renderTabelRekap();
-                    renderTabelAdminLog();
-
-                    showModal("Berhasil!", "Data laporan berhasil diunggah dan statistik diperbarui secara instan.");
                 }
             };
-
             reader.readAsText(file);
         }
 
@@ -437,7 +534,6 @@
         }
 
         window.renderJadwalKaryawan = function() {
-            databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan_manual')) || {};
             const karyawan = document.getElementById('selectKaryawan')?.value || daftarKaryawan[0];
             const container = document.getElementById('gridJadwal');
             const dates = getCutOffDates();
@@ -561,7 +657,7 @@
 
             tbody.innerHTML = "";
             if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) {
-                tbody.innerHTML = "<tr><td colspan='5' class='text-center py-6 text-slate-500'>Belum ada data laporan yang diunggah.</td></tr>";
+                tbody.innerHTML = "<tr><td colspan='5' class='text-center py-6 text-slate-500'>Belum ada data laporan di Cloud.</td></tr>";
                 return;
             }
 
@@ -593,9 +689,7 @@
             }
         }
 
-        window.cetakPdfSemuaJadwal = function() {
-            window.print();
-        }
+        window.cetakPdfSemuaJadwal = function() { window.print(); }
 
         window.downloadExcelSemuaJadwal = function() {
             const dates = getCutOffDates();
@@ -629,7 +723,7 @@
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
-        window.simpanJadwalAdmin = function() {
+        window.simpanJadwalAdmin = async function() {
             const karyawan = document.getElementById('adminKaryawan').value;
             const tanggal = document.getElementById('adminTanggal').value;
             const status = document.getElementById('adminStatus').value;
@@ -640,23 +734,27 @@
             if (status === "FULL") delete databaseJadwal[key];
             else databaseJadwal[key] = status;
 
-            localStorage.setItem('db_jadwal_karyawan_manual', JSON.stringify(databaseJadwal));
-            showModal("Sukses", `Jadwal ${karyawan} pada ${tanggal} berhasil diperbarui.`);
-
-            renderJadwalKaryawan();
-            renderTabelRekap();
-            renderTabelSemuaJadwal();
+            let success = await saveDataToCloud();
+            if (success) {
+                showModal("Sukses", `Jadwal ${karyawan} pada ${tanggal} berhasil disimpan ke Cloud.`);
+                renderJadwalKaryawan();
+                renderTabelRekap();
+                renderTabelSemuaJadwal();
+            }
         }
 
-        window.tambahKaryawanBaru = function() {
+        window.tambahKaryawanBaru = async function() {
             const input = document.getElementById('inputNamaBaru');
             const namaBaru = input.value.trim();
             if (!namaBaru) { showModal("Peringatan", "Masukkan nama karyawan!"); return; }
             if (!daftarKaryawan.includes(namaBaru)) daftarKaryawan.push(namaBaru);
             input.value = ""; 
-            localStorage.setItem('db_karyawan', JSON.stringify(daftarKaryawan));
-            updateDropdownKaryawan(); renderListKaryawanAdmin();
-            showModal("Sukses", `Karyawan "${namaBaru}" ditambahkan!`);
+
+            let success = await saveDataToCloud();
+            if (success) {
+                updateDropdownKaryawan(); renderListKaryawanAdmin();
+                showModal("Sukses", `Karyawan "${namaBaru}" ditambahkan ke Cloud!`);
+            }
         }
 
         function renderListKaryawanAdmin() {
@@ -682,13 +780,6 @@
             link.setAttribute("download", `Rekap_Absen_UFO_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
-
-        updateDropdownKaryawan();
-        renderJadwalKaryawan();
-        renderTabelSemuaJadwal();
-        renderTabelRekap();
-        renderTabelAdminLog();
-        renderListKaryawanAdmin();
     </script>
 </body>
 </html>
