@@ -331,9 +331,13 @@
             }
         }
 
-      async function sinkronisasiDataOnline() {
+     async function sinkronisasiDataOnline() {
             const badgeSync = document.getElementById('statusSync');
             const syncIcon = document.getElementById('syncIcon');
+            const selectKaryawanEl = document.getElementById('selectKaryawan');
+
+            // Simpan dulu nama karyawan yang sedang aktif dipilih saat ini
+            let currentSelectedEmployee = selectKaryawanEl ? selectKaryawanEl.value : "";
 
             if(syncIcon) syncIcon.classList.add('animate-spin');
             badgeSync.innerText = "Memuat dari Cloud...";
@@ -374,11 +378,9 @@
                                 if (statusAbsen.toLowerCase().includes("in")) databaseAbsenSheet[key].checkIn = jamMenit;
                                 else if (statusAbsen.toLowerCase().includes("out")) databaseAbsenSheet[key].checkOut = jamMenit;
                                 else if (statusAbsen.toUpperCase() === "OFF") {
-                                    // PENTING: Jika di databaseJadwal sudah dihapus (artinya Normal/Full), jangan masukkan status OFF!
                                     if (databaseJadwal[key] === "OFF" || databaseJadwal[key] === "PS") {
                                         databaseAbsenSheet[key].checkIn = "OFF";
                                     } else {
-                                        // Abaikan status OFF dari sheet jika admin sudah mengubahnya jadi Normal
                                         databaseAbsenSheet[key].checkIn = "-"; 
                                     }
                                 }
@@ -389,6 +391,12 @@
 
                 badgeSync.innerText = "Sinkronisasi Cloud ✓";
                 updateDropdownKaryawan();
+
+                // Kembalikan pilihan dropdown ke nama karyawan yang sebelumnya dipilih jika masih ada
+                if (currentSelectedEmployee && daftarKaryawan.includes(currentSelectedEmployee)) {
+                    if(selectKaryawanEl) selectKaryawanEl.value = currentSelectedEmployee;
+                }
+
                 renderJadwalKaryawan();
                 renderTabelSemuaJadwal();
                 renderTabelRekap();
