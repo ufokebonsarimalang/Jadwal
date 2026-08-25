@@ -744,6 +744,9 @@
         }
 
         function renderTabelSemuaJadwal() {
+            // Ambil ulang databaseJadwal terbaru dari localStorage agar perubahan terbaca
+            databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
+
             const headerEl = document.getElementById('tabelSemuaHeader');
             const bodyEl = document.getElementById('tabelSemuaBody');
             const dates = getCutOffDates();
@@ -790,6 +793,7 @@
         }
 
         function renderTabelRekap() {
+            databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
             const tbody = document.getElementById('tabelRekapBody');
             const dates = getCutOffDates();
 
@@ -804,6 +808,9 @@
 
                     let isWeekend = (item.dayOfWeek === 0 || item.dayOfWeek === 6);
 
+                    if (statusJadzhwal === "OFF" || statusJadwal === "OFF") {
+                        // handled
+                    }
                     if (statusJadwal === "OFF") {
                         countOffTotal++;
                         if (isWeekend) {
