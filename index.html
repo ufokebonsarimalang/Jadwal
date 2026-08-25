@@ -51,12 +51,12 @@
                 <span class="hidden sm:inline">Jadwal Karyawan</span>
             </button>
             <button onclick="switchTab('semuaJadwal')" id="btnSemuaJadwal" 
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                 <span class="hidden sm:inline">Semua Karyawan</span>
             </button>
             <button onclick="switchTab('admin')" id="btnAdmin" 
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
                 <span class="hidden sm:inline">Panel Admin & Log</span>
             </button>
@@ -65,7 +65,7 @@
         <!-- Tombol Pengganti Tema & Status Server -->
         <div class="hidden md:flex flex-col gap-3 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs">
             <div class="flex items-center justify-between bg-slate-100 dark:bg-slate-950 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
-                <span class="text-slate-600 dark:text-slate-400 font-semibold px-2">Tema</span>
+                <span class="text-slate-700 dark:text-slate-300 font-semibold px-2">Tema</span>
                 <button onclick="toggleTheme()" class="p-2 bg-white dark:bg-slate-800 text-slate-800 dark:text-yellow-400 rounded-lg shadow transition-all hover:scale-105">
                     <span id="themeIcon">☀️ Terang</span>
                 </button>
@@ -75,25 +75,25 @@
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
                 </span>
-                <span class="font-semibold text-slate-700 dark:text-slate-300">Server Terhubung</span>
+                <span class="font-semibold text-slate-800 dark:text-slate-200">Server Terhubung</span>
             </div>
         </div>
     </aside>
 
     <!-- KONTEN UTAMA -->
-    <main class="flex-1 p-4 md:p-10 overflow-y-auto z-10">
+    <main class="flex-1 p-4 md:p-10 overflow-y-auto z-10 text-slate-900 dark:text-slate-100">
 
         <!-- HALAMAN 1: JADWAL & STATISTIK KARYAWAN -->
         <section id="tabJadwal" class="space-y-6 max-w-5xl mx-auto">
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
                 <div>
                     <h2 class="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Jadwal & Riwayat Absensi</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Data karyawan & riwayat absensi tersinkron langsung secara aman dari Google Sheet.</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Data karyawan & riwayat absensi tersinkron langsung secara aman dari Google Sheet.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
-                        <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
+                        <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
                     </div>
                     <button onclick="sinkronisasiDataOnline()" class="mt-5 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg flex items-center gap-2 group">
                         <svg id="syncIcon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -107,20 +107,20 @@
             <!-- Kartu Statistik Ringkasan -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-emerald-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Masuk</span>
-                    <span id="statMasuk" class="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">0 Hari</span>
+                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total Masuk</span>
+                    <span id="statMasuk" class="text-xl font-black text-emerald-700 dark:text-emerald-400 mt-1">0 Hari</span>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-red-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total OFF (Libur)</span>
-                    <span id="statOff" class="text-xl font-black text-red-600 dark:text-red-400 mt-1">0 Hari</span>
+                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total OFF (Libur)</span>
+                    <span id="statOff" class="text-xl font-black text-red-700 dark:text-red-400 mt-1">0 Hari</span>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-orange-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total PS</span>
-                    <span id="statPs" class="text-xl font-black text-orange-600 dark:text-orange-400 mt-1">0 Hari</span>
+                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total PS</span>
+                    <span id="statPs" class="text-xl font-black text-orange-700 dark:text-orange-400 mt-1">0 Hari</span>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-amber-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Terlambat</span>
-                    <span id="statTerlambat" class="text-xl font-black text-amber-600 dark:text-amber-400 mt-1">0 Hari</span>
+                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total Terlambat</span>
+                    <span id="statTerlambat" class="text-xl font-black text-amber-700 dark:text-amber-400 mt-1">0 Hari</span>
                 </div>
             </div>
 
@@ -128,7 +128,7 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
                     <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift & Jam Absen (26 Agt - 25 Sep)</h3>
-                    <span id="statusSync" class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-xl font-bold">Online Aktif</span>
+                    <span id="statusSync" class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 rounded-xl font-bold">Online Aktif</span>
                 </div>
                 <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
             </div>
@@ -140,12 +140,12 @@
                 <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
                         <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Matriks Jadwal Semua Karyawan</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Tinjauan keseluruhan jadwal dan status cut-off.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Tinjauan keseluruhan jadwal dan status cut-off.</p>
                     </div>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300 border-collapse">
-                        <thead id="tabelSemuaHeader" class="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-800"></thead>
+                    <table class="w-full text-left text-xs text-slate-800 dark:text-slate-200 border-collapse">
+                        <thead id="tabelSemuaHeader" class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-200 uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-800"></thead>
                         <tbody id="tabelSemuaBody" class="divide-y divide-slate-200 dark:divide-slate-800/60"></tbody>
                     </table>
                 </div>
@@ -161,8 +161,8 @@
                     <h2 class="text-lg font-black text-slate-900 dark:text-white">Rekapitulasi Statistik Cut-Off</h2>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300">
-                        <thead class="bg-slate-100 dark:bg-slate-950 text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-800">
+                    <table class="w-full text-left text-xs text-slate-800 dark:text-slate-200">
+                        <thead class="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-800">
                             <tr>
                                 <th class="py-3 px-4">Nama Karyawan</th>
                                 <th class="py-3 px-4 text-center">Masuk</th>
@@ -181,16 +181,16 @@
                 <h2 class="text-xl font-black text-slate-900 dark:text-white mb-4">⚙️ Atur Jadwal / OFF Karyawan (Cloud Sync)</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 mb-1 uppercase">Karyawan:</label>
-                        <select id="adminKaryawan" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-bold"></select>
+                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Karyawan:</label>
+                        <select id="adminKaryawan" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white"></select>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 mb-1 uppercase">Tanggal:</label>
-                        <input type="date" id="adminTanggal" min="2026-08-26" max="2026-09-25" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-medium">
+                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Tanggal:</label>
+                        <input type="date" id="adminTanggal" min="2026-08-26" max="2026-09-25" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-900 dark:text-white">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-500 mb-1 uppercase">Status:</label>
-                        <select id="adminStatus" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm font-bold">
+                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Status:</label>
+                        <select id="adminStatus" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white">
                             <option value="FULL">Normal</option>
                             <option value="OFF">OFF (Libur)</option>
                             <option value="PS">PS (Pulang Sore)</option>
@@ -200,15 +200,15 @@
                 <button onclick="simpanJadwalAdmin()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm shadow-lg">Simpan Jadwal ke Cloud</button>
             </div>
 
-            <!-- Tabel Log Absensi Harian Lengkap (Dari Web Lama) -->
+            <!-- Tabel Log Absensi Harian Lengkap -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
                         <h2 class="text-lg font-black text-slate-900 dark:text-white">Log Absensi Masuk & Foto</h2>
-                        <p class="text-xs text-slate-500">Data lengkap koordinat GPS dan foto selfie karyawan.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Data lengkap koordinat GPS dan foto selfie karyawan.</p>
                     </div>
                     <div class="flex items-center gap-3 w-full md:w-auto">
-                        <select id="filterNamaAdmin" onchange="renderTabelAdminLog()" class="px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs font-bold">
+                        <select id="filterNamaAdmin" onchange="renderTabelAdminLog()" class="px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
                             <option value="SEMUA">-- Semua Karyawan --</option>
                         </select>
                         <button onclick="downloadCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow">
@@ -218,7 +218,7 @@
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-700 dark:text-slate-300 border-collapse">
+                    <table class="w-full text-left text-xs text-slate-800 dark:text-slate-200 border-collapse">
                         <thead class="bg-slate-100 dark:bg-slate-950 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800">
                             <tr>
                                 <th class="py-3 px-4">Waktu</th>
@@ -237,7 +237,7 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl">
                 <h2 class="text-xl font-black text-slate-900 dark:text-white mb-4">Kelola Daftar Karyawan</h2>
                 <div class="flex gap-3 mb-4">
-                    <input type="text" id="inputNamaBaru" placeholder="Nama Karyawan Baru (cth: Budi)" class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm">
+                    <input type="text" id="inputNamaBaru" placeholder="Nama Karyawan Baru (cth: Budi)" class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
                     <button onclick="tambahKaryawanOnline()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Tambah</button>
                 </div>
                 <div id="listKaryawanAdmin" class="flex flex-wrap gap-2"></div>
@@ -252,9 +252,9 @@
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl text-center">
             <div id="modalIcon" class="text-3xl">✨</div>
             <h3 id="modalTitle" class="text-lg font-black text-slate-900 dark:text-white">Informasi</h3>
-            <p id="modalMessage" class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed"></p>
+            <p id="modalMessage" class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed"></p>
             <div id="modalActionContainer" class="flex gap-2 pt-2">
-                <button onclick="closeModal()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg">OK</button>
+                <button onclick="closeModal()" class="flex-1 bg-indigo-600 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg">OK</button>
             </div>
         </div>
     </div>
@@ -293,7 +293,7 @@
 
             if (isConfirm) {
                 container.innerHTML = `
-                    <button onclick="closeModal()" class="flex-1 bg-slate-200 dark:bg-slate-800 font-bold py-2.5 rounded-xl text-xs">Batal</button>
+                    <button onclick="closeModal()" class="flex-1 bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 font-bold py-2.5 rounded-xl text-xs">Batal</button>
                     <button id="modalConfirmBtn" class="flex-1 bg-rose-600 text-white font-bold py-2.5 rounded-xl text-xs">Ya, Lanjutkan</button>
                 `;
                 document.getElementById('modalConfirmBtn').onclick = function() {
@@ -319,7 +319,7 @@
                     btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30";
                 } else {
                     el.classList.add('hidden');
-                    btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60";
+                    btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60";
                 }
             });
 
@@ -444,12 +444,12 @@
                 let statusJadwal = databaseJadwal[keyJadwal];
                 let dataAbsen = databaseAbsenSheet[keyJadwal] || { checkIn: "-", checkOut: "-" };
 
-                let badgeClass = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
+                let badgeClass = "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20";
                 let statusLabel = "Full";
                 let jamTampil = `In: ${dataAbsen.checkIn} | Out: ${dataAbsen.checkOut}`;
 
                 if (statusJadwal === "OFF" || dataAbsen.checkIn === "OFF") {
-                    badgeClass = "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30";
+                    badgeClass = "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30";
                     statusLabel = "OFF"; jamTampil = "LIBUR"; countOffTotal++;
                     if (item.isWeekend) countOffWeekend++;
                 } else if (dataAbsen.checkIn !== "-") {
@@ -457,7 +457,7 @@
                     let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
                     if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) countTerlambat++;
                     if (statusJadwal === "PS" || (dataAbsen.checkOut !== "-" && parseInt(dataAbsen.checkOut.split(":")[0]) < 19)) {
-                        badgeClass = "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30";
+                        badgeClass = "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30";
                         statusLabel = "PS"; countPs++;
                     }
                 }
@@ -465,7 +465,7 @@
                 html += `
                     <div class="bg-slate-50 dark:bg-slate-950/80 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col justify-between space-y-2">
                         <div class="flex justify-between items-center">
-                            <span class="text-[11px] font-bold text-slate-500">${item.label}</span>
+                            <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">${item.label}</span>
                             <span class="text-[10px] px-2 py-0.5 rounded-lg border font-black ${badgeClass}">${statusLabel}</span>
                         </div>
                         <span class="text-[11px] font-extrabold text-slate-900 dark:text-white block">${jamTampil}</span>
@@ -475,7 +475,7 @@
 
             if (container) container.innerHTML = html;
             document.getElementById('statMasuk').innerText = `${countMasuk} Hari`;
-            document.getElementById('statOff').innerHTML = `${countOffTotal} Hari <span class="text-[10px] font-normal block text-rose-500">(Sab/Min: ${countOffWeekend})</span>`;
+            document.getElementById('statOff').innerHTML = `${countOffTotal} Hari <span class="text-[10px] font-normal block text-rose-600 dark:text-rose-400">(Sab/Min: ${countOffWeekend})</span>`;
             document.getElementById('statPs').innerText = `${countPs} Hari`;
             document.getElementById('statTerlambat').innerText = `${countTerlambat} Hari`;
         }
@@ -485,25 +485,25 @@
             const bodyEl = document.getElementById('tabelSemuaBody');
             const dates = getCutOffDates();
 
-            let headerHtml = `<tr><th class="py-3 px-4">Tanggal</th>`;
-            daftarKaryawan.forEach(nama => { headerHtml += `<th class="py-3 px-4 text-center font-extrabold text-indigo-400">${nama}</th>`; });
+            let headerHtml = `<tr><th class="py-3 px-4 text-slate-900 dark:text-white">Tanggal</th>`;
+            daftarKaryawan.forEach(nama => { headerHtml += `<th class="py-3 px-4 text-center font-extrabold text-indigo-600 dark:text-indigo-400">${nama}</th>`; });
             headerHtml += `</tr>`;
             if(headerEl) headerEl.innerHTML = headerHtml;
 
             let bodyHtml = "";
             dates.forEach(item => {
-                bodyHtml += `<tr class="hover:bg-slate-900/40">`;
-                bodyHtml += `<td class="py-2.5 px-4 font-bold whitespace-nowrap">${item.label}</td>`;
+                bodyHtml += `<tr class="hover:bg-slate-100 dark:hover:bg-slate-900/40">`;
+                bodyHtml += `<td class="py-2.5 px-4 font-bold text-slate-900 dark:text-white whitespace-nowrap">${item.label}</td>`;
                 daftarKaryawan.forEach(nama => {
                     let key = `${nama}_${item.dateStr}`;
                     let status = databaseJadwal[key];
                     let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
-                    let label = "-", badgeStyle = "bg-slate-500/10 text-slate-500";
+                    let label = "-", badgeStyle = "bg-slate-500/10 text-slate-700 dark:text-slate-300";
 
                     if (status === "OFF" || absen.checkIn === "OFF") {
-                        badgeStyle = "bg-red-500/15 text-red-400 border-red-500/30"; label = "OFF";
+                        badgeStyle = "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30"; label = "OFF";
                     } else if (absen.checkIn !== "-") {
-                        badgeStyle = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"; label = absen.checkIn;
+                        badgeStyle = "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"; label = absen.checkIn;
                         if (status === "PS") label += " (PS)";
                     }
                     bodyHtml += `<td class="py-2.5 px-4 text-center"><span class="inline-block px-2.5 py-1 rounded-lg text-[10px] font-black border ${badgeStyle}">${label}</span></td>`;
@@ -536,12 +536,12 @@
                 });
 
                 html += `
-                    <tr class="hover:bg-slate-900/50">
-                        <td class="py-3 px-4 font-bold text-white">👤 ${nama}</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-emerald-400">${countMasuk} Hari</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-red-400">${countOffTotal} Hari <span class="block text-[10px] text-slate-400">(Sab/Min: ${countOffWeekend})</span></td>
-                        <td class="py-3 px-4 text-center font-extrabold text-orange-400">${countPs} Hari</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-amber-400">${countTerlambat} Hari</td>
+                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-900/50">
+                        <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">👤 ${nama}</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-emerald-700 dark:text-emerald-400">${countMasuk} Hari</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-red-700 dark:text-red-400">${countOffTotal} Hari <span class="block text-[10px] text-slate-600 dark:text-slate-400">(Sab/Min: ${countOffWeekend})</span></td>
+                        <td class="py-3 px-4 text-center font-extrabold text-orange-700 dark:text-orange-400">${countPs} Hari</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-amber-700 dark:text-amber-400">${countTerlambat} Hari</td>
                     </tr>
                 `;
             });
@@ -569,16 +569,16 @@
                 let fotoUrl = row[5];
 
                 if (filterNama === "SEMUA" || nama === filterNama) {
-                    let badgeClass = status === 'Check In' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : (status === 'OFF' ? 'bg-rose-500/15 text-rose-400 border-rose-500/30' : 'bg-amber-500/10 text-amber-400 border-amber-500/20');
+                    let badgeClass = status === 'Check In' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20' : (status === 'OFF' ? 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/30' : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20');
                     let koordinat = (lat && lng && lat !== "-") ? `${Number(lat).toFixed(5)}, ${Number(lng).toFixed(5)}` : '-';
-                    let fotoLink = (fotoUrl && fotoUrl !== '-') ? `<a href="${fotoUrl}" target="_blank" class="px-2.5 py-1 bg-indigo-500/10 text-indigo-400 rounded-lg font-bold border border-indigo-500/20">Lihat Foto</a>` : '<span class="text-slate-600">Tanpa Foto</span>';
+                    let fotoLink = (fotoUrl && fotoUrl !== '-') ? `<a href="${fotoUrl}" target="_blank" class="px-2.5 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 rounded-lg font-bold border border-indigo-500/20">Lihat Foto</a>` : '<span class="text-slate-400">Tanpa Foto</span>';
 
                     tbody.innerHTML += `
-                        <tr class="hover:bg-slate-900/40">
-                            <td class="py-3 px-4 whitespace-nowrap font-medium">${waktu}</td>
-                            <td class="py-3 px-4 font-bold text-white">${nama}</td>
+                        <tr class="hover:bg-slate-100 dark:hover:bg-slate-900/40">
+                            <td class="py-3 px-4 whitespace-nowrap font-medium text-slate-900 dark:text-slate-100">${waktu}</td>
+                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">${nama}</td>
                             <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-lg text-[10px] font-black border ${badgeClass}">${status}</span></td>
-                            <td class="py-3 px-4 font-mono text-slate-400">${koordinat}</td>
+                            <td class="py-3 px-4 font-mono text-slate-700 dark:text-slate-300">${koordinat}</td>
                             <td class="py-3 px-4 text-center">${fotoLink}</td>
                         </tr>
                     `;
@@ -624,7 +624,7 @@
             if(!container) return;
             let html = "";
             daftarKaryawan.forEach(nama => {
-                html += `<div class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs font-bold text-white flex items-center gap-2"><span>👤 ${nama}</span></div>`;
+                html += `<div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-900 dark:text-white shadow-sm flex items-center gap-2"><span>👤 ${nama}</span></div>`;
             });
             container.innerHTML = html;
         }
