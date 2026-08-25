@@ -13,7 +13,7 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #030712; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
         .glass-card {
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.7) 0%, rgba(3, 7, 18, 0.8) 100%);
             backdrop-filter: blur(20px);
@@ -75,7 +75,7 @@
             <div class="glass-card p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">Jadwal Pribadi Karyawan</h2>
-                    <p class="text-xs text-slate-400 mt-1">Default Jam Kerja: <span class="text-indigo-400 font-bold">08:00 - 20:00 (Full)</span> | Kecuali OFF / PS dari Admin.</p>
+                    <p class="text-xs text-slate-400 mt-1">Default Jam Kerja: <span class="text-emerald-400 font-bold">08:00 - 20:00 (Full)</span> | PS: <span class="text-orange-400 font-bold">Oranye</span> | OFF: <span class="text-rose-500 font-bold">Merah</span></p>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pilih Nama Karyawan:</label>
@@ -106,12 +106,8 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-300 border-collapse">
-                        <thead id="tabelSemuaHeader" class="bg-slate-950 text-slate-300 uppercase font-bold tracking-wider border-b border-slate-800">
-                            <!-- Diisi otomatis nama karyawan ke samping -->
-                        </thead>
-                        <tbody id="tabelSemuaBody" class="divide-y divide-slate-800/60">
-                            <!-- Diisi otomatis tanggal menurun ke bawah -->
-                        </tbody>
+                        <thead id="tabelSemuaHeader" class="bg-slate-950 text-slate-300 uppercase font-bold tracking-wider border-b border-slate-800"></thead>
+                        <tbody id="tabelSemuaBody" class="divide-y divide-slate-800/60"></tbody>
                     </table>
                 </div>
             </div>
@@ -140,8 +136,8 @@
                             <tr>
                                 <th class="py-3 px-4">Nama Karyawan</th>
                                 <th class="py-3 px-4 text-center">Total Masuk (Full)</th>
-                                <th class="py-3 px-4 text-center">Total OFF (Libur)</th>
-                                <th class="py-3 px-4 text-center">Total PS (Khusus)</th>
+                                <th class="py-3 px-4 text-center">Total OFF (Merah)</th>
+                                <th class="py-3 px-4 text-center">Total PS (Oranye)</th>
                             </tr>
                         </thead>
                         <tbody id="tabelRekapBody" class="divide-y divide-slate-800/60"></tbody>
@@ -205,8 +201,8 @@
                         <div>
                             <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Status Khusus:</label>
                             <select id="adminStatus" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <option value="OFF">OFF (Libur)</option>
-                                <option value="PS">PS (Shift Khusus / Panggilan)</option>
+                                <option value="OFF">OFF (Merah / Libur)</option>
+                                <option value="PS">PS (Oranye / Panggilan)</option>
                             </select>
                         </div>
                     </div>
@@ -363,11 +359,11 @@
                 let statusLabel = "FULL";
 
                 if (statusKhusus === "OFF") {
-                    badgeClass = "bg-rose-500/10 text-rose-400 border-rose-500/20";
+                    badgeClass = "bg-red-500/15 text-red-400 border-red-500/30"; // Merah untuk OFF
                     jamKerja = "LIBUR";
                     statusLabel = "OFF";
                 } else if (statusKhusus === "PS") {
-                    badgeClass = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+                    badgeClass = "bg-orange-500/15 text-orange-400 border-orange-500/30"; // Oranye untuk PS
                     jamKerja = "PANGGILAN / PS";
                     statusLabel = "PS";
                 }
@@ -388,7 +384,7 @@
             if (container) container.innerHTML = html;
         }
 
-        // Render Tabel Matriks (Tanggal Menurun ke Bawah, Nama Karyawan ke Samping)
+        // Render Tabel Matriks (Warna Merah untuk OFF, Oranye untuk PS)
         function renderTabelSemuaJadwal() {
             const headerEl = document.getElementById('tabelSemuaHeader');
             const bodyEl = document.getElementById('tabelSemuaBody');
@@ -414,10 +410,10 @@
                     let label = "08:00 - 20:00";
 
                     if (status === "OFF") {
-                        badgeStyle = "bg-rose-500/10 text-rose-400 border-rose-500/20";
+                        badgeStyle = "bg-red-500/15 text-red-400 border-red-500/30"; // Merah
                         label = "OFF";
                     } else if (status === "PS") {
-                        badgeStyle = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+                        badgeStyle = "bg-orange-500/15 text-orange-400 border-orange-500/30"; // Oranye
                         label = "PS";
                     }
 
@@ -456,8 +452,8 @@
                     <tr class="hover:bg-slate-900/50 transition-colors">
                         <td class="py-3 px-4 font-bold text-white flex items-center gap-2">👤 ${nama}</td>
                         <td class="py-3 px-4 text-center font-extrabold text-emerald-400 text-sm">${countMasuk} Hari</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-rose-400 text-sm">${countOff} Hari</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-amber-400 text-sm">${countPs} Hari</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-red-400 text-sm">${countOff} Hari</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-orange-400 text-sm">${countPs} Hari</td>
                     </tr>
                 `;
             });
