@@ -44,7 +44,12 @@
             <button onclick="switchTab('jadwal')" id="btnJadwal" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-300 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30 ring-1 ring-white/20">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span class="hidden sm:inline">Jadwal & Absen</span>
+                <span class="hidden sm:inline">Jadwal Pribadi</span>
+            </button>
+            <button onclick="switchTab('semuaJadwal')" id="btnSemuaJadwal" 
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent hover:border-slate-700/50">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                <span class="hidden sm:inline">Jadwal Semua Karyawan</span>
             </button>
             <button onclick="switchTab('admin')" id="btnAdmin" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent hover:border-slate-700/50">
@@ -65,35 +70,54 @@
     <!-- KONTEN UTAMA -->
     <main class="flex-1 p-4 md:p-10 overflow-y-auto z-10">
         
-        <!-- HALAMAN 1: JADWAL & ABSENSI KARYAWAN -->
+        <!-- HALAMAN 1: JADWAL PRIBADI -->
         <section id="tabJadwal" class="space-y-6 max-w-5xl mx-auto">
             <div class="glass-card p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">Jadwal & Absensi Karyawan</h2>
+                    <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">Jadwal Pribadi Karyawan</h2>
                     <p class="text-xs text-slate-400 mt-1">Default Jam Kerja: <span class="text-indigo-400 font-bold">08:00 - 20:00 (Full)</span> | Kecuali OFF / PS dari Admin.</p>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pilih Nama Karyawan:</label>
-                    <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <!-- Diisi otomatis -->
-                    </select>
+                    <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
                 </div>
             </div>
 
-            <!-- Kalender Jadwal Periode Cut-Off (26 Agt - 25 Sep) -->
             <div class="glass-card p-6 rounded-3xl space-y-4">
                 <div class="flex justify-between items-center border-b border-slate-800 pb-4">
                     <h3 class="font-extrabold text-white text-sm">Kalender Shift Cut-Off (26 Agustus s.d 25 September)</h3>
                     <span class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl font-bold">Periode Aktif</span>
                 </div>
                 
-                <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3">
-                    <!-- Javascript tanggal cut off dengan nama hari -->
+                <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
+            </div>
+        </section>
+
+        <!-- HALAMAN 2: JADWAL SEMUA KARYAWAN (MATRIKS MENURUN) -->
+        <section id="tabSemuaJadwal" class="hidden space-y-6 max-w-7xl mx-auto">
+            <div class="glass-card p-6 rounded-3xl space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-xl font-black text-white tracking-tight">Jadwal Semua Karyawan (Cut-Off 26 Agt - 25 Sep)</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Tanggal disusun menurun ke bawah di sisi kiri, nama karyawan berderet di atas.</p>
+                    </div>
+                    <span class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl font-bold">Matriks Lengkap</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-300 border-collapse">
+                        <thead id="tabelSemuaHeader" class="bg-slate-950 text-slate-300 uppercase font-bold tracking-wider border-b border-slate-800">
+                            <!-- Diisi otomatis nama karyawan ke samping -->
+                        </thead>
+                        <tbody id="tabelSemuaBody" class="divide-y divide-slate-800/60">
+                            <!-- Diisi otomatis tanggal menurun ke bawah -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
 
-        <!-- HALAMAN 2: PANEL ADMIN & REKAPITULASI -->
+        <!-- HALAMAN 3: PANEL ADMIN & REKAPITULASI -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-4xl mx-auto">
             
             <!-- KOTAK 1: TABEL REKAPITULASI -->
@@ -204,8 +228,8 @@
         let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
 
         window.switchTab = function(tabName) {
-            const tabs = ['tabJadwal', 'tabAdmin'];
-            const btns = ['btnJadwal', 'btnAdmin'];
+            const tabs = ['tabJadwal', 'tabSemuaJadwal', 'tabAdmin'];
+            const btns = ['btnJadwal', 'btnSemuaJadwal', 'btnAdmin'];
             
             tabs.forEach((t, i) => {
                 const el = document.getElementById(t);
@@ -218,6 +242,10 @@
                     btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent hover:border-slate-700/50";
                 }
             });
+
+            if (tabName === 'semuaJadwal') {
+                renderTabelSemuaJadwal();
+            }
             if (tabName === 'admin') {
                 renderListKaryawanAdmin();
                 renderTabelRekap();
@@ -307,7 +335,6 @@
                 let day = String(currDate.getDate()).padStart(2, '0');
                 let dateString = `${year}-${month}-${day}`;
                 
-                // Ambil Nama Hari (Sen, Sel, Rab, Kam, Jum, Sab, Min)
                 let namaHari = currDate.toLocaleDateString('id-ID', { weekday: 'short' });
                 let namaBulan = currDate.toLocaleDateString('id-ID', { month: 'short' });
                 
@@ -359,6 +386,52 @@
             });
 
             if (container) container.innerHTML = html;
+        }
+
+        // Render Tabel Matriks (Tanggal Menurun ke Bawah, Nama Karyawan ke Samping)
+        function renderTabelSemuaJadwal() {
+            const headerEl = document.getElementById('tabelSemuaHeader');
+            const bodyEl = document.getElementById('tabelSemuaBody');
+            const dates = getCutOffDates();
+
+            let headerHtml = `<tr><th class="py-3 px-4 border-b border-slate-800">Tanggal / Hari</th>`;
+            daftarKaryawan.forEach(nama => {
+                headerHtml += `<th class="py-3 px-4 text-center border-b border-slate-800 font-extrabold text-indigo-300">${nama}</th>`;
+            });
+            headerHtml += `</tr>`;
+            if(headerEl) headerEl.innerHTML = headerHtml;
+
+            let bodyHtml = "";
+            dates.forEach(item => {
+                bodyHtml += `<tr class="hover:bg-slate-900/40 transition-colors">`;
+                bodyHtml += `<td class="py-2.5 px-4 font-bold text-slate-300 border-b border-slate-800/60 whitespace-nowrap">${item.label}</td>`;
+
+                daftarKaryawan.forEach(nama => {
+                    let key = `${nama}_${item.dateStr}`;
+                    let status = databaseJadwal[key];
+
+                    let badgeStyle = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                    let label = "08:00 - 20:00";
+
+                    if (status === "OFF") {
+                        badgeStyle = "bg-rose-500/10 text-rose-400 border-rose-500/20";
+                        label = "OFF";
+                    } else if (status === "PS") {
+                        badgeStyle = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+                        label = "PS";
+                    }
+
+                    bodyHtml += `
+                        <td class="py-2.5 px-4 text-center border-b border-slate-800/60">
+                            <span class="inline-block px-2.5 py-1 rounded-lg text-[10px] font-black border ${badgeStyle}">${label}</span>
+                        </td>
+                    `;
+                });
+
+                bodyHtml += `</tr>`;
+            });
+
+            if(bodyEl) bodyEl.innerHTML = bodyHtml;
         }
 
         function renderTabelRekap() {
@@ -416,6 +489,7 @@
             
             renderJadwalKaryawan();
             renderTabelRekap();
+            renderTabelSemuaJadwal();
         }
 
         updateDropdownKaryawan();
