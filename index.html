@@ -248,8 +248,9 @@
 
     <!-- LOGIKA SCRIPT -->
     <script>
-        const URL_WEB_APP_GS = "MASUKKAN_URL_WEB_APP_GOOGLE_SCRIPT_DISINI";
+        const URL_WEB_APP_GS = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
 
+        // Ambil daftar karyawan dari localStorage (Admin input) atau default jika kosong
         let daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Budi", "Siti", "Andi", "Dewi"];
         let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
         let databaseAbsenSheet = JSON.parse(localStorage.getItem('db_absen_sheet')) || {};
@@ -346,6 +347,7 @@
         }
 
         function updateDropdownKaryawan() {
+            daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Budi", "Siti", "Andi", "Dewi"];
             const selectJadwal = document.getElementById('selectKaryawan');
             const selectAdmin = document.getElementById('adminKaryawan');
             
@@ -401,6 +403,7 @@
         }
 
         function renderListKaryawanAdmin() {
+            daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Budi", "Siti", "Andi", "Dewi"];
             const container = document.getElementById('listKaryawanAdmin');
             let html = "";
             daftarKaryawan.forEach(nama => {
@@ -441,6 +444,7 @@
         }
 
         window.renderJadwalKaryawan = function() {
+            daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Budi", "Siti", "Andi", "Dewi"];
             const selectEl = document.getElementById('selectKaryawan');
             const karyawan = selectEl ? selectEl.value : daftarKaryawan[0];
             const container = document.getElementById('gridJadwal');
@@ -458,7 +462,6 @@
                 let statusLabel = "FULL";
                 let jamTampil = `In: ${dataAbsen.checkIn} | Out: ${dataAbsen.checkOut}`;
 
-                // Logika Statistik Otomatis Berdasarkan Data & Jadwal
                 if (statusJadwal === "OFF") {
                     badgeClass = "bg-red-500/15 text-red-400 border-red-500/30";
                     statusLabel = "OFF";
@@ -467,7 +470,6 @@
                 } else {
                     if (dataAbsen.checkIn !== "-") {
                         countMasuk++;
-                        // Cek keterlambatan (> jam 08:10)
                         let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
                         if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
                             countTerlambat++;
@@ -479,7 +481,6 @@
                         statusLabel = "PS";
                         countPs++;
                     } else {
-                        // Deteksi Pulang Sore otomatis jika jam checkout jam 17 atau 18
                         if (dataAbsen.checkOut !== "-") {
                             let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]);
                             if (jamOut === 17 || jamOut === 18) {
@@ -504,7 +505,6 @@
 
             if (container) container.innerHTML = html;
 
-            // Update Angka Statistik di Atas
             document.getElementById('statMasuk').innerText = `${countMasuk} Hari`;
             document.getElementById('statOff').innerText = `${countOff} Hari`;
             document.getElementById('statPs').innerText = `${countPs} Hari`;
@@ -512,6 +512,7 @@
         }
 
         function renderTabelSemuaJadwal() {
+            daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Budi", "Siti", "Andi", "Dewi"];
             const headerEl = document.getElementById('tabelSemuaHeader');
             const bodyEl = document.getElementById('tabelSemuaBody');
             const dates = getCutOffDates();
@@ -558,6 +559,7 @@
         }
 
         function renderTabelRekap() {
+            daftarKaryawan = JSON.parse(localStorage.getItem('db_karyawan')) || ["Budi", "Siti", "Andi", "Dewi"];
             const tbody = document.getElementById('tabelRekapBody');
             const dates = getCutOffDates();
 
