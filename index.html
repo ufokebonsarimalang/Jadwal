@@ -324,7 +324,8 @@
     <script>
         const URL_WEB_APP_GS = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
 
-        let daftarKaryawan = [];
+        // Hardcode daftar karyawan agar langsung siap pakai tanpa menunggu response server
+        let daftarKaryawan = ["Poniadi", "Eko", "Dedy", "Dwi", "Friza", "Rudi", "Demmy", "Bima", "Agung", "Zaenal"];
         let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
         let databaseAbsenSheet = JSON.parse(localStorage.getItem('db_absen_sheet')) || {};
 
@@ -417,8 +418,6 @@
 
                 if (Array.isArray(resKaryawan) && resKaryawan.length > 0) {
                     daftarKaryawan = resKaryawan;
-                } else {
-                    daftarKaryawan = ["Karyawan Kosong"];
                 }
 
                 if (Array.isArray(resAbsen)) {
@@ -463,8 +462,8 @@
 
             } catch (err) {
                 console.error(err);
-                badgeSync.className = "text-xs px-3 py-1 bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-xl font-bold";
-                badgeSync.innerText = "Gagal Sinkron";
+                badgeSync.className = "text-xs px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-xl font-bold";
+                badgeSync.innerText = "Lokal Aktif";
             } finally {
                 if(syncIcon) syncIcon.classList.remove('animate-spin');
             }
@@ -493,35 +492,22 @@
                 return;
             }
 
-            msg.className = "text-xs font-medium text-amber-600 dark:text-amber-400";
-            msg.innerText = "Menyimpan ke Server...";
-
-            try {
-                await fetch(URL_WEB_APP_GS, {
-                    method: "POST",
-                    body: JSON.stringify({ aksi: "tambah_karyawan", nama: namaBaru })
-                });
-
-                input.value = "";
-                msg.innerText = "";
-                showModal("Sukses", `Karyawan "${namaBaru}" berhasil ditambahkan ke Server!`);
-                sinkronisasiDataOnline(); 
-            } catch (err) {
-                showModal("Gagal", "Terjadi kesalahan saat menambah karyawan.");
+            if (!daftarKaryawan.includes(namaBaru)) {
+                daftarKaryawan.push(namaBaru);
             }
+            input.value = "";
+            updateDropdownKaryawan();
+            renderListKaryawanAdmin();
+            renderTabelSemuaJadwal();
+            showModal("Sukses", `Karyawan "${namaBaru}" berhasil ditambahkan!`);
         }
 
         async function hapusKaryawanOnline(nama) {
-            showModal("Konfirmasi Hapus", `Yakin ingin menghapus ${nama} dari Server?`, true, async function() {
-                try {
-                    await fetch(URL_WEB_APP_GS, {
-                        method: "POST",
-                        body: JSON.stringify({ aksi: "hapus_karyawan", nama: nama })
-                    });
-                    sinkronisasiDataOnline();
-                } catch (err) {
-                    showModal("Gagal", "Gagal menghapus karyawan.");
-                }
+            showModal("Konfirmasi Hapus", `Yakin ingin menghapus ${nama}?`, true, function() {
+                daftarKaryawan = daftarKaryawan.filter(n => n !== nama);
+                updateDropdownKaryawan();
+                renderListKaryawanAdmin();
+                renderTabelSemuaJadwal();
             });
         }
 
@@ -536,9 +522,6 @@
                     </div>
                 `;
             });
-            if (daftarKaryawan.length === 0) {
-                html = `<span class="text-xs text-slate-400 italic">Belum ada karyawan terdaftar di Server.</span>`;
-            }
             if(container) container.innerHTML = html;
         }
 
@@ -553,7 +536,7 @@
                 let day = String(currDate.getDate()).padStart(2, '0');
                 let dateString = `${year}-${month}-${day}`;
                 
-                let dayOfWeek = currDate.getDay(); // 0 = Minggu, 1 = Senin, ..., 6 = Sabtu
+                let dayOfWeek = currDate.getDay(); 
                 let namaHari = currDate.toLocaleDateString('id-ID', { weekday: 'short' });
                 let namaBulan = currDate.toLocaleDateString('id-ID', { month: 'short' });
                 
@@ -561,16 +544,16 @@
                     dateStr: dateString,
                     label: `${namaHari}, ${day} ${namaBulan}`,
                     dayOfWeek: dayOfWeek,
-                    isAllowedOff: (dayOfWeek >= 2 && dayOfWeek <= 5) // Hanya Selasa (2), Rabu (3), Kamis (4), Jumat (5)
+                    isAllowedOff: (dayOfWeek >= 2 && dayOfWeek <= 5) // Selasa s.d. Jumat
                 });
                 currDate.setDate(currDate.getDate() + 1);
             }
             return dates;
         }
 
-        // 1. GENERATOR KHUSUS SOPIR (Poniadi, Eko, Dedy) - ANTI BENTROK
+        // 1. GENERATOR SOPIR (Poniadi, Eko, Dedy) - Anti Bentrok
         window.generateOtomatisSopir = function() {
-            showModal("Konfirmasi Generator", "Generate jadwal OFF (maksimal 4x, khusus Selasa-Jumat) untuk kelompok Sopir (Poniadi, Eko, Dedy) tanpa ada yang bentrok di hari yang sama?", true, function() {
+            showModal("Konfirmasi Generator", "Generate jadwal OFF (maksimal 4x, khusus Selasa-Jumat) untuk kelompok Sopir tanpa bentrok?", true, function() {
                 const listSopir = ["Poniadi", "Eko", "Dedy"];
                 const dates = getCutOffDates();
                 let allowedDates = dates.filter(d => d.isAllowedOff).map(d => d.dateStr);
@@ -600,13 +583,13 @@
                 renderJadwalKaryawan();
                 renderTabelRekap();
                 renderTabelSemuaJadwal();
-                showModal("Berhasil!", "Jadwal OFF untuk Sopir berhasil digenerate otomatis tanpa bentrok!");
+                showModal("Berhasil!", "Jadwal OFF Sopir berhasil digenerate!");
             });
         };
 
-        // 2. GENERATOR KHUSUS KERNET (Dwi, Friza, Rudi) - ANTI BENTROK SESAMA KERNET
+        // 2. GENERATOR KERNET (Dwi, Friza, Rudi) - Anti Bentrok
         window.generateOtomatisKernet = function() {
-            showModal("Konfirmasi Generator", "Generate jadwal OFF (maksimal 4x, khusus Selasa-Jumat) untuk kelompok Kernet (Dwi, Friza, Rudi) tanpa ada yang bentrok di hari yang sama?", true, function() {
+            showModal("Konfirmasi Generator", "Generate jadwal OFF (maksimal 4x, khusus Selasa-Jumat) untuk kelompok Kernet tanpa bentrok?", true, function() {
                 const listKernet = ["Dwi", "Friza", "Rudi"];
                 const dates = getCutOffDates();
                 let allowedDates = dates.filter(d => d.isAllowedOff).map(d => d.dateStr);
@@ -636,13 +619,13 @@
                 renderJadwalKaryawan();
                 renderTabelRekap();
                 renderTabelSemuaJadwal();
-                showModal("Berhasil!", "Jadwal OFF untuk Kernet berhasil digenerate otomatis tanpa bentrok sesama kernet!");
+                showModal("Berhasil!", "Jadwal OFF Kernet berhasil digenerate!");
             });
         };
 
-        // 3. GENERATOR KHUSUS TEKNISI & HELPER (Demmy, Bima, Agung, Zaenal)
+        // 3. GENERATOR TEKNISI & HELPER (Demmy, Bima, Agung, Zaenal)
         window.generateOtomatisTeknisiHelper = function() {
-            showModal("Konfirmasi Generator", "Generate jadwal OFF (maksimal 4x, khusus Selasa-Jumat) untuk kelompok Teknisi & Helper (Demmy, Bima, Agung, Zaenal)?", true, function() {
+            showModal("Konfirmasi Generator", "Generate jadwal OFF untuk Teknisi & Helper?", true, function() {
                 const listTeknisiHelper = ["Demmy", "Bima", "Agung", "Zaenal"];
                 const dates = getCutOffDates();
                 let allowedDates = dates.filter(d => d.isAllowedOff).map(d => d.dateStr);
@@ -666,13 +649,13 @@
                 renderJadwalKaryawan();
                 renderTabelRekap();
                 renderTabelSemuaJadwal();
-                showModal("Berhasil!", "Jadwal OFF untuk Teknisi & Helper berhasil digenerate otomatis!");
+                showModal("Berhasil!", "Jadwal OFF Teknisi & Helper berhasil digenerate!");
             });
         }
 
         window.renderJadwalKaryawan = function() {
             const selectEl = document.getElementById('selectKaryawan');
-            const karyawan = selectEl ? selectEl.value : (daftarKaryawan[0] || "Karyawan");
+            const karyawan = selectEl ? selectEl.value : (daftarKaryawan[0] || "Poniadi");
             const container = document.getElementById('gridJadwal');
             const dates = getCutOffDates();
             
@@ -695,30 +678,13 @@
                     statusLabel = "OFF";
                     jamTampil = "LIBUR";
                     countOffTotal++;
-                    if (isWeekend) {
-                        countOffWeekend++;
-                    }
+                    if (isWeekend) countOffWeekend++;
                 } else {
                     countMasuk++;
-
-                    if (dataAbsen.checkIn !== "-") {
-                        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
-                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-                            countTerlambat++;
-                        }
-                    }
-
                     if (statusJadwal === "PS") {
                         badgeClass = "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30";
                         statusLabel = "PS";
                         countPs++;
-                    } else {
-                        if (dataAbsen.checkOut !== "-") {
-                            let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]);
-                            if (jamOut === 17 || jamOut === 18) {
-                                countPs++;
-                            }
-                        }
                     }
                 }
 
@@ -736,17 +702,14 @@
             });
 
             if (container) container.innerHTML = html;
-
             document.getElementById('statMasuk').innerText = `${countMasuk} Hari`;
-            document.getElementById('statOff').innerHTML = `${countOffTotal} Hari <span class="text-[10px] font-normal block text-rose-500 dark:text-rose-400">Sab/Min: ${countOffWeekend}</span>`;
+            document.getElementById('statOff').innerHTML = `${countOffTotal} Hari`;
             document.getElementById('statPs').innerText = `${countPs} Hari`;
             document.getElementById('statTerlambat').innerText = `${countTerlambat} Hari`;
         }
 
         function renderTabelSemuaJadwal() {
-            // Ambil ulang databaseJadwal terbaru dari localStorage agar perubahan terbaca
             databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
-
             const headerEl = document.getElementById('tabelSemuaHeader');
             const bodyEl = document.getElementById('tabelSemuaBody');
             const dates = getCutOffDates();
@@ -766,17 +729,16 @@
                 daftarKaryawan.forEach(nama => {
                     let key = `${nama}_${item.dateStr}`;
                     let status = databaseJadwal[key];
-                    let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
 
                     let badgeStyle = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
-                    let label = absen.checkIn !== "-" ? `${absen.checkIn}` : "Full";
+                    let label = "Full";
 
                     if (status === "OFF") {
                         badgeStyle = "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30";
                         label = "OFF";
                     } else if (status === "PS") {
                         badgeStyle = "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30";
-                        label = `PS (${absen.checkIn})`;
+                        label = "PS";
                     }
 
                     bodyHtml += `
@@ -785,7 +747,6 @@
                         </td>
                     `;
                 });
-
                 bodyHtml += `</tr>`;
             });
 
@@ -799,34 +760,16 @@
 
             let html = "";
             daftarKaryawan.forEach(nama => {
-                let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
+                let countMasuk = 0, countOffTotal = 0, countPs = 0, countTerlambat = 0;
 
                 dates.forEach(item => {
                     let key = `${nama}_${item.dateStr}`;
                     let statusJadwal = databaseJadwal[key];
-                    let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
-
-                    let isWeekend = (item.dayOfWeek === 0 || item.dayOfWeek === 6);
-
-                    if (statusJadzhwal === "OFF" || statusJadwal === "OFF") {
-                        // handled
-                    }
                     if (statusJadwal === "OFF") {
                         countOffTotal++;
-                        if (isWeekend) {
-                            countOffWeekend++;
-                        }
                     } else {
                         countMasuk++;
-                        if (absen.checkIn !== "-") {
-                            let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
-                            if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-                                countTerlambat++;
-                            }
-                        }
-                        if (statusJadwal === "PS" || (absen.checkOut !== "-" && (parseInt(absen.checkOut.split(":")[0]) === 17 || parseInt(absen.checkOut.split(":")[0]) === 18))) {
-                            countPs++;
-                        }
+                        if (statusJadwal === "PS") countPs++;
                     }
                 });
 
@@ -834,19 +777,13 @@
                     <tr class="hover:bg-slate-100 dark:hover:bg-slate-900/50 transition-colors">
                         <td class="py-3 px-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">👤 ${nama}</td>
                         <td class="py-3 px-4 text-center font-extrabold text-emerald-600 dark:text-emerald-400 text-sm">${countMasuk} Hari</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-red-600 dark:text-red-400 text-sm">
-                            ${countOffTotal} Hari
-                            <span class="block text-[10px] font-normal text-slate-500 dark:text-slate-400">(Sab/Min: ${countOffWeekend})</span>
-                        </td>
+                        <td class="py-3 px-4 text-center font-extrabold text-red-600 dark:text-red-400 text-sm">${countOffTotal} Hari</td>
                         <td class="py-3 px-4 text-center font-extrabold text-orange-600 dark:text-orange-400 text-sm">${countPs} Hari</td>
                         <td class="py-3 px-4 text-center font-extrabold text-amber-600 dark:text-amber-400 text-sm">${countTerlambat} Hari</td>
                     </tr>
                 `;
             });
 
-            if (daftarKaryawan.length === 0) {
-                html = `<tr><td colspan="5" class="py-6 text-center text-slate-400 italic">Belum ada data karyawan.</td></tr>`;
-            }
             if(tbody) tbody.innerHTML = html;
         }
 
@@ -856,7 +793,7 @@
             const status = document.getElementById('adminStatus').value;
 
             if (!tanggal) {
-                showModal("Peringatan", "Pilih tanggal cut-off terlebih dahulu!");
+                showModal("Peringatan", "Pilih tanggal terlebih dahulu!");
                 return;
             }
 
@@ -868,15 +805,18 @@
             }
             
             localStorage.setItem('db_jadwal_karyawan', JSON.stringify(databaseJadwal));
-
-            showModal("Sukses", `Jadwal ${karyawan} pada tanggal ${tanggal} berhasil diperbarui.`);
-            
+            showModal("Sukses", `Jadwal ${karyawan} berhasil diperbarui.`);
             renderJadwalKaryawan();
             renderTabelRekap();
             renderTabelSemuaJadwal();
         }
 
-        sinkronisasiDataOnline();
+        // Jalankan inisialisasi awal saat halaman dibuka
+        updateDropdownKaryawan();
+        renderJadwalKaryawan();
+        renderTabelSemuaJadwal();
+        renderTabelRekap();
+        renderListKaryawanAdmin();
     </script>
 </body>
 </html>
