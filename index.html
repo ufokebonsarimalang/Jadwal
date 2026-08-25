@@ -583,7 +583,7 @@
             }
         }
 
-       window.simpanJadwalAdmin = async function() {
+      window.simpanJadwalAdmin = async function() {
     const karyawan = document.getElementById('adminKaryawan').value;
     const tanggal = document.getElementById('adminTanggal').value;
     const status = document.getElementById('adminStatus').value;
@@ -625,9 +625,8 @@
         btnSimpan.classList.remove('opacity-55', 'cursor-not-allowed');
     }
 
-    renderJadwalKaryawan(); 
-    renderTabelRekap(); 
-    renderTabelSemuaJadwal();
+    // TARIK ULANG DATA TERBARU DARI CLOUD AGAR TAMPILAN BERSIH
+    await sinkronisasiDataOnline();
 }
         async function tambahKaryawanOnline() {
             const input = document.getElementById('inputNamaBaru');
