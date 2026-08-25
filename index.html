@@ -554,7 +554,7 @@
             if(tbody) tbody.innerHTML = html;
         }
 
-        function renderTabelAdminLog() {
+     function renderTabelAdminLog() {
             const tbody = document.getElementById('isiTabelAdminLog');
             const filterNama = document.getElementById('filterNamaAdmin')?.value || "SEMUA";
             if(!tbody) return;
@@ -573,6 +573,22 @@
                 let lat = row[3];
                 let lng = row[4];
                 let fotoUrl = row[5];
+
+                // Cek tanggal dari string waktu laporan (contoh format: "03-09-2026 8:00:00")
+                let tglIso = "";
+                let partsWaktu = String(waktu).split(" ");
+                if (partsWaktu.length > 0 && partsWaktu[0].includes("-")) {
+                    let tglParts = partsWaktu[0].split("-");
+                    if (tglParts.length === 3) {
+                        tglIso = `${tglParts[2]}-${tglParts[1]}-${tglParts[0]}`; // YYYY-MM-DD
+                    }
+                }
+                let keyJadwal = `${nama}_${tglIso}`;
+
+                // JIKA STATUS DI LAPORAN ADALAH OFF, TAPI DI DATABASE JADWAL SUDAH DIUBAH NORMAL (DIHAPUS), LEWATI/JANGAN TAMPILKAN DI LOG
+                if (status.toUpperCase() === "OFF" && tglIso && !databaseJadwal[keyJadwal]) {
+                    continue; 
+                }
 
                 if (filterNama === "SEMUA" || nama === filterNama) {
                     let badgeClass = status === 'Check In' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20' : (status === 'OFF' ? 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/30' : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20');
