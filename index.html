@@ -159,33 +159,48 @@
         <!-- HALAMAN 3: PANEL ADMIN -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-4xl mx-auto">
             
-            <!-- Tombol Generator Otomatis Khusus Sopir (Poniadi, Eko, Dedy) -->
+            <!-- Tombol Generator Otomatis Sopir (Poniadi, Eko, Dedy) -->
             <div class="app-card bg-gradient-to-r from-amber-600/10 via-rose-600/10 to-indigo-600/10 border border-amber-500/30 p-6 md:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
                 <div class="space-y-1 text-center md:text-left">
                     <h2 class="text-base md:text-lg font-black text-slate-900 dark:text-white flex items-center justify-center md:justify-start gap-2">
                         🚛 Generator Otomatis Sopir (Anti-Bentrok)
                     </h2>
                     <p class="text-xs text-slate-600 dark:text-slate-400">
-                        Atur 4x OFF (Selasa-Jumat) untuk: <b>Poniadi, Eko, Dedy</b> (Dijamin tidak ada sopir yang OFF di hari yang sama).
+                        Atur 4x OFF (Selasa-Jumat) untuk: <b>Poniadi, Eko, Dedy</b> (Tidak boleh ada sopir OFF di hari yang sama).
                     </p>
                 </div>
                 <button onclick="generateOtomatisSopir()" class="bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white font-black px-5 py-3 rounded-2xl text-xs transition-all shadow-lg shadow-amber-600/30 shrink-0">
-                    GENERATE OTOMATIS JADWAL OFF SOPIR
+                    GENERATE JADWAL OFF SOPIR
                 </button>
             </div>
 
-            <!-- Tombol Generator Otomatis Khusus Teknisi & Helper -->
+            <!-- Tombol Generator Otomatis Kernet (Dwi, Friza, Rudi) - Anti Bentrok -->
+            <div class="app-card bg-gradient-to-r from-blue-600/10 via-indigo-600/10 to-emerald-600/10 border border-blue-500/30 p-6 md:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="space-y-1 text-center md:text-left">
+                    <h2 class="text-base md:text-lg font-black text-slate-900 dark:text-white flex items-center justify-center md:justify-start gap-2">
+                        👥 Generator Otomatis Kernet (Anti-Bentrok)
+                    </h2>
+                    <p class="text-xs text-slate-600 dark:text-slate-400">
+                        Atur 4x OFF (Selasa-Jumat) untuk: <b>Dwi, Friza, Rudi</b> (Tidak boleh ada kernet OFF di hari yang sama).
+                    </p>
+                </div>
+                <button onclick="generateOtomatisKernet()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black px-5 py-3 rounded-2xl text-xs transition-all shadow-lg shadow-blue-600/30 shrink-0">
+                    GENERATE JADWAL OFF KERNET
+                </button>
+            </div>
+
+            <!-- Tombol Generator Otomatis Teknisi & Helper -->
             <div class="app-card bg-gradient-to-r from-violet-600/10 via-indigo-600/10 to-emerald-600/10 border border-indigo-500/30 p-6 md:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
                 <div class="space-y-1 text-center md:text-left">
                     <h2 class="text-base md:text-lg font-black text-slate-900 dark:text-white flex items-center justify-center md:justify-start gap-2">
                         ⚙️ Generator Otomatis Teknisi & Helper
                     </h2>
                     <p class="text-xs text-slate-600 dark:text-slate-400">
-                        Otomatis atur 4x OFF (Selasa-Jumat saja) untuk: <b>Demmy, Bima, Agung, Zaenal</b>.
+                        Atur 4x OFF (Selasa-Jumat) untuk: <b>Demmy, Bima, Agung, Zaenal</b>.
                     </p>
                 </div>
                 <button onclick="generateOtomatisTeknisiHelper()" class="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-black px-5 py-3 rounded-2xl text-xs transition-all shadow-lg shadow-indigo-600/30 shrink-0">
-                    GENERATE OTOMATIS JADWAL OFF TEKNISI DAN HELPER
+                    GENERATE JADWAL OFF TEKNISI & HELPER
                 </button>
             </div>
 
@@ -553,14 +568,13 @@
             return dates;
         }
 
-        // GENERATOR OTOMATIS KHUSUS SOPIR (Poniadi, Eko, Dedy) - ANTI BENTROK SESAMA SOPIR
+        // 1. GENERATOR KHUSUS SOPIR (Poniadi, Eko, Dedy) - ANTI BENTROK
         window.generateOtomatisSopir = function() {
-            showModal("Konfirmasi Generator", "Generate otomatis jadwal OFF (maksimal 4x, khusus Selasa-Jumat) untuk kelompok Sopir (Poniadi, Eko, Dedy) tanpa ada yang bentrok di hari yang sama?", true, function() {
+            showModal("Konfirmasi Generator", "Generate jadwal OFF (maksimal 4x, khusus Selasa-Jumat) untuk kelompok Sopir (Poniadi, Eko, Dedy) tanpa ada yang bentrok di hari yang sama?", true, function() {
                 const listSopir = ["Poniadi", "Eko", "Dedy"];
                 const dates = getCutOffDates();
                 let allowedDates = dates.filter(d => d.isAllowedOff).map(d => d.dateStr);
 
-                // Hapus jadwal OFF lama khusus sopir
                 listSopir.forEach(nama => {
                     dates.forEach(d => {
                         let k = `${nama}_${d.dateStr}`;
@@ -568,16 +582,12 @@
                     });
                 });
 
-                // Lacak tanggal mana saja yang sudah dipakai sopir lain agar tidak bentrok
                 let offTracker = {}; 
-
                 listSopir.forEach(nama => {
                     let shuffledDates = [...allowedDates].sort(() => 0.5 - Math.random());
                     let assignedCount = 0;
-
                     for (let i = 0; i < shuffledDates.length && assignedCount < 4; i++) {
                         let tgl = shuffledDates[i];
-                        // Cek apakah di tanggal ini sudah ada sopir lain yang OFF
                         if (!offTracker[tgl]) {
                             offTracker[tgl] = true;
                             databaseJadwal[`${nama}_${tgl}`] = "OFF";
@@ -590,14 +600,49 @@
                 renderJadwalKaryawan();
                 renderTabelRekap();
                 renderTabelSemuaJadwal();
-
-                showModal("Berhasil!", "Jadwal OFF untuk Sopir (Poniadi, Eko, Dedy) berhasil digenerate otomatis tanpa ada yang bentrok di tanggal yang sama!");
+                showModal("Berhasil!", "Jadwal OFF untuk Sopir berhasil digenerate otomatis tanpa bentrok!");
             });
         };
 
-        // FUNGSI GENERATOR OTOMATIS KHUSUS TEKNISI & HELPER
+        // 2. GENERATOR KHUSUS KERNET (Dwi, Friza, Rudi) - ANTI BENTROK SESAMA KERNET
+        window.generateOtomatisKernet = function() {
+            showModal("Konfirmasi Generator", "Generate jadwal OFF (maksimal 4x, khusus Selasa-Jumat) untuk kelompok Kernet (Dwi, Friza, Rudi) tanpa ada yang bentrok di hari yang sama?", true, function() {
+                const listKernet = ["Dwi", "Friza", "Rudi"];
+                const dates = getCutOffDates();
+                let allowedDates = dates.filter(d => d.isAllowedOff).map(d => d.dateStr);
+
+                listKernet.forEach(nama => {
+                    dates.forEach(d => {
+                        let k = `${nama}_${d.dateStr}`;
+                        if (databaseJadwal[k] === "OFF") delete databaseJadwal[k];
+                    });
+                });
+
+                let offTracker = {}; 
+                listKernet.forEach(nama => {
+                    let shuffledDates = [...allowedDates].sort(() => 0.5 - Math.random());
+                    let assignedCount = 0;
+                    for (let i = 0; i < shuffledDates.length && assignedCount < 4; i++) {
+                        let tgl = shuffledDates[i];
+                        if (!offTracker[tgl]) {
+                            offTracker[tgl] = true;
+                            databaseJadwal[`${nama}_${tgl}`] = "OFF";
+                            assignedCount++;
+                        }
+                    }
+                });
+
+                localStorage.setItem('db_jadwal_karyawan', JSON.stringify(databaseJadwal));
+                renderJadwalKaryawan();
+                renderTabelRekap();
+                renderTabelSemuaJadwal();
+                showModal("Berhasil!", "Jadwal OFF untuk Kernet berhasil digenerate otomatis tanpa bentrok sesama kernet!");
+            });
+        };
+
+        // 3. GENERATOR KHUSUS TEKNISI & HELPER (Demmy, Bima, Agung, Zaenal)
         window.generateOtomatisTeknisiHelper = function() {
-            showModal("Konfirmasi Generator", "Generate otomatis jadwal OFF (maksimal 4x, khusus Selasa-Jumat) untuk kelompok Teknisi & Helper (Demmy, Bima, Agung, Zaenal)?", true, function() {
+            showModal("Konfirmasi Generator", "Generate jadwal OFF (maksimal 4x, khusus Selasa-Jumat) untuk kelompok Teknisi & Helper (Demmy, Bima, Agung, Zaenal)?", true, function() {
                 const listTeknisiHelper = ["Demmy", "Bima", "Agung", "Zaenal"];
                 const dates = getCutOffDates();
                 let allowedDates = dates.filter(d => d.isAllowedOff).map(d => d.dateStr);
@@ -621,8 +666,7 @@
                 renderJadwalKaryawan();
                 renderTabelRekap();
                 renderTabelSemuaJadwal();
-
-                showModal("Berhasil!", "Jadwal OFF untuk Teknisi & Helper berhasil digenerate otomatis (4x per orang di hari Selasa-Jumat tanpa menyentuh Senin, Sabtu, & Minggu).");
+                showModal("Berhasil!", "Jadwal OFF untuk Teknisi & Helper berhasil digenerate otomatis!");
             });
         }
 
