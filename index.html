@@ -398,100 +398,74 @@
             }
         }
 
-        async function saveDataToCloud() {
-            try {
-                const docRef = window.fbDoc(window.fbDB, "nexabsent_data", "main_database");
-                await window.fbSetDoc(docRef, {
-                    karyawan: daftarKaryawan,
-                    jadwal: databaseJadwal,
-                    laporan: dataLaporanGlobal,
-                    updatedAt: new Date().toISOString()
-                });
-                return true;
-            } catch (err) {
-                console.error(err);
-                showModal("Error Cloud", "Gagal menyimpan data ke Firebase.");
-                return false;
+       // FUNGSI SIMPAN DATA KE FIREBASE CLOUD (DIPERBAIKI AGAR TIDAK NESTED ARRAY)
+async function saveDataToCloud() {
+    try {
+        const docRef = window.fbDoc(window.fbDB, "nexabsent_data", "main_database");
+        
+        // Ubah 2D array (laporan) menjadi array of strings (tiap baris digabung dengan pemisah khusus) 
+        // agar Firestore menerimanya sebagai array biasa, bukan nested array.
+        let laporanFlattened = dataLaporanGlobal.map(row => row.join("|||"));
+
+        await window.fbSetDoc(docRef, {
+            karyawan: daftarKaryawan,
+            jadwal: databaseJadwal,
+            laporan: laporanFlattened,
+            updatedAt: new Date().toISOString()
+        });
+        return true;
+    } catch (err) {
+        console.error(err);
+        showModal("Error Cloud", "Gagal menyimpan data ke Firebase: " + err.message);
+        return false;
+    }
+}
+
+// FUNGSI TARIK DATA DARI FIREBASE CLOUD (DIPERBAIKI)
+window.loadDataFromCloud = async function() {
+    const cloudStatusText = document.getElementById('cloudStatusText');
+    const cloudPing = document.getElementById('cloudPing');
+    const cloudDot = document.getElementById('cloudDot');
+    
+    if (!window.fbDB) {
+        setTimeout(window.loadDataFromCloud, 1000);
+        return;
+    }
+
+    try {
+        cloudStatusText.innerText = "Menyinkronkan Cloud...";
+        const docRef = window.fbDoc(window.fbDB, "nexabsent_data", "main_database");
+        const docSnap = await window.fbGetDoc(docRef);
+
+        if (docSnap.exists()) {
+            let cloudData = docSnap.data();
+            if (cloudData.karyawan) daftarKaryawan = cloudData.karyawan;
+            if (cloudData.jadwal) databaseJadwal = cloudData.jadwal;
+            if (cloudData.laporan && Array.isArray(cloudData.laporan)) {
+                // Kembalikan dari string ter-flatten menjadi 2D array kembali
+                dataLaporanGlobal = cloudData.laporan.map(rowStr => rowStr.split("|||"));
+                parseLaporanToAbsenSheet(dataLaporanGlobal);
             }
         }
 
-        function parseLaporanToAbsenSheet(parsedRows) {
-            databaseAbsenSheet = {};
-            let detectedNames = new Set(daftarKaryawan);
+        cloudStatusText.innerText = "Cloud Terhubung ✓";
+        cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
+        cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500";
 
-            for (let i = 1; i < parsedRows.length; i++) {
-                let row = parsedRows[i];
-                if(!row || row.length === 0) continue;
-                let waktuStr = String(row[0] || "");
-                let nama = String(row[1] || "").trim();
-                let statusAbsen = String(row[2] || "").trim();
+        updateDropdownKaryawan();
+        renderJadwalKaryawan();
+        renderTabelSemuaJadwal();
+        renderTabelRekap();
+        renderTabelAdminLog();
+        renderListKaryawanAdmin();
 
-                if (nama) detectedNames.add(nama);
-
-                if (waktuStr && nama) {
-                    let parts = waktuStr.split(" ");
-                    let tglParts = parts[0].split("-");
-                    if (tglParts.length === 3) {
-                        let tglIso = `${tglParts[2]}-${tglParts[1]}-${tglParts[0]}`;
-                        let jamMenit = parts[1] ? parts[1].substring(0, 5) : "";
-                        let key = `${nama}_${tglIso}`;
-
-                        if (!databaseAbsenSheet[key]) databaseAbsenSheet[key] = { checkIn: "-", checkOut: "-" };
-
-                        if (statusAbsen.toLowerCase().includes("in")) databaseAbsenSheet[key].checkIn = jamMenit;
-                        else if (statusAbsen.toLowerCase().includes("out")) databaseAbsenSheet[key].checkOut = jamMenit;
-                        else if (statusAbsen.toUpperCase() === "OFF") databaseAbsenSheet[key].checkIn = "OFF";
-                    }
-                }
-            }
-            daftarKaryawan = Array.from(detectedNames);
-        }
-
-        window.prosesUploadFile = async function() {
-            const fileInput = document.getElementById('csvFileInput');
-            const btnUpload = document.getElementById('btnUpload');
-            if (fileInput.files.length === 0) {
-                showModal("Peringatan", "Pilih file CSV / Excel terlebih dahulu!");
-                return;
-            }
-
-            btnUpload.disabled = true;
-            btnUpload.innerText = "⏳ Mengunggah ke Cloud...";
-
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-
-            reader.onload = async function(e) {
-                const text = e.target.result;
-                const lines = text.split(/\r\n|\n/);
-                let parsedRows = [];
-
-                lines.forEach(line => {
-                    if (!line.trim()) return;
-                    let cols = line.split(/,|;/).map(val => val.replace(/^"|"$/g, '').trim());
-                    parsedRows.push(cols);
-                });
-
-                if (parsedRows.length > 0) {
-                    dataLaporanGlobal = parsedRows;
-                    parseLaporanToAbsenSheet(dataLaporanGlobal);
-
-                    let success = await saveDataToCloud();
-                    btnUpload.disabled = false;
-                    btnUpload.innerText = "Proses & Simpan ke Cloud";
-
-                    if (success) {
-                        updateDropdownKaryawan();
-                        renderJadwalKaryawan();
-                        renderTabelSemuaJadwal();
-                        renderTabelRekap();
-                        renderTabelAdminLog();
-                        showModal("Sukses!", "Data berhasil diunggah dan disinkronkan ke Cloud Firebase secara real-time!");
-                    }
-                }
-            };
-            reader.readAsText(file);
-        }
+    } catch (err) {
+        console.error(err);
+        cloudStatusText.innerText = "Gagal Koneksi Cloud";
+        cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75";
+        cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500";
+    }
+}
 
         function updateDropdownKaryawan() {
             let selectKaryawanEl = document.getElementById('selectKaryawan');
