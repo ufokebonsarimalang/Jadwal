@@ -324,7 +324,6 @@
     <script>
         const URL_WEB_APP_GS = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
 
-        // Hardcode daftar karyawan agar langsung siap pakai tanpa menunggu response server
         let daftarKaryawan = ["Poniadi", "Eko", "Dedy", "Dwi", "Friza", "Rudi", "Demmy", "Bima", "Agung", "Zaenal"];
         let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
         let databaseAbsenSheet = JSON.parse(localStorage.getItem('db_absen_sheet')) || {};
@@ -406,7 +405,6 @@
             const syncIcon = document.getElementById('syncIcon');
             
             if(syncIcon) syncIcon.classList.add('animate-spin');
-
             badgeSync.className = "text-xs px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-xl font-bold animate-pulse";
             badgeSync.innerText = "Memuat dari Server...";
 
@@ -485,7 +483,6 @@
         async function tambahKaryawanOnline() {
             const input = document.getElementById('inputNamaBaru');
             const namaBaru = input.value.trim();
-            const msg = document.getElementById('statusKaryawanMsg');
 
             if (!namaBaru) {
                 showModal("Peringatan", "Masukkan nama karyawan terlebih dahulu!");
@@ -654,12 +651,13 @@
         }
 
         window.renderJadwalKaryawan = function() {
+            databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {};
             const selectEl = document.getElementById('selectKaryawan');
             const karyawan = selectEl ? selectEl.value : (daftarKaryawan[0] || "Poniadi");
             const container = document.getElementById('gridJadwal');
             const dates = getCutOffDates();
             
-            let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
+            let countMasuk = 0, countOffTotal = 0, countPs = 0, countTerlambat = 0;
             let html = "";
 
             dates.forEach(item => {
@@ -671,14 +669,11 @@
                 let statusLabel = "FULL";
                 let jamTampil = `In: ${dataAbsen.checkIn} | Out: ${dataAbsen.checkOut}`;
 
-                let isWeekend = (item.dayOfWeek === 0 || item.dayOfWeek === 6);
-
                 if (statusJadwal === "OFF") {
                     badgeClass = "bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30";
                     statusLabel = "OFF";
                     jamTampil = "LIBUR";
                     countOffTotal++;
-                    if (isWeekend) countOffWeekend++;
                 } else {
                     countMasuk++;
                     if (statusJadwal === "PS") {
@@ -703,7 +698,7 @@
 
             if (container) container.innerHTML = html;
             document.getElementById('statMasuk').innerText = `${countMasuk} Hari`;
-            document.getElementById('statOff').innerHTML = `${countOffTotal} Hari`;
+            document.getElementById('statOff').innerText = `${countOffTotal} Hari`;
             document.getElementById('statPs').innerText = `${countPs} Hari`;
             document.getElementById('statTerlambat').innerText = `${countTerlambat} Hari`;
         }
@@ -811,7 +806,7 @@
             renderTabelSemuaJadwal();
         }
 
-        // Jalankan inisialisasi awal saat halaman dibuka
+        // Inisialisasi awal
         updateDropdownKaryawan();
         renderJadwalKaryawan();
         renderTabelSemuaJadwal();
