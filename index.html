@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexAttend - Sistem Jadwal & Absensi Karyawan</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #030712; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        .glass-card {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.7) 0%, rgba(3, 7, 18, 0.8) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col md:flex-row selection:bg-indigo-500 selection:text-white relative overflow-x-hidden">
+
+    <!-- Background Ambient Glow -->
+    <div class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-10 right-10 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- SIDEBAR NAVIGASI -->
+    <aside class="w-full md:w-72 h-auto md:h-screen sticky top-0 bg-slate-900/80 backdrop-blur-2xl border-r border-slate-800/80 flex flex-row md:flex-col justify-between p-4 md:p-6 shrink-0 z-30 items-center md:items-stretch shadow-2xl overflow-y-auto">
+        <div class="flex items-center gap-3.5">
+            <div class="p-2.5 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 text-white rounded-2xl shadow-lg shadow-indigo-500/30 ring-1 ring-white/20">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <div class="hidden sm:block">
+                <h1 class="font-black text-white text-base tracking-tight flex items-center gap-1.5">NexAttend <span class="text-[10px] bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">PRO</span></h1>
+                <p class="text-[11px] text-slate-400 font-medium tracking-wide">Cut-Off: 26 Agt - 25 Sep</p>
+            </div>
+        </div>
+
+        <nav class="flex md:flex-col gap-2 mt-0 md:mt-6">
+            <button onclick="switchTab('jadwal')" id="btnJadwal" 
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-300 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30 ring-1 ring-white/20">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="hidden sm:inline">Jadwal & Absen</span>
+            </button>
+            <button onclick="switchTab('admin')" id="btnAdmin" 
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent hover:border-slate-700/50">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
+                <span class="hidden sm:inline">Panel Admin (Ubah Jadwal)</span>
+            </button>
+        </nav>
+
+        <div class="hidden md:flex pt-6 border-t border-slate-800/80 text-xs items-center gap-3 text-slate-400">
+            <span class="relative flex h-2.5 w-2.5">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+            <span class="font-semibold text-slate-300">Periode 26 Agt - 25 Sep</span>
+        </div>
+    </aside>
+
+    <!-- KONTEN UTAMA -->
+    <main class="flex-1 p-4 md:p-10 overflow-y-auto z-10">
+        
+        <!-- HALAMAN 1: JADWAL & ABSENSI KARYAWAN -->
+        <section id="tabJadwal" class="space-y-6 max-w-5xl mx-auto">
+            <div class="glass-card p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 class="text-xl md:text-2xl font-black text-white tracking-tight">Jadwal & Absensi Karyawan</h2>
+                    <p class="text-xs text-slate-400 mt-1">Default Jam Kerja: <span class="text-indigo-400 font-bold">08:00 - 20:00 (Full)</span> | Kecuali OFF / PS dari Admin.</p>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Pilih Nama Karyawan:</label>
+                    <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="Budi">Budi</option>
+                        <option value="Siti">Siti</option>
+                        <option value="Andi">Andi</option>
+                        <option value="Dewi">Dewi</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Kalender Jadwal Periode Cut-Off (26 Agt - 25 Sep) -->
+            <div class="glass-card p-6 rounded-3xl space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                    <h3 class="font-extrabold text-white text-sm">Kalender Shift Cut-Off (26 Agustus s.d 25 September)</h3>
+                    <span class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl font-bold">Periode Aktif</span>
+                </div>
+                
+                <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3">
+                    <!-- Javascript akan mengisi daftar tanggal cut off di sini -->
+                </div>
+            </div>
+        </section>
+
+        <!-- HALAMAN 2: PANEL ADMIN (UBAH JADWAL OFF / PS) -->
+        <section id="tabAdmin" class="hidden space-y-6 max-w-3xl mx-auto">
+            <div class="glass-card p-6 md:p-8 rounded-3xl">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="p-3.5 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20 shadow-inner">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black text-white tracking-tight">Panel Kontrol Admin (Ubah Jadwal)</h2>
+                        <p class="text-xs text-slate-400">Atur khusus hari **OFF** atau **PS**. Selain itu otomatis **08:00 - 20:00**.</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-950/80 p-5 rounded-2xl border border-slate-800/80 space-y-4 shadow-inner">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Karyawan:</label>
+                            <select id="adminKaryawan" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="Budi">Budi</option>
+                                <option value="Siti">Siti</option>
+                                <option value="Andi">Andi</option>
+                                <option value="Dewi">Dewi</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Tanggal (26 Agt - 25 Sep):</label>
+                            <input type="date" id="adminTanggal" min="2026-08-26" max="2026-09-25" 
+                                class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Status Khusus:</label>
+                            <select id="adminStatus" class="w-full px-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <option value="OFF">OFF (Libur)</option>
+                                <option value="PS">PS (Shift Khusus / Panggilan)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button onclick="simpanJadwalAdmin()" 
+                        class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-lg shadow-indigo-600/25">
+                        Simpan Perubahan Jadwal Karyawan
+                    </button>
+                    <p id="statusAdmin" class="text-xs font-medium text-center"></p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- LOGIKA SCRIPT -->
+    <script>
+        // Simulasi Database Penyimpanan Jadwal Khusus (OFF / PS)
+        // Format key: "NamaKaryawan_YYYY-MM-DD" -> Value: "OFF" atau "PS"
+        let databaseJadwal = JSON.parse(localStorage.getItem('db_jadwal_karyawan')) || {
+            "Budi_2026-08-30": "OFF",
+            "Siti_2026-09-05": "PS"
+        };
+
+        window.switchTab = function(tabName) {
+            const tabs = ['tabJadwal', 'tabAdmin'];
+            const btns = ['btnJadwal', 'btnAdmin'];
+            
+            tabs.forEach((t, i) => {
+                const el = document.getElementById(t);
+                const btn = document.getElementById(btns[i]);
+                if (t === 'tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)) {
+                    el.classList.remove('hidden');
+                    btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-300 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30 ring-1 ring-white/20";
+                } else {
+                    el.classList.add('hidden');
+                    btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-400 hover:text-white hover:bg-slate-800/60 border border-transparent hover:border-slate-700/50";
+                }
+            });
+        }
+
+        // Generate Daftar Tanggal Cut-Off (26 Agustus 2026 s.d 25 September 2026)
+        function getCutOffDates() {
+            let dates = [];
+            let currDate = new Date("2026-08-26");
+            let endDate = new Date("2026-09-25");
+
+            while (currDate <= endDate) {
+                let year = currDate.getFullYear();
+                let month = String(currDate.getMonth() + 1).padStart(2, '0');
+                let day = String(currDate.getDate()).padStart(2, '0');
+                let dateString = `${year}-${month}-${day}`;
+                
+                dates.push({
+                    dateStr: dateString,
+                    label: `${day} ${currDate.toLocaleString('id-ID', { month: 'short' })}`
+                });
+                currDate.setDate(currDate.getDate() + 1);
+            }
+            return dates;
+        }
+
+        window.renderJadwalKaryawan = function() {
+            const karyawan = document.getElementById('selectKaryawan').value;
+            const container = document.getElementById('gridJadwal');
+            const dates = getCutOffDates();
+            
+            let html = "";
+            dates.forEach(item => {
+                let key = `${karyawan}_${item.dateStr}`;
+                let statusKhusus = databaseJadwal[key]; // Bisa 'OFF', 'PS', atau undefined
+                
+                let badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+                let jamKerja = "08:00 - 20:00";
+                let statusLabel = "FULL";
+
+                if (statusKhusus === "OFF") {
+                    badgeClass = "bg-rose-500/10 text-rose-400 border-rose-500/20";
+                    jamKerja = "LIBUR";
+                    statusLabel = "OFF";
+                } else if (statusKhusus === "PS") {
+                    badgeClass = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+                    jamKerja = "PANGGILAN / PS";
+                    statusLabel = "PS";
+                }
+
+                html += `
+                    <div class="bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800/80 flex flex-col justify-between space-y-2 shadow-inner">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-slate-400">${item.label}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-lg border font-black ${badgeClass}">${statusLabel}</span>
+                        </div>
+                        <div class="py-1">
+                            <span class="text-xs font-extrabold text-white">${jamKerja}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        window.simpanJadwalAdmin = function() {
+            const karyawan = document.getElementById('adminKaryawan').value;
+            const tanggal = document.getElementById('adminTanggal').value;
+            const status = document.getElementById('adminStatus').value;
+            const statusEl = document.getElementById('statusAdmin');
+
+            if (!tanggal) {
+                statusEl.className = "text-xs font-medium text-rose-400";
+                statusEl.innerText = "⚠️ Pilih tanggal cut-off terlebih dahulu!";
+                return;
+            }
+
+            let key = `${karyawan}_${tanggal}`;
+            databaseJadwal[key] = status;
+            localStorage.setItem('db_jadwal_karyawan', JSON.stringify(databaseJadwal));
+
+            statusEl.className = "text-xs font-medium text-emerald-400";
+            statusEl.innerText = `✨ Berhasil! Jadwal ${karyawan} pada tanggal ${tanggal} diubah menjadi ${status}.`;
+            
+            // Refresh tampilan jika karyawan yang dipilih sama
+            if (document.getElementById('selectKaryawan').value === karyawan) {
+                renderJadwalKaryawan();
+            }
+        }
+
+        // Inisialisasi awal saat halaman dibuka
+        renderJadwalKaryawan();
+    </script>
+</body>
+</html>
