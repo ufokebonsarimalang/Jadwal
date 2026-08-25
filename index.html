@@ -411,17 +411,39 @@
             }
         }
 
-        function updateDropdownKaryawan() {
+     function updateDropdownKaryawan() {
+            let selectKaryawanEl = document.getElementById('selectKaryawan');
+            let adminKaryawanEl = document.getElementById('adminKaryawan');
+            let filterAdminEl = document.getElementById('filterNamaAdmin');
+
+            // Simpan pilihan yang sedang aktif saat ini sebelum di-reset
+            let selectedJadwalVal = selectKaryawanEl ? selectKaryawanEl.value : "";
+            let selectedAdminVal = adminKaryawanEl ? adminKaryawanEl.value : "";
+            let selectedFilterVal = filterAdminEl ? filterAdminEl.value : "";
+
             let optionsHtml = "";
             daftarKaryawan.forEach(nama => { optionsHtml += `<option value="${nama}">${nama}</option>`; });
             
-            if(document.getElementById('selectKaryawan')) document.getElementById('selectKaryawan').innerHTML = optionsHtml;
-            if(document.getElementById('adminKaryawan')) document.getElementById('adminKaryawan').innerHTML = optionsHtml;
+            if(selectKaryawanEl) {
+                selectKaryawanEl.innerHTML = optionsHtml;
+                if (selectedJadwalVal && daftarKaryawan.includes(selectedJadwalVal)) {
+                    selectKaryawanEl.value = selectedJadwalVal;
+                }
+            }
+
+            if(adminKaryawanEl) {
+                adminKaryawanEl.innerHTML = optionsHtml;
+                if (selectedAdminVal && daftarKaryawan.includes(selectedAdminVal)) {
+                    adminKaryawanEl.value = selectedAdminVal;
+                }
+            }
             
-            let filterAdmin = document.getElementById('filterNamaAdmin');
-            if(filterAdmin) {
-                filterAdmin.innerHTML = '<option value="SEMUA">-- Semua Karyawan --</option>';
-                daftarKaryawan.forEach(nama => { filterAdmin.innerHTML += `<option value="${nama}">${nama}</option>`; });
+            if(filterAdminEl) {
+                filterAdminEl.innerHTML = '<option value="SEMUA">-- Semua Karyawan --</option>';
+                daftarKaryawan.forEach(nama => { filterAdminEl.innerHTML += `<option value="${nama}">${nama}</option>`; });
+                if (selectedFilterVal) {
+                    filterAdminEl.value = selectedFilterVal;
+                }
             }
         }
 
