@@ -88,7 +88,7 @@
                 </div>
                 
                 <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3">
-                    <!-- Javascript tanggal cut off -->
+                    <!-- Javascript tanggal cut off dengan nama hari -->
                 </div>
             </div>
         </section>
@@ -96,7 +96,7 @@
         <!-- HALAMAN 2: PANEL ADMIN & REKAPITULASI -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-4xl mx-auto">
             
-            <!-- KOTAK 1: TABEL REKAPITULASI TOTAL MASUK, OFF, PS -->
+            <!-- KOTAK 1: TABEL REKAPITULASI -->
             <div class="glass-card p-6 md:p-8 rounded-3xl space-y-4">
                 <div class="flex items-center justify-between border-b border-slate-800 pb-4">
                     <div class="flex items-center gap-3">
@@ -120,9 +120,7 @@
                                 <th class="py-3 px-4 text-center">Total PS (Khusus)</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelRekapBody" class="divide-y divide-slate-800/60">
-                            <!-- Diisi otomatis via script -->
-                        </tbody>
+                        <tbody id="tabelRekapBody" class="divide-y divide-slate-800/60"></tbody>
                     </table>
                 </div>
             </div>
@@ -165,7 +163,7 @@
                     </div>
                     <div>
                         <h2 class="text-xl font-black text-white tracking-tight">Atur Jadwal Khusus (OFF / PS)</h2>
-                        <p class="text-xs text-slate-400">Selain tanggal yang diatur di sini, otomatis karyawan masuk pukul **08:00 - 20:00**.</p>
+                        <p class="text-xs text-slate-400">Atur tanggal tertentu jika ada penukaran shift atau libur khusus.</p>
                     </div>
                 </div>
 
@@ -309,9 +307,13 @@
                 let day = String(currDate.getDate()).padStart(2, '0');
                 let dateString = `${year}-${month}-${day}`;
                 
+                // Ambil Nama Hari (Sen, Sel, Rab, Kam, Jum, Sab, Min)
+                let namaHari = currDate.toLocaleDateString('id-ID', { weekday: 'short' });
+                let namaBulan = currDate.toLocaleDateString('id-ID', { month: 'short' });
+                
                 dates.push({
                     dateStr: dateString,
-                    label: `${day} ${currDate.toLocaleString('id-ID', { month: 'short' })}`
+                    label: `${namaHari}, ${day} ${namaBulan}`
                 });
                 currDate.setDate(currDate.getDate() + 1);
             }
@@ -359,25 +361,22 @@
             if (container) container.innerHTML = html;
         }
 
-        // Fungsi Otomatis Hitung Rekapitulasi Cut-Off
         function renderTabelRekap() {
             const tbody = document.getElementById('tabelRekapBody');
             const dates = getCutOffDates();
-            let totalHariCutOff = dates.length; // Jumlah hari dalam periode (31 hari)
+            let totalHariCutOff = dates.length;
 
             let html = "";
             daftarKaryawan.forEach(nama => {
                 let countOff = 0;
                 let countPs = 0;
 
-                // Hitung dari database jadwal khusus
                 dates.forEach(item => {
                     let key = `${nama}_${item.dateStr}`;
                     if (databaseJadwal[key] === "OFF") countOff++;
                     if (databaseJadwal[key] === "PS") countPs++;
                 });
 
-                // Total Masuk (Full) = Total Hari CutOff dikurangi hari OFF
                 let countMasuk = totalHariCutOff - countOff;
 
                 html += `
