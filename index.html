@@ -159,6 +159,21 @@
         <!-- HALAMAN 3: PANEL ADMIN -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-4xl mx-auto">
             
+            <!-- Tombol Generator Otomatis Khusus Sopir (Poniadi, Eko, Dedy) -->
+            <div class="app-card bg-gradient-to-r from-amber-600/10 via-rose-600/10 to-indigo-600/10 border border-amber-500/30 p-6 md:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="space-y-1 text-center md:text-left">
+                    <h2 class="text-base md:text-lg font-black text-slate-900 dark:text-white flex items-center justify-center md:justify-start gap-2">
+                        🚛 Generator Otomatis Sopir (Anti-Bentrok)
+                    </h2>
+                    <p class="text-xs text-slate-600 dark:text-slate-400">
+                        Atur 4x OFF (Selasa-Jumat) untuk: <b>Poniadi, Eko, Dedy</b> (Dijamin tidak ada sopir yang OFF di hari yang sama).
+                    </p>
+                </div>
+                <button onclick="generateOtomatisSopir()" class="bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white font-black px-5 py-3 rounded-2xl text-xs transition-all shadow-lg shadow-amber-600/30 shrink-0">
+                    GENERATE OTOMATIS JADWAL OFF SOPIR
+                </button>
+            </div>
+
             <!-- Tombol Generator Otomatis Khusus Teknisi & Helper -->
             <div class="app-card bg-gradient-to-r from-violet-600/10 via-indigo-600/10 to-emerald-600/10 border border-indigo-500/30 p-6 md:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
                 <div class="space-y-1 text-center md:text-left">
@@ -538,43 +553,71 @@
             return dates;
         }
 
+        // GENERATOR OTOMATIS KHUSUS SOPIR (Poniadi, Eko, Dedy) - ANTI BENTROK SESAMA SOPIR
+        window.generateOtomatisSopir = function() {
+            showModal("Konfirmasi Generator", "Generate otomatis jadwal OFF (maksimal 4x, khusus Selasa-Jumat) untuk kelompok Sopir (Poniadi, Eko, Dedy) tanpa ada yang bentrok di hari yang sama?", true, function() {
+                const listSopir = ["Poniadi", "Eko", "Dedy"];
+                const dates = getCutOffDates();
+                let allowedDates = dates.filter(d => d.isAllowedOff).map(d => d.dateStr);
+
+                // Hapus jadwal OFF lama khusus sopir
+                listSopir.forEach(nama => {
+                    dates.forEach(d => {
+                        let k = `${nama}_${d.dateStr}`;
+                        if (databaseJadwal[k] === "OFF") delete databaseJadwal[k];
+                    });
+                });
+
+                // Lacak tanggal mana saja yang sudah dipakai sopir lain agar tidak bentrok
+                let offTracker = {}; 
+
+                listSopir.forEach(nama => {
+                    let shuffledDates = [...allowedDates].sort(() => 0.5 - Math.random());
+                    let assignedCount = 0;
+
+                    for (let i = 0; i < shuffledDates.length && assignedCount < 4; i++) {
+                        let tgl = shuffledDates[i];
+                        // Cek apakah di tanggal ini sudah ada sopir lain yang OFF
+                        if (!offTracker[tgl]) {
+                            offTracker[tgl] = true;
+                            databaseJadwal[`${nama}_${tgl}`] = "OFF";
+                            assignedCount++;
+                        }
+                    }
+                });
+
+                localStorage.setItem('db_jadwal_karyawan', JSON.stringify(databaseJadwal));
+                renderJadwalKaryawan();
+                renderTabelRekap();
+                renderTabelSemuaJadwal();
+
+                showModal("Berhasil!", "Jadwal OFF untuk Sopir (Poniadi, Eko, Dedy) berhasil digenerate otomatis tanpa ada yang bentrok di tanggal yang sama!");
+            });
+        };
+
         // FUNGSI GENERATOR OTOMATIS KHUSUS TEKNISI & HELPER
         window.generateOtomatisTeknisiHelper = function() {
             showModal("Konfirmasi Generator", "Generate otomatis jadwal OFF (maksimal 4x, khusus Selasa-Jumat) untuk kelompok Teknisi & Helper (Demmy, Bima, Agung, Zaenal)?", true, function() {
                 const listTeknisiHelper = ["Demmy", "Bima", "Agung", "Zaenal"];
                 const dates = getCutOffDates();
-                
-                // Ambil daftar tanggal yang diizinkan OFF (Selasa s.d. Jumat)
                 let allowedDates = dates.filter(d => d.isAllowedOff).map(d => d.dateStr);
 
                 listTeknisiHelper.forEach(nama => {
-                    // Hapus dulu jadwal OFF lama khusus karyawan ini agar bersih sebelum di-generate baru
                     dates.forEach(d => {
                         let k = `${nama}_${d.dateStr}`;
-                        if (databaseJadwal[k] === "OFF") {
-                            delete databaseJadwal[k];
-                        }
+                        if (databaseJadwal[k] === "OFF") delete databaseJadwal[k];
                     });
 
-                    // Acak urutan tanggal yang diizinkan agar pembagian antar karyawan merata & tidak sama persis
                     let shuffledDates = [...allowedDates].sort(() => 0.5 - Math.random());
-
-                    // Berikan tepat 4 kali OFF
                     let assignedCount = 0;
                     for (let i = 0; i < shuffledDates.length && assignedCount < 4; i++) {
                         let tgl = shuffledDates[i];
-                        let key = `${nama}_${tgl}`;
-                        
-                        // Pastikan belum diset OFF
-                        databaseJadwal[key] = "OFF";
+                        databaseJadwal[`${nama}_${tgl}`] = "OFF";
                         assignedCount++;
                     }
                 });
 
-                // Simpan ke localStorage
                 localStorage.setItem('db_jadwal_karyawan', JSON.stringify(databaseJadwal));
-
-                // Refresh tampilan
                 renderJadwalKaryawan();
                 renderTabelRekap();
                 renderTabelSemuaJadwal();
