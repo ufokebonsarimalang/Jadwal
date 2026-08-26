@@ -40,7 +40,7 @@
             </div>
             <div class="hidden sm:block">
                 <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight flex items-center gap-1.5">NexAbsent<span class="text-[10px] bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">ENTERPRISE</span></h1>
-                <p id="labelCutOffSidebar" class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">Siklus Periode: Memuat...</p>
+                <p id="labelCutOffSidebar" class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">Periode: Memuat...</p>
             </div>
         </div>
 
@@ -83,7 +83,7 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
                 <div>
                     <h2 class="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Monitoring Shift & Kehadiran</h2>
-                    <p id="labelCutOffHeader" class="text-xs text-slate-600 dark:text-slate-300 mt-1">Siklus Periode Otomatis</p>
+                    <p id="labelCutOffHeader" class="text-xs text-slate-600 dark:text-slate-300 mt-1">Periode Otomatis</p>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
@@ -366,7 +366,7 @@
 
             let startFormatted = startDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
             let endFormatted = endDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-            let infoText = `Siklus: ${startFormatted} - ${endFormatted}`;
+            let infoText = `Periode: ${startFormatted} - ${endFormatted}`;
             
             let el1 = document.getElementById('labelCutOffSidebar');
             let el2 = document.getElementById('labelCutOffHeader');
