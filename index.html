@@ -382,7 +382,7 @@
             return dates;
         }
 
-       window.loadDataFromCloud = async function() {
+      window.loadDataFromCloud = async function() {
             const cloudStatusText = document.getElementById('cloudStatusText');
             const cloudPing = document.getElementById('cloudPing');
             const cloudDot = document.getElementById('cloudDot');
@@ -391,7 +391,6 @@
                 try {
                     if(cloudStatusText) cloudStatusText.innerText = "Mengambil data dari Google Sheet...";
                     
-                    // DIUBAH MENJADI POST REQUEST SESUAI DOPOSING GAS ANDA
                     let response = await fetch(gasWebhookUrl, {
                         method: "POST",
                         headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -434,7 +433,7 @@
                     }
                 }
 
-                if(cloudStatusTest) cloudStatusTest.innerText = "Cloud Terhubung ✓";
+                if(cloudStatusText) cloudStatusText.innerText = "Cloud Terhubung ✓";
                 if(cloudPing) cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
                 if(cloudDot) cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500";
 
