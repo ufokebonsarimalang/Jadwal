@@ -277,7 +277,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA (ROBUST DATE PARSING) -->
+    <!-- SCRIPT UTAMA (CHECK IN & CHECK OUT DISPLAYED) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -412,12 +412,10 @@
             }
         }
 
-        // FUNGSI PARSER TANGGAL YANG TAHAN BANTING (ROBUST)
         function parseWaktuToIsoAndHms(rawWaktu) {
             if (!rawWaktu) return { tglIso: "", timePart: "" };
             let waktuStr = String(rawWaktu).trim();
 
-            // Jika format angka serial Excel (misal: 46232.331) atau format Date JS
             if (!waktuStr.includes("-") && !waktuStr.includes("/") && !waktuStr.includes(" ")) {
                 let num = parseFloat(waktuStr);
                 if (!isNaN(num) && num > 10000) {
@@ -663,7 +661,9 @@
                     if (status === "OFF" || absen.checkIn === "OFF") {
                         badgeStyle = "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30"; label = "OFF";
                     } else if (absen.checkIn !== "-" && absen.checkOut !== "-") {
-                        badgeStyle = "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"; label = absen.checkIn;
+                        badgeStyle = "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"; 
+                        // TAMPILKAN CHECK IN & CHECK OUT LENGKAP DI MATRIKS
+                        label = `${absen.checkIn} - ${absen.checkOut}`;
                         let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
                         if (status === "PS" || jamOut < 19) label += " (PS)";
                     }
@@ -777,7 +777,7 @@
 
                     if (status === "OFF" || absen.checkIn === "OFF") label = "OFF";
                     else if (absen.checkIn !== "-" && absen.checkOut !== "-") {
-                        label = absen.checkIn;
+                        label = `${absen.checkIn} - ${absen.checkOut}`;
                         let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
                         if (status === "PS" || jamOut < 19) label += " (PS)";
                     } else if (status === "PS") label = "PS";
