@@ -9,6 +9,8 @@
     <script>
         tailwind.config = { darkMode: 'class' }
     </script>
+    <!-- SheetJS (XLSX) untuk membaca file Excel & CSV dengan sempurna -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- Google Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -159,7 +161,7 @@
                     <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl text-xl">☁️</div>
                     <div>
                         <h2 class="text-lg font-black text-slate-900 dark:text-white">Upload Data Absensi ke Cloud (Firebase)</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Unggah file rekap absen, sistem akan menghitung otomatis kehadiran, terlambat, OFF, dan PS.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Unggah file Excel (.xlsx, .xls) atau CSV, sistem akan membaca dan menghitung otomatis.</p>
                     </div>
                 </div>
                 <div class="flex flex-col sm:flex-row items-center gap-4">
@@ -246,14 +248,14 @@
                 </div>
             </div>
 
-            <!-- Kelola Karyawan -->
-            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl">
-                <h2 class="text-xl font-black text-slate-900 dark:text-white mb-4">Kelola Daftar Karyawan</h2>
-                <div class="flex gap-3 mb-4">
+            <!-- Kelola Karyawan (Tambah & Hapus) -->
+            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
+                <h2 class="text-xl font-black text-slate-900 dark:text-white">Kelola Daftar Karyawan</h2>
+                <div class="flex gap-3">
                     <input type="text" id="inputNamaBaru" placeholder="Nama Karyawan Baru (cth: Budi)" class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
                     <button onclick="tambahKaryawanBaru()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Tambah</button>
                 </div>
-                <div id="listKaryawanAdmin" class="flex flex-wrap gap-2"></div>
+                <div id="listKaryawanAdmin" class="flex flex-wrap gap-2 pt-2"></div>
             </div>
 
         </section>
@@ -272,7 +274,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA (CASE INSENSITIVE & AUTO CALCULATION) -->
+    <!-- SCRIPT UTAMA (SHEETJS EXCEL SUPPORT + HAPUS KARYAWAN + FIREBASE) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -406,7 +408,7 @@
             }
         }
 
-        // PARSE & AUTO CALCULATION (CASE INSENSITIVE & `;` SEPARATOR)
+        // PARSE MENGGUNAKAN SHEETJS (Mendukung Excel & CSV secara native)
         function parseLaporanToAbsenSheet(parsedRows) {
             databaseAbsenSheet = {};
             let detectedNames = new Set(daftarKaryawan.map(n => n.toUpperCase()));
@@ -472,47 +474,50 @@
             const fileInput = document.getElementById('csvFileInput');
             const btnUpload = document.getElementById('btnUpload');
             if (fileInput.files.length === 0) {
-                showModal("Peringatan", "Pilih file CSV / Excel terlebih dahulu!");
+                showModal("Peringatan", "Pilih file Excel (.xlsx) atau CSV terlebih dahulu!");
                 return;
             }
 
             btnUpload.disabled = true;
-            btnUpload.innerText = "⏳ Menghitung & Mengunggah...";
+            btnUpload.innerText = "⏳ Membaca & Menghitung...";
 
             const file = fileInput.files[0];
             const reader = new FileReader();
 
             reader.onload = async function(e) {
-                const text = e.target.result;
-                const lines = text.split(/\r\n|\n/);
-                let parsedRows = [];
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const parsedRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-                lines.forEach(line => {
-                    if (!line.trim()) return;
-                    let delimiter = line.includes(";") ? ";" : ",";
-                    let cols = line.split(delimiter).map(val => val.replace(/^"|"$/g, '').trim());
-                    parsedRows.push(cols);
-                });
+                    if (parsedRows.length > 0) {
+                        dataLaporanGlobal = parsedRows;
+                        parseLaporanToAbsenSheet(dataLaporanGlobal);
 
-                if (parsedRows.length > 0) {
-                    dataLaporanGlobal = parsedRows;
-                    parseLaporanToAbsenSheet(dataLaporanGlobal);
+                        let success = await saveDataToCloud();
+                        btnUpload.disabled = false;
+                        btnUpload.innerText = "Proses & Hitung Otomatis";
 
-                    let success = await saveDataToCloud();
+                        if (success) {
+                            updateDropdownKaryawan();
+                            renderJadwalKaryawan();
+                            renderTabelSemuaJadwal();
+                            renderTabelRekap();
+                            renderTabelAdminLog();
+                            renderListKaryawanAdmin();
+                            showModal("Sukses!", "File berhasil dibaca, dihitung otomatis, dan disinkronkan ke Cloud Firebase!");
+                        }
+                    }
+                } catch (err) {
+                    console.error(err);
                     btnUpload.disabled = false;
                     btnUpload.innerText = "Proses & Hitung Otomatis";
-
-                    if (success) {
-                        updateDropdownKaryawan();
-                        renderJadwalKaryawan();
-                        renderTabelSemuaJadwal();
-                        renderTabelRekap();
-                        renderTabelAdminLog();
-                        showModal("Sukses!", "Data berhasil diproses otomatis dan disinkronkan ke Cloud Firebase!");
-                    }
+                    showModal("Gagal Membaca File", "Terjadi kesalahan saat memproses file: " + err.message);
                 }
             };
-            reader.readAsText(file);
+            reader.readAsArrayBuffer(file);
         }
 
         function updateDropdownKaryawan() {
@@ -531,7 +536,6 @@
             }
         }
 
-        // RENTANG CUT-OFF: 26 Juli 2026 s.d 25 Agustus 2026
         function getCutOffDates() {
             let dates = [];
             let currDate = new Date("2026-07-26");
@@ -759,7 +763,7 @@
 
             let success = await saveDataToCloud();
             if (success) {
-                showModal("Sukses", `Jadwal ${karyawan} pada ${tanggal} berhasil disimpan ke Cloud.`);
+                showModal("Sukses", `Jadwal ${karyawan} pada tanggal ${tanggal} berhasil disimpan ke Cloud.`);
                 renderJadwalKaryawan();
                 renderTabelRekap();
                 renderTabelSemuaJadwal();
@@ -780,12 +784,33 @@
             }
         }
 
+        // FUNGSI HAPUS KARYAWAN
+        window.hapusKaryawan = async function(nama) {
+            if (!confirm(`Yakin ingin menghapus karyawan "${nama}" dari daftar?`)) return;
+            daftarKaryawan = daftarKaryawan.filter(n => n !== nama);
+
+            let success = await saveDataToCloud();
+            if (success) {
+                updateDropdownKaryawan();
+                renderListKaryawanAdmin();
+                renderJadwalKaryawan();
+                renderTabelRekap();
+                renderTabelSemuaJadwal();
+                showModal("Sukses", `Karyawan "${nama}" berhasil dihapus.`);
+            }
+        }
+
         function renderListKaryawanAdmin() {
             const container = document.getElementById('listKaryawanAdmin');
             if(!container) return;
             let html = "";
             daftarKaryawan.forEach(nama => {
-                html += `<div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-900 dark:text-white shadow-sm flex items-center gap-2"><span>👤 ${nama}</span></div>`;
+                html += `
+                    <div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-900 dark:text-white shadow-sm flex items-center gap-2">
+                        <span>👤 ${nama}</span>
+                        <button onclick="hapusKaryawan('${nama}')" class="text-rose-500 hover:text-rose-700 font-black px-1.5 py-0.5 rounded-md bg-rose-500/10 hover:bg-rose-500/20 transition-all" title="Hapus Karyawan">✕</button>
+                    </div>
+                `;
             });
             container.innerHTML = html;
         }
