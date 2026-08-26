@@ -94,7 +94,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
                         <h2 class="text-xl font-black text-slate-900 dark:text-white">📅 Jadwal Lapangan & Tukar OFF / PS</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Pengaturan jadwal libur murni dari web. Klik kotak untuk mengubah status (<span class="text-rose-500 font-bold">OFF</span> ➔ <span class="text-orange-500 font-bold">PS</span> ➔ Kosong).</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Master jadwal lapangan. Klik kotak untuk mengubah status (<span class="text-rose-500 font-bold">OFF</span> ➔ <span class="text-orange-500 font-bold">PS</span> ➔ Kosong). Data yang kosong akan mengikuti monitoring web.</p>
                     </div>
                     <button onclick="simpanJadwalOffManual()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all">💾 Simpan Perubahan Jadwal</button>
                 </div>
@@ -442,10 +442,13 @@
                 let y = curr.getFullYear();
                 let m = String(curr.getMonth() + 1).padStart(2, '0');
                 let d = String(curr.getDate()).padStart(2, '0');
-                let dateString = `${y}-${m}-${d}`;
+                let dateString = `${y}-${m}-${d}`; // Format YYYY-MM-DD
+                let dateStringAlt = `${d}/${m}/${y}`; // Format DD/MM/YYYY
+                let dateStringAlt2 = `${y}/${m}/${d}`; // Format YYYY/MM/DD
                 
                 dates.push({
                     dateStr: dateString,
+                    altKeys: [dateString, dateStringAlt, dateStringAlt2],
                     label: `${curr.toLocaleDateString('id-ID', { weekday: 'short' })}, ${d} ${curr.toLocaleDateString('id-ID', { month: 'short' })}`,
                     isWeekend: (curr.getDay() === 0 || curr.getDay() === 6)
                 });
@@ -594,7 +597,7 @@
                     }
                 }
             }
-            return { tglIso, timePart: timePartStr };
+            return { tglIso, timePart: timePartStr, datePartStr };
         }
 
         function parseLaporanToAbsenSheet(parsedRows) {
@@ -659,8 +662,13 @@
                     <td class="py-2.5 px-3 text-left font-bold text-slate-900 dark:text-white whitespace-nowrap">${item.label}</td>`;
                 
                 daftarKaryawan.forEach(nama => {
-                    let key = `${nama}_${item.dateStr}`;
-                    let manualStatus = jadwalOffManual[key]; // "OFF", "PS", atau undefined
+                    let manualStatus;
+                    for(let kKey of item.altKeys) {
+                        if(jadwalOffManual[`${nama}_${kKey}`]) {
+                            manualStatus = jadwalOffManual[`${nama}_${kKey}`];
+                            break;
+                        }
+                    }
 
                     let cellClass = "text-slate-400 dark:text-slate-600";
                     let label = "-";
@@ -757,7 +765,7 @@
             }
         }
 
-        // MONITORING KARYAWAN: MENGGABUNGKAN JADWAL MANUAL & MONITORING WEB (TERMASUK STATUS PROSES)
+        // MONITORING KARYAWAN: MENGECEK BERBAGAI VARIASI FORMAT TANGGAL PADA DATABASE SHEET
         window.renderJadwalKaryawan = function() {
             let selectEl = document.getElementById('selectKaryawan');
             const karyawan = (selectEl?.value || daftarKaryawan[0] || "").toUpperCase();
@@ -769,15 +777,24 @@
 
             for (let i = 0; i < dates.length; i++) {
                 let item = dates[i];
-                let keyJadwal = `${karyawan}_${item.dateStr}`;
-                let manualStatus = jadwalOffManual[keyJadwal]; // "OFF", "PS", atau undefined
-                let dataAbsen = databaseAbsenSheet[keyJadwal] || { checkIn: "-", checkOut: "-" };
+                
+                // Cari apakah ada setelan manual atau data absen di berbagai variasi format tanggal
+                let manualStatus = "";
+                let dataAbsen = { checkIn: "-", checkOut: "-" };
+
+                for(let altKey of item.altKeys) {
+                    if (jadwalOffManual[`${karyawan}_${altKey}`]) {
+                        manualStatus = jadwalOffManual[`${karyawan}_${altKey}`];
+                    }
+                    if (databaseAbsenSheet[`${karyawan}_${altKey}`]) {
+                        dataAbsen = databaseAbsenSheet[`${karyawan}_${altKey}`];
+                    }
+                }
 
                 let badgeClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
                 let statusLabel = "FULL";
                 let jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
 
-                // 1. Prioritaskan setelan Jadwal Lapangan (OFF / PS)
                 if (manualStatus === "OFF") {
                     badgeClass = "bg-red-500/20 text-red-800 dark:text-red-300 border-red-500/40";
                     statusLabel = "OFF"; jamTampil = "LIBUR"; countOffTotal++;
@@ -786,7 +803,6 @@
                     badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
                     statusLabel = "PS"; jamTampil = "PART SHIFT"; countPs++;
                 } else {
-                    // 2. Jika tidak ada setelan manual, ikuti data real dari monitoring web
                     if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
                         countMasuk++;
                         let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
@@ -802,7 +818,6 @@
                             statusLabel = "PS"; countPs++;
                         }
                     } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
-                        // Karyawan baru absen masuk (In ada, Out masih -) -> Status PROSES
                         let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
                         if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
                             countTerlambat++;
@@ -852,9 +867,13 @@
                 
                 for (let i = 0; i < dates.length; i++) {
                     let item = dates[i];
-                    let key = `${nama}_${item.dateStr}`;
-                    let manualStatus = jadwalOffManual[key];
-                    let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
+                    let manualStatus = "";
+                    let absen = { checkIn: "-", checkOut: "-" };
+
+                    for(let altKey of item.altKeys) {
+                        if (jadwalOffManual[`${nama}_${altKey}`]) manualStatus = jadwalOffManual[`${nama}_${altKey}`];
+                        if (databaseAbsenSheet[`${nama}_${altKey}`]) absen = databaseAbsenSheet[`${nama}_${altKey}`];
+                    }
 
                     if (manualStatus === "OFF") {
                         countOffTotal++; if (item.isWeekend) countOffWeekend++;
