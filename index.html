@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexAbsent - Admin & Jadwal (Auto Calculation Vercel)</title>
+    <title>NexAbsent - Super Dashboard Admin & Jadwal (Firebase Cloud)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -60,7 +60,7 @@
             </button>
         </nav>
 
-        <!-- Tombol Tema & Status Cloud -->
+        <!-- Tombol Pengganti Tema & Status -->
         <div class="hidden md:flex flex-col gap-3 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs">
             <div class="flex items-center justify-between bg-slate-100 dark:bg-slate-950 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
                 <span class="text-slate-700 dark:text-slate-300 font-semibold px-2">Tema</span>
@@ -86,7 +86,7 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
                 <div>
                     <h2 class="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Jadwal & Riwayat Absensi</h2>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Periode Cut-Off: 26 Juli - 25 Agustus 2026 (Auto calculated)</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Uji Coba Periode: 26 Juli - 25 Agustus 2026</p>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
@@ -97,7 +97,7 @@
             <!-- Kartu Statistik Ringkasan -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-emerald-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total Masuk (Hadir)</span>
+                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total Hadir (Masuk)</span>
                     <span id="statMasuk" class="text-xl font-black text-emerald-700 dark:text-emerald-400 mt-1">0 Hari</span>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-red-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
@@ -117,7 +117,7 @@
             <!-- Kalender Jadwal -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift & Jam Absen</h3>
+                    <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift (26 Jul - 25 Agt)</h3>
                     <button onclick="loadDataFromCloud()" class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 rounded-xl font-bold hover:bg-indigo-500/20">🔄 Muat Ulang Cloud</button>
                 </div>
                 <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
@@ -130,7 +130,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
                         <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Matriks Jadwal Semua Karyawan</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Tinjauan keseluruhan status cut-off.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Uji Coba Periode: 26 Juli - 25 Agustus 2026</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <button onclick="downloadExcelSemuaJadwal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow flex items-center gap-1.5">
@@ -159,7 +159,7 @@
                     <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl text-xl">☁️</div>
                     <div>
                         <h2 class="text-lg font-black text-slate-900 dark:text-white">Upload Data Absensi ke Cloud (Firebase)</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Unggah file rekap absen, sistem web Vercel akan menghitung otomatis total hadir, terlambat, OFF, dan PS.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Unggah file rekap absen, sistem akan menghitung otomatis kehadiran, terlambat, OFF, dan PS.</p>
                     </div>
                 </div>
                 <div class="flex flex-col sm:flex-row items-center gap-4">
@@ -171,7 +171,7 @@
             <!-- Rekapitulasi Statistik -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <h2 class="text-lg font-black text-slate-900 dark:text-white">Rekapitulasi Statistik Otomatis Cut-Off (26 Jul - 25 Agt)</h2>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-white">Rekapitulasi Statistik Otomatis (26 Jul - 25 Agt)</h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-800 dark:text-slate-200">
@@ -272,7 +272,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA (AUTO CALCULATION ENGINE & FIREBASE SYNC) -->
+    <!-- SCRIPT UTAMA (AUTO CALCULATION & FIREBASE SYNC) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -406,11 +406,11 @@
             }
         }
 
-        // MESIN PARSE & PENGHITUNG OTOMATIS BERDASARKAN ATURAN ABSEN
+        // MESIN PARSE & PENGHITUNG OTOMATIS BERDASARKAN CSV ANDA
         function parseLaporanToAbsenSheet(parsedRows) {
             databaseAbsenSheet = {};
             let detectedNames = new Set(daftarKaryawan);
-            let rawLogMap = {}; // Menyimpan pasang in dan out per [nama_tanggal]
+            let rawLogMap = {}; // Menyimpan pasang check in dan out per [nama_tanggal]
 
             for (let i = 1; i < parsedRows.length; i++) {
                 let row = parsedRows[i];
@@ -432,9 +432,10 @@
                         let tglParts = datePartStr.split(separator);
                         if (tglParts.length === 3) {
                             if (tglParts[0].length === 4) {
-                                tglIso = `${tglParts[2].padStart(2,'0')}-${tglParts[1].padStart(2,'0')}-${tglParts[0]}`;
+                                tglIso = `${tglParts[0]}-${tglParts[1].padStart(2,'0')}-${tglParts[2].padStart(2,'0')}`;
                             } else {
-                                tglIso = `${tglParts[0].padStart(2,'0')}-${tglParts[1].padStart(2,'0')}-${tglParts[2]}`;
+                                // Ubah dari DD-MM-YYYY menjadi YYYY-MM-DD agar sinkron dengan kalender
+                                tglIso = `${tglParts[2]}-${tglParts[1].padStart(2,'0')}-${tglParts[0].padStart(2,'0')}`;
                             }
                         }
                     }
@@ -454,16 +455,14 @@
                 }
             }
 
-            // Validasi aturan: Hadir dihitung jika Check In DAN Check Out ADA.
+            // ATURAN VALIDASI: Hadir dihitung HANYA JIKA Check In DAN Check Out ADA.
             for (let key in rawLogMap) {
                 let log = rawLogMap[key];
                 if (log.checkIn === "OFF") {
                     databaseAbsenSheet[key] = { checkIn: "OFF", checkOut: "-" };
                 } else if (log.checkIn !== "-" && log.checkOut !== "-") {
-                    // Valid lengkap masuk & pulang
                     databaseAbsenSheet[key] = { checkIn: log.checkIn, checkOut: log.checkOut };
                 } else {
-                    // Jika salah satu tidak ada (misal cuma in doang atau out doang), tidak dihitung hadir penuh
                     databaseAbsenSheet[key] = { checkIn: "-", checkOut: "-" };
                 }
             }
@@ -510,7 +509,7 @@
                         renderTabelSemuaJadwal();
                         renderTabelRekap();
                         renderTabelAdminLog();
-                        showModal("Sukses!", "Data berhasil diproses otomatis oleh Vercel dan disinkronkan ke Cloud Firebase!");
+                        showModal("Sukses!", "Data berhasil diproses otomatis dan disinkronkan ke Cloud Firebase!");
                     }
                 }
             };
@@ -576,11 +575,11 @@
                     if (item.isWeekend) countOffWeekend++;
                 } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
                     countMasuk++;
-                    // Hitung Terlambat (lewat dari 08:10)
+                    // Terlambat jika lewat dari 08:10
                     let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
                     if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) countTerlambat++;
                     
-                    // Hitung PS (Pulang Sore jika jam checkout < 19:00 atau berstatus PS)
+                    // PS jika jam checkout < 19:00 atau ditandai PS
                     let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
                     if (statusJadwal === "PS" || jamOut < 19) {
                         badgeClass = "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30";
@@ -692,7 +691,7 @@
                 if (!row || row.length < 3) continue;
                 let waktu = row[0] || "-";
                 let nama = String(row[1] || "").trim();
-                let status = row[2] || "-";
+                let status = String(row[2] || "").trim();
                 let lat = row[3];
                 let lng = row[4];
                 let fotoUrl = row[5];
