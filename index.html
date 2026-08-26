@@ -49,7 +49,7 @@
             <button onclick="switchTab('lapangan')" id="btnLapangan" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-200 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
-                <span class="hidden sm:inline">Jadwal Lapangan</span>
+                <span class="hidden sm:inline">Jadwal Lapangan (OFF / PS)</span>
             </button>
 
             <!-- Menu 2: Monitoring Kehadiran & Shift -->
@@ -93,8 +93,8 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-6 rounded-3xl shadow-xl space-y-4">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
-                        <h2 class="text-xl font-black text-slate-900 dark:text-white">📅 Jadwal Lapangan</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Pengaturan jadwal libur murni dari web. Klik kotak untuk mengubah status (<span class="text-rose-500 font-bold">OFF</span> ➔ <span class="text-orange-500 font-bold">PS</span> ➔ Kosong).</p>
+                        <h2 class="text-xl font-black text-slate-900 dark:text-white">📅 Jadwal Lapangan & Tukar OFF / PS</h2>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Master jadwal lapangan. Klik kotak untuk mengubah status (<span class="text-rose-500 font-bold">OFF</span> ➔ <span class="text-orange-500 font-bold">PS</span> ➔ Kosong). Data yang kosong akan mengikuti monitoring web.</p>
                     </div>
                     <button onclick="simpanJadwalOffManual()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all">💾 Simpan Perubahan Jadwal</button>
                 </div>
@@ -297,7 +297,7 @@
         let databaseAbsenSheet = {};
         let dataLaporanGlobal = [];
         let cachedDates = null;
-        let jadwalOffManual = {}; // Format murni web: { "NAMA_YYYY-MM-DD": "OFF" atau "PS" }
+        let jadwalOffManual = {}; // Format: { "NAMA_YYYY-MM-DD": "OFF" atau "PS" }
         let gasWebhookUrl = localStorage.getItem('gas_webhook_url') || "";
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -639,7 +639,7 @@
             }
         }
 
-        // RENDER TABEL MATRIX OFF / PS MURNI DARI WEB (TIDAK TERGANTUNG SHEET)
+        // RENDER TABEL MATRIX OFF / PS MURNI DARI WEB
         window.renderMatrixOff = function() {
             const table = document.getElementById('tabelMatrixOff');
             if(!table) return;
@@ -697,11 +697,15 @@
             }
 
             renderMatrixOff();
+            renderJadwalKaryawan();
+            renderTabelRekap();
         }
 
         window.simpanJadwalOffManual = async function() {
             await saveDataToCloudFirebase();
             showModal("Sukses", "Jadwal OFF/PS manual berhasil disimpan ke Cloud Firebase!");
+            renderJadwalKaryawan();
+            renderTabelRekap();
         }
 
         window.prosesUploadFile = async function() {
@@ -729,6 +733,7 @@
 
                         updateDropdownKaryawan();
                         renderJadwalKaryawan();
+                        renderMatrixOff();
                         showModal("Sukses", "Berkas backup berhasil diproses.");
                     }
                 } catch (err) {
@@ -752,6 +757,7 @@
             }
         }
 
+        // MONITORING KARYAWAN: JADVAL LAPANGAN (OFF/PS) SEBAGAI MASTER, KOSONG IKUTI MONITORING WEB
         window.renderJadwalKaryawan = function() {
             let selectEl = document.getElementById('selectKaryawan');
             const karyawan = (selectEl?.value || daftarKaryawan[0] || "").toUpperCase();
@@ -764,13 +770,14 @@
             for (let i = 0; i < dates.length; i++) {
                 let item = dates[i];
                 let keyJadwal = `${karyawan}_${item.dateStr}`;
-                let manualStatus = jadwalOffManual[keyJadwal];
+                let manualStatus = jadwalOffManual[keyJadwal]; // "OFF", "PS", atau undefined
                 let dataAbsen = databaseAbsenSheet[keyJadwal] || { checkIn: "-", checkOut: "-" };
 
                 let badgeClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
                 let statusLabel = "FULL";
                 let jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
 
+                // 1. Prioritaskan setelan Jadwal Lapangan (OFF / PS)
                 if (manualStatus === "OFF") {
                     badgeClass = "bg-red-500/20 text-red-800 dark:text-red-300 border-red-500/40";
                     statusLabel = "OFF"; jamTampil = "LIBUR"; countOffTotal++;
@@ -778,27 +785,34 @@
                 } else if (manualStatus === "PS") {
                     badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
                     statusLabel = "PS"; jamTampil = "PART SHIFT"; countPs++;
-                } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
-                    countMasuk++;
-                    let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
-                    if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-                        countTerlambat++;
-                        badgeClass = "bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40";
-                        statusLabel = "TERLAMBAT";
-                    }
+                } else {
+                    // 2. Jika Jadwal Lapangan kosong (-), ikuti data real dari monitoring web
+                    if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
+                        countMasuk++;
+                        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
+                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
+                            countTerlambat++;
+                            badgeClass = "bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40";
+                            statusLabel = "TERLAMBAT";
+                        }
 
-                    let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
-                    if (jamOut < 19) {
-                        badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
-                        statusLabel = "PS"; countPs++;
+                        let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
+                        if (jamOut < 19) {
+                            badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
+                            statusLabel = "PS"; countPs++;
+                        }
+                    } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
+                        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
+                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
+                            countTerlambat++;
+                        }
+                        badgeClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40";
+                        statusLabel = "PROSES";
+                    } else {
+                        badgeClass = "bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20";
+                        statusLabel = "-";
+                        jamTampil = `<span class="text-slate-400">-</span>`;
                     }
-                } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
-                    let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
-                    if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-                        countTerlambat++;
-                    }
-                    badgeClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40";
-                    statusLabel = "PROSES";
                 }
 
                 html += `
