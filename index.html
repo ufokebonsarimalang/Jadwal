@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexAbsent - Super Dashboard Admin & Jadwal (Uji Coba 26 Jul - 25 Agt)</title>
+    <title>NexAbsent - Admin & Jadwal (Auto Calculation Vercel)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -38,7 +38,7 @@
             </div>
             <div class="hidden sm:block">
                 <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight flex items-center gap-1.5">NexAbsent<span class="text-[10px] bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">ADMIN</span></h1>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">Uji Coba: 26 Jul - 25 Agt</p>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">Cut-Off: 26 Jul - 25 Agt</p>
             </div>
         </div>
 
@@ -60,7 +60,7 @@
             </button>
         </nav>
 
-        <!-- Tombol Pengganti Tema & Status -->
+        <!-- Tombol Tema & Status Cloud -->
         <div class="hidden md:flex flex-col gap-3 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs">
             <div class="flex items-center justify-between bg-slate-100 dark:bg-slate-950 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
                 <span class="text-slate-700 dark:text-slate-300 font-semibold px-2">Tema</span>
@@ -86,7 +86,7 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
                 <div>
                     <h2 class="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Jadwal & Riwayat Absensi</h2>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Uji Coba Periode: 26 Juli - 25 Agustus 2026</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Periode Cut-Off: 26 Juli - 25 Agustus 2026 (Auto calculated)</p>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
@@ -97,7 +97,7 @@
             <!-- Kartu Statistik Ringkasan -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-emerald-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total Masuk</span>
+                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total Masuk (Hadir)</span>
                     <span id="statMasuk" class="text-xl font-black text-emerald-700 dark:text-emerald-400 mt-1">0 Hari</span>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-red-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
@@ -117,7 +117,7 @@
             <!-- Kalender Jadwal -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift (26 Jul - 25 Agt)</h3>
+                    <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift & Jam Absen</h3>
                     <button onclick="loadDataFromCloud()" class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 rounded-xl font-bold hover:bg-indigo-500/20">🔄 Muat Ulang Cloud</button>
                 </div>
                 <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
@@ -130,7 +130,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
                         <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Matriks Jadwal Semua Karyawan</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Uji Coba Periode: 26 Juli - 25 Agustus 2026</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Tinjauan keseluruhan status cut-off.</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <button onclick="downloadExcelSemuaJadwal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow flex items-center gap-1.5">
@@ -159,26 +159,26 @@
                     <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl text-xl">☁️</div>
                     <div>
                         <h2 class="text-lg font-black text-slate-900 dark:text-white">Upload Data Absensi ke Cloud (Firebase)</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Unggah file rekap absen untuk disinkronkan ke semua perangkat admin.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Unggah file rekap absen, sistem web Vercel akan menghitung otomatis total hadir, terlambat, OFF, dan PS.</p>
                     </div>
                 </div>
                 <div class="flex flex-col sm:flex-row items-center gap-4">
                     <input type="file" id="csvFileInput" accept=".csv, .xlsx, .xls" class="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2"/>
-                    <button onclick="prosesUploadFile()" id="btnUpload" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-xs shadow-lg whitespace-nowrap">Proses & Simpan ke Cloud</button>
+                    <button onclick="prosesUploadFile()" id="btnUpload" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-xs shadow-lg whitespace-nowrap">Proses & Hitung Otomatis</button>
                 </div>
             </div>
 
             <!-- Rekapitulasi Statistik -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <h2 class="text-lg font-black text-slate-900 dark:text-white">Rekapitulasi Statistik (26 Jul - 25 Agt)</h2>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-white">Rekapitulasi Statistik Otomatis Cut-Off (26 Jul - 25 Agt)</h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-800 dark:text-slate-200">
                         <thead class="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-800">
                             <tr>
                                 <th class="py-3 px-4">Nama Karyawan</th>
-                                <th class="py-3 px-4 text-center">Masuk</th>
+                                <th class="py-3 px-4 text-center">Masuk (Hadir)</th>
                                 <th class="py-3 px-4 text-center">OFF</th>
                                 <th class="py-3 px-4 text-center">PS</th>
                                 <th class="py-3 px-4 text-center">Terlambat</th>
@@ -272,7 +272,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA (TEST RENTANG 26 JUL - 25 AGT) -->
+    <!-- SCRIPT UTAMA (AUTO CALCULATION ENGINE & FIREBASE SYNC) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -406,35 +406,68 @@
             }
         }
 
+        // MESIN PARSE & PENGHITUNG OTOMATIS BERDASARKAN ATURAN ABSEN
         function parseLaporanToAbsenSheet(parsedRows) {
             databaseAbsenSheet = {};
             let detectedNames = new Set(daftarKaryawan);
+            let rawLogMap = {}; // Menyimpan pasang in dan out per [nama_tanggal]
 
             for (let i = 1; i < parsedRows.length; i++) {
                 let row = parsedRows[i];
                 if(!row || row.length === 0) continue;
-                let waktuStr = String(row[0] || "");
+                let waktuStr = String(row[0] || "").trim();
                 let nama = String(row[1] || "").trim();
-                let statusAbsen = String(row[2] || "").trim();
+                let statusAbsen = String(row[2] || "").trim().toLowerCase();
 
                 if (nama) detectedNames.add(nama);
 
                 if (waktuStr && nama) {
                     let parts = waktuStr.split(" ");
-                    let tglParts = parts[0].split("-");
-                    if (tglParts.length === 3) {
-                        let tglIso = `${tglParts[2]}-${tglParts[1]}-${tglParts[0]}`;
-                        let jamMenit = parts[1] ? parts[1].substring(0, 5) : "";
+                    let datePartStr = parts[0];
+                    let timePartStr = parts[1] ? parts[1].substring(0, 5) : "";
+                    
+                    let tglIso = "";
+                    if (datePartStr.includes("-") || datePartStr.includes("/")) {
+                        let separator = datePartStr.includes("-") ? "-" : "/";
+                        let tglParts = datePartStr.split(separator);
+                        if (tglParts.length === 3) {
+                            if (tglParts[0].length === 4) {
+                                tglIso = `${tglParts[2].padStart(2,'0')}-${tglParts[1].padStart(2,'0')}-${tglParts[0]}`;
+                            } else {
+                                tglIso = `${tglParts[0].padStart(2,'0')}-${tglParts[1].padStart(2,'0')}-${tglParts[2]}`;
+                            }
+                        }
+                    }
+
+                    if (tglIso) {
                         let key = `${nama}_${tglIso}`;
+                        if (!rawLogMap[key]) rawLogMap[key] = { checkIn: "-", checkOut: "-" };
 
-                        if (!databaseAbsenSheet[key]) databaseAbsenSheet[key] = { checkIn: "-", checkOut: "-" };
-
-                        if (statusAbsen.toLowerCase().includes("in")) databaseAbsenSheet[key].checkIn = jamMenit;
-                        else if (statusAbsen.toLowerCase().includes("out")) databaseAbsenSheet[key].checkOut = jamMenit;
-                        else if (statusAbsen.toUpperCase() === "OFF") databaseAbsenSheet[key].checkIn = "OFF";
+                        if (statusAbsen.includes("in")) {
+                            rawLogMap[key].checkIn = timePartStr;
+                        } else if (statusAbsen.includes("out")) {
+                            rawLogMap[key].checkOut = timePartStr;
+                        } else if (statusAbsen === "off") {
+                            rawLogMap[key].checkIn = "OFF";
+                        }
                     }
                 }
             }
+
+            // Validasi aturan: Hadir dihitung jika Check In DAN Check Out ADA.
+            for (let key in rawLogMap) {
+                let log = rawLogMap[key];
+                if (log.checkIn === "OFF") {
+                    databaseAbsenSheet[key] = { checkIn: "OFF", checkOut: "-" };
+                } else if (log.checkIn !== "-" && log.checkOut !== "-") {
+                    // Valid lengkap masuk & pulang
+                    databaseAbsenSheet[key] = { checkIn: log.checkIn, checkOut: log.checkOut };
+                } else {
+                    // Jika salah satu tidak ada (misal cuma in doang atau out doang), tidak dihitung hadir penuh
+                    databaseAbsenSheet[key] = { checkIn: "-", checkOut: "-" };
+                }
+            }
+
             daftarKaryawan = Array.from(detectedNames);
         }
 
@@ -447,7 +480,7 @@
             }
 
             btnUpload.disabled = true;
-            btnUpload.innerText = "⏳ Mengunggah ke Cloud...";
+            btnUpload.innerText = "⏳ Menghitung & Mengunggah...";
 
             const file = fileInput.files[0];
             const reader = new FileReader();
@@ -469,7 +502,7 @@
 
                     let success = await saveDataToCloud();
                     btnUpload.disabled = false;
-                    btnUpload.innerText = "Proses & Simpan ke Cloud";
+                    btnUpload.innerText = "Proses & Hitung Otomatis";
 
                     if (success) {
                         updateDropdownKaryawan();
@@ -477,7 +510,7 @@
                         renderTabelSemuaJadwal();
                         renderTabelRekap();
                         renderTabelAdminLog();
-                        showModal("Sukses!", "Data berhasil diunggah dan disinkronkan ke Cloud Firebase secara real-time!");
+                        showModal("Sukses!", "Data berhasil diproses otomatis oleh Vercel dan disinkronkan ke Cloud Firebase!");
                     }
                 }
             };
@@ -500,7 +533,7 @@
             }
         }
 
-        // RENTANG CUT-OFF UJI COBA: 26 Juli 2026 s.d 25 Agustus 2026
+        // RENTANG CUT-OFF: 26 Juli 2026 s.d 25 Agustus 2026
         function getCutOffDates() {
             let dates = [];
             let currDate = new Date("2026-07-26");
@@ -541,11 +574,15 @@
                     badgeClass = "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30";
                     statusLabel = "OFF"; jamTampil = "LIBUR"; countOffTotal++;
                     if (item.isWeekend) countOffWeekend++;
-                } else if (dataAbsen.checkIn !== "-") {
+                } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
                     countMasuk++;
+                    // Hitung Terlambat (lewat dari 08:10)
                     let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
                     if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) countTerlambat++;
-                    if (statusJadwal === "PS" || (dataAbsen.checkOut !== "-" && parseInt(dataAbsen.checkOut.split(":")[0]) < 19)) {
+                    
+                    // Hitung PS (Pulang Sore jika jam checkout < 19:00 atau berstatus PS)
+                    let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
+                    if (statusJadwal === "PS" || jamOut < 19) {
                         badgeClass = "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30";
                         statusLabel = "PS"; countPs++;
                     }
@@ -591,9 +628,10 @@
 
                     if (status === "OFF" || absen.checkIn === "OFF") {
                         badgeStyle = "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30"; label = "OFF";
-                    } else if (absen.checkIn !== "-") {
+                    } else if (absen.checkIn !== "-" && absen.checkOut !== "-") {
                         badgeStyle = "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"; label = absen.checkIn;
-                        if (status === "PS") label += " (PS)";
+                        let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
+                        if (status === "PS" || jamOut < 19) label += " (PS)";
                     }
                     bodyHtml += `<td class="py-2.5 px-4 text-center"><span class="inline-block px-2.5 py-1 rounded-lg text-[10px] font-black border ${badgeStyle}">${label}</span></td>`;
                 });
@@ -616,11 +654,12 @@
 
                     if (statusJadwal === "OFF" || absen.checkIn === "OFF") {
                         countOffTotal++; if (item.isWeekend) countOffWeekend++;
-                    } else if (absen.checkIn !== "-") {
+                    } else if (absen.checkIn !== "-" && absen.checkOut !== "-") {
                         countMasuk++;
                         let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
                         if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) countTerlambat++;
-                        if (statusJadwal === "PS" || (absen.checkOut !== "-" && parseInt(absen.checkOut.split(":")[0]) < 19)) countPs++;
+                        let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
+                        if (statusJadwal === "PS" || jamOut < 19) countPs++;
                     }
                 });
 
@@ -659,7 +698,7 @@
                 let fotoUrl = row[5];
 
                 if (filterNama === "SEMUA" || nama === filterNama) {
-                    let badgeClass = status === 'Check In' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20' : (status === 'OFF' ? 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/30' : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20');
+                    let badgeClass = status.toLowerCase().includes('in') ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20' : (status.toUpperCase() === 'OFF' ? 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/30' : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20');
                     let koordinat = (lat && lng && lat !== "-") ? `${lat}, ${lng}` : '-';
                     let fotoLink = (fotoUrl && fotoUrl !== '-') ? `<a href="${fotoUrl}" target="_blank" class="px-2.5 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 rounded-lg font-bold border border-indigo-500/20">Lihat Foto</a>` : '<span class="text-slate-400">Tanpa Foto</span>';
 
@@ -693,9 +732,10 @@
                     let label = "Full";
 
                     if (status === "OFF" || absen.checkIn === "OFF") label = "OFF";
-                    else if (absen.checkIn !== "-") {
+                    else if (absen.checkIn !== "-" && absen.checkOut !== "-") {
                         label = absen.checkIn;
-                        if (status === "PS") label += " (PS)";
+                        let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
+                        if (status === "PS" || jamOut < 19) label += " (PS)";
                     } else if (status === "PS") label = "PS";
                     rowData.push(label);
                 });
