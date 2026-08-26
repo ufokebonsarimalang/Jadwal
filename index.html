@@ -596,8 +596,7 @@
                 daftarKaryawan.forEach(nama => { filterAdminEl.innerHTML += `<option value="${nama}">${nama}</option>`; });
             }
         }
-
-        window.renderJadwalKaryawan = function() {
+window.renderJadwalKaryawan = function() {
             let selectEl = document.getElementById('selectKaryawan');
             const karyawan = (selectEl?.value || daftarKaryawan[0] || "").toUpperCase();
             const container = document.getElementById('gridJadwal');
@@ -620,15 +619,31 @@
                     statusLabel = "OFF"; jamTampil = "LIBUR"; countOffTotal++;
                     if (item.isWeekend) countOffWeekend++;
                 } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
+                    // SUDAH LENGKAP (CHECK IN & CHECK OUT) -> DIHITUNG HADIR
                     countMasuk++;
-                    let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
-                    if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) countTerlambat++;
                     
+                    // Cek Terlambat (In > 08:10)
+                    let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
+                    if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
+                        countTerlambat++;
+                        badgeClass = "bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40";
+                        statusLabel = "TERLAMBAT";
+                    }
+
+                    // Cek PS jika jam out < 19:00
                     let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
                     if (jamOut < 19) {
                         badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
                         statusLabel = "PS"; countPs++;
                     }
+                } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
+                    // BARU CHECK IN SAJA (BELUM DIHITUNG HADIR, TAPI CEK KETERLAMBATANNYA)
+                    let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
+                    if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
+                        countTerlambat++; // Tetap terhitung terlambat
+                    }
+                    badgeClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40";
+                    statusLabel = "PROSES";
                 }
 
                 html += `
@@ -672,12 +687,19 @@
 
                     if (absen.checkIn === "OFF") {
                         countOffTotal++; if (item.isWeekend) countOffWeekend++;
-                    } else if (absen.checkIn !== "-" && absen.checkOut !== "-") {
-                        countMasuk++;
+                    } else if (absen.checkIn !== "-") {
+                        // Keterlambatan dihitung jika sudah check in (meskipun belum check out)
                         let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
-                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) countTerlambat++;
-                        let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
-                        if (jamOut < 19) countPs++;
+                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
+                            countTerlambat++;
+                        }
+
+                        // Kehadiran & PS dihitung jika sudah lengkap Check In dan Check Out
+                        if (absen.checkOut !== "-") {
+                            countMasuk++;
+                            let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
+                            if (jamOut < 19) countPs++;
+                        }
                     }
                 }
 
@@ -693,7 +715,6 @@
             }
             if(tbody) tbody.innerHTML = html;
         }
-
         window.renderTabelAdminLog = function() {
             const tbody = document.getElementById('isiTabelAdminLog');
             let filterEl = document.getElementById('filterNamaAdmin');
