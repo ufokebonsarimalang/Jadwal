@@ -94,7 +94,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
                         <h2 class="text-xl font-black text-slate-900 dark:text-white">📅 Jadwal Lapangan & Tukar OFF / PS</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Master jadwal lapangan. Klik kotak untuk mengubah status (<span class="text-rose-500 font-bold">OFF</span> ➔ <span class="text-orange-500 font-bold">PS</span> ➔ Kosong). Data yang kosong akan mengikuti monitoring web.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Pengaturan jadwal libur murni dari web. Klik kotak untuk mengubah status (<span class="text-rose-500 font-bold">OFF</span> ➔ <span class="text-orange-500 font-bold">PS</span> ➔ Kosong).</p>
                     </div>
                     <button onclick="simpanJadwalOffManual()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all">💾 Simpan Perubahan Jadwal</button>
                 </div>
@@ -757,7 +757,7 @@
             }
         }
 
-        // MONITORING KARYAWAN: JADVAL LAPANGAN (OFF/PS) SEBAGAI MASTER, KOSONG IKUTI MONITORING WEB
+        // MONITORING KARYAWAN: MENGGABUNGKAN JADWAL MANUAL & MONITORING WEB (TERMASUK STATUS PROSES)
         window.renderJadwalKaryawan = function() {
             let selectEl = document.getElementById('selectKaryawan');
             const karyawan = (selectEl?.value || daftarKaryawan[0] || "").toUpperCase();
@@ -786,7 +786,7 @@
                     badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
                     statusLabel = "PS"; jamTampil = "PART SHIFT"; countPs++;
                 } else {
-                    // 2. Jika Jadwal Lapangan kosong (-), ikuti data real dari monitoring web
+                    // 2. Jika tidak ada setelan manual, ikuti data real dari monitoring web
                     if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
                         countMasuk++;
                         let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
@@ -802,6 +802,7 @@
                             statusLabel = "PS"; countPs++;
                         }
                     } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
+                        // Karyawan baru absen masuk (In ada, Out masih -) -> Status PROSES
                         let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
                         if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
                             countTerlambat++;
