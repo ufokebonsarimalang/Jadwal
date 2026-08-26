@@ -127,29 +127,55 @@
         <!-- HALAMAN 2: PANEL ADMIN & KONFIGURASI -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-6xl mx-auto">
 
-            <!-- KOTAK KONFIGURASI ENDPOINT SERVER -->
-            <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/40 p-6 rounded-3xl shadow-xl space-y-4">
-                <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl text-xl">⚡</div>
-                    <div>
-                        <h2 class="text-lg font-black text-slate-900 dark:text-white">Cloud Endpoint & API Server Integration</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Konfigurasi endpoint API backend untuk sinkronisasi data presensi secara real-time.</p>
-                    </div>
-                </div>
-                <div class="flex flex-col sm:flex-row items-center gap-3">
-                    <input type="text" id="inputGasUrl" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white"/>
-                    <button onclick="simpanGasUrl()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow">Simpan Konfigurasi</button>
-                    <button onclick="tarikDataDariServer()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow">Fetch Data Sekarang</button>
-                </div>
+            <!-- TOMBOL KUNCI / GEMBOK MENU ADMIN -->
+            <div id="kotakTombolAdmin" class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-8 rounded-3xl shadow-xl text-center space-y-4">
+                <div class="text-4xl">🔐</div>
+                <h2 class="text-lg font-black text-slate-900 dark:text-white">Panel Konfigurasi Terproteksi</h2>
+                <p class="text-xs text-slate-600 dark:text-slate-300 max-w-md mx-auto">Menu pengaturan endpoint server, import backup, dan direktori personel dikunci untuk keamanan data.</p>
+                <button onclick="bukaMenuAdminSensitif()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded-xl text-xs shadow-lg transition-all hover:scale-105">Buka Menu Admin</button>
             </div>
 
-            <!-- CADANGAN OFFLINE IMPORT -->
-            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
-                <h2 class="text-sm font-black text-slate-900 dark:text-white">📂 Offline Backup: Import Data (.xlsx / .csv)</h2>
-                <div class="flex flex-col sm:flex-row items-center gap-4">
-                    <input type="file" id="csvFileInput" accept=".csv, .xlsx, .xls" class="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-700 file:text-white hover:file:bg-slate-600 cursor-pointer bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2"/>
-                    <button onclick="prosesUploadFile()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow">Proses Berkas</button>
+            <!-- KONTEN SENSITIF YANG TERKUNCI (Hidden secara default) -->
+            <div id="panelAdminSensitif" class="hidden space-y-6">
+
+                <!-- KOTAK KONFIGURASI ENDPOINT SERVER -->
+                <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/40 p-6 rounded-3xl shadow-xl space-y-4">
+                    <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+                        <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl text-xl">⚡</div>
+                        <div>
+                            <h2 class="text-lg font-black text-slate-900 dark:text-white">Cloud Endpoint & API Server Integration</h2>
+                            <p class="text-xs text-slate-600 dark:text-slate-300">Konfigurasi endpoint API backend untuk sinkronisasi data presensi secara real-time.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col sm:flex-row items-center gap-3">
+                        <input type="text" id="inputGasUrl" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white"/>
+                        <button onclick="simpanGasUrl()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow">Simpan Konfigurasi</button>
+                        <button onclick="tarikDataDariServer()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow">Fetch Data Sekarang</button>
+                    </div>
                 </div>
+
+                <!-- CADANGAN OFFLINE IMPORT -->
+                <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
+                    <h2 class="text-sm font-black text-slate-900 dark:text-white">📂 Offline Backup: Import Data (.xlsx / .csv)</h2>
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <input type="file" id="csvFileInput" accept=".csv, .xlsx, .xls" class="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-700 file:text-white hover:file:bg-slate-600 cursor-pointer bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2"/>
+                        <button onclick="prosesUploadFile()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow">Proses Berkas</button>
+                    </div>
+                </div>
+
+                <!-- Manajemen Karyawan -->
+                <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-xl font-black text-slate-900 dark:text-white">Direktori Karyawan</h2>
+                        <button onclick="resetServerDatabase()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow">🗑️ Purge Cache & Reset</button>
+                    </div>
+                    <div class="flex gap-3">
+                        <input type="text" id="inputNamaBaru" placeholder="Nama Karyawan Baru (cth: BUDI)" class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
+                        <button onclick="tambahKaryawanBaru()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Tambahkan</button>
+                    </div>
+                    <div id="listKaryawanAdmin" class="flex flex-wrap gap-2 pt-2"></div>
+                </div>
+
             </div>
 
             <!-- Rekapitulasi Statistik -->
@@ -206,19 +232,6 @@
                 </div>
             </div>
 
-            <!-- Manajemen Karyawan -->
-            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-black text-slate-900 dark:text-white">Direktori Karyawan</h2>
-                    <button onclick="resetServerDatabase()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow">🗑️ Purge Cache & Reset</button>
-                </div>
-                <div class="flex gap-3">
-                    <input type="text" id="inputNamaBaru" placeholder="Nama Karyawan Baru (cth: BUDI)" class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
-                    <button onclick="tambahKaryawanBaru()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Tambahkan</button>
-                </div>
-                <div id="listKaryawanAdmin" class="flex flex-wrap gap-2 pt-2"></div>
-            </div>
-
         </section>
 
     </main>
@@ -235,7 +248,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA (PROFESSIONAL API SYNC & CACHE PURGE) -->
+    <!-- SCRIPT UTAMA -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -333,6 +346,49 @@
             }
         }
 
+        // FUNGSI VERIFIKASI PASSWORD ADMIN KE GOOGLE SHEET (ANTI F12)
+        window.bukaMenuAdminSensitif = async function() {
+            let passwordInput = prompt("Masukkan Password Admin:");
+            if (!passwordInput) return;
+
+            if (!gasWebhookUrl) {
+                showModal("Peringatan", "Endpoint API Server belum dikonfigurasi!");
+                return;
+            }
+
+            try {
+                showModal("Memverifikasi...", "Mengecek kredensial admin ke server...");
+                
+                let response = await fetch(gasWebhookUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({ 
+                        aksi: "login", 
+                        username: "admin", 
+                        password: passwordInput.trim() 
+                    })
+                });
+
+                let result = await response.json();
+                closeModal();
+
+                if (result && result.status === "sukses" && result.role === "admin") {
+                    let kotakGembok = document.getElementById('kotakTombolAdmin');
+                    let panelAdmin = document.getElementById('panelAdminSensitif');
+                    if(kotakGembok) kotakGembok.classList.add('hidden');
+                    if(panelAdmin) {
+                        panelAdmin.classList.remove('hidden');
+                        showModal("Akses Diterima", "Menu konfigurasi admin berhasil dibuka.");
+                    }
+                } else {
+                    showModal("Akses Ditolak", "Password admin salah atau akun tidak ditemukan!");
+                }
+            } catch (err) {
+                closeModal();
+                showModal("Gagal Koneksi", "Terjadi kesalahan saat memverifikasi password: " + err.message);
+            }
+        }
+
         function getDynamicCutOffDates() {
             if (cachedDates) return cachedDates;
             let now = new Date();
@@ -382,7 +438,6 @@
             return dates;
         }
 
-        // FUNGSI UTAMA SINKRONISASI SERVER & PURGE CACHE LAMA
         window.loadDataFromServer = async function() {
             const cloudStatusText = document.getElementById('cloudStatusText');
             const cloudPing = document.getElementById('cloudPing');
@@ -403,7 +458,6 @@
                         dataLaporanGlobal = result.data;
                         parseLaporanToAbsenSheet(dataLaporanGlobal);
                         
-                        // TIMPA CACHE LAMA DI FIREBASE DENGAN DATA SERVER TERBARU
                         await saveDataToCloudFirebase();
 
                         if(cloudStatusText) cloudStatusText.innerText = "Server Synced ✓";
@@ -418,7 +472,6 @@
                 }
             }
 
-            // Fallback jika API belum diset
             try {
                 if(cloudStatusText) cloudStatusText.innerText = "Memuat Cache Server...";
                 const docRef = doc(db, "nexabsent_data", "main_database");
@@ -596,7 +649,8 @@
                 daftarKaryawan.forEach(nama => { filterAdminEl.innerHTML += `<option value="${nama}">${nama}</option>`; });
             }
         }
-window.renderJadwalKaryawan = function() {
+
+        window.renderJadwalKaryawan = function() {
             let selectEl = document.getElementById('selectKaryawan');
             const karyawan = (selectEl?.value || daftarKaryawan[0] || "").toUpperCase();
             const container = document.getElementById('gridJadwal');
@@ -619,10 +673,7 @@ window.renderJadwalKaryawan = function() {
                     statusLabel = "OFF"; jamTampil = "LIBUR"; countOffTotal++;
                     if (item.isWeekend) countOffWeekend++;
                 } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
-                    // SUDAH LENGKAP (CHECK IN & CHECK OUT) -> DIHITUNG HADIR
                     countMasuk++;
-                    
-                    // Cek Terlambat (In > 08:10)
                     let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
                     if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
                         countTerlambat++;
@@ -630,17 +681,15 @@ window.renderJadwalKaryawan = function() {
                         statusLabel = "TERLAMBAT";
                     }
 
-                    // Cek PS jika jam out < 19:00
                     let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
                     if (jamOut < 19) {
                         badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
                         statusLabel = "PS"; countPs++;
                     }
                 } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
-                    // BARU CHECK IN SAJA (BELUM DIHITUNG HADIR, TAPI CEK KETERLAMBATANNYA)
                     let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
                     if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-                        countTerlambat++; // Tetap terhitung terlambat
+                        countTerlambat++;
                     }
                     badgeClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40";
                     statusLabel = "PROSES";
@@ -688,13 +737,11 @@ window.renderJadwalKaryawan = function() {
                     if (absen.checkIn === "OFF") {
                         countOffTotal++; if (item.isWeekend) countOffWeekend++;
                     } else if (absen.checkIn !== "-") {
-                        // Keterlambatan dihitung jika sudah check in (meskipun belum check out)
                         let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
                         if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
                             countTerlambat++;
                         }
 
-                        // Kehadiran & PS dihitung jika sudah lengkap Check In dan Check Out
                         if (absen.checkOut !== "-") {
                             countMasuk++;
                             let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
@@ -715,6 +762,7 @@ window.renderJadwalKaryawan = function() {
             }
             if(tbody) tbody.innerHTML = html;
         }
+
         window.renderTabelAdminLog = function() {
             const tbody = document.getElementById('isiTabelAdminLog');
             let filterEl = document.getElementById('filterNamaAdmin');
