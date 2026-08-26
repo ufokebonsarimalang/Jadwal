@@ -45,11 +45,21 @@
         </div>
 
         <nav class="flex md:flex-col gap-2 mt-0 md:mt-6">
+            <!-- Menu 1: Monitoring Kehadiran & Shift -->
             <button onclick="switchTab('jadwal')" id="btnJadwal" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-200 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <span class="hidden sm:inline">Monitoring Kehadiran & Shift</span>
             </button>
+
+            <!-- Menu 2: Jadwal Lapangan (Bisa Dilihat Siapa Saja - Tanpa Password) -->
+            <button onclick="switchTab('lapangan')" id="btnLapangan" 
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
+                <span class="hidden sm:inline">Jadwal Lapangan (OFF)</span>
+            </button>
+
+            <!-- Menu 3: Konfigurasi & Endpoint Server (Tetap Terproteksi Sandi) -->
             <button onclick="switchTab('admin')" id="btnAdmin" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
@@ -124,10 +134,28 @@
             </div>
         </section>
 
-        <!-- HALAMAN 2: PANEL ADMIN & KONFIGURASI -->
+        <!-- HALAMAN 2: JADWAL LAPANGAN (OFF) - TERBUKA UNTUK SIAPA SAJA TANPA PASSWORD -->
+        <section id="tabLapangan" class="hidden space-y-6 max-w-6xl mx-auto">
+            <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-6 rounded-3xl shadow-xl space-y-4">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-900 dark:text-white">📅 Jadwal Lapangan & Tukar OFF</h2>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Tabel jadwal libur (OFF) seluruh karyawan periode aktif. Klik kotak untuk mengubah status (tukar libur) lalu simpan.</p>
+                    </div>
+                    <button onclick="simpanJadwalOffManual()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all">💾 Simpan Perubahan Jadwal</button>
+                </div>
+                <div class="overflow-x-auto max-h-[600px]">
+                    <table id="tabelMatrixOff" class="w-full text-center text-xs border-collapse">
+                        <!-- Render via JS -->
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- HALAMAN 3: PANEL ADMIN & KONFIGURASI (TERPROTEKSI SANDI) -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-6xl mx-auto">
 
-            <!-- 1. BAGIAN YANG TERKUNCI (Hanya Endpoint, Import, & Direktori Karyawan) -->
+            <!-- TOMBOL KUNCI / GEMBOK MENU ADMIN -->
             <div id="kotakTombolAdmin" class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-8 rounded-3xl shadow-xl text-center space-y-4">
                 <div class="text-4xl">🔐</div>
                 <h2 class="text-lg font-black text-slate-900 dark:text-white">Panel Konfigurasi Terproteksi</h2>
@@ -135,7 +163,9 @@
                 <button onclick="bukaMenuAdminSensitif()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded-xl text-xs shadow-lg transition-all hover:scale-105">Buka Menu Admin</button>
             </div>
 
+            <!-- KONTEN SENSITIF YANG TERKUNCI -->
             <div id="panelAdminSensitif" class="hidden space-y-6">
+
                 <!-- KOTAK KONFIGURASI ENDPOINT SERVER -->
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/40 p-6 rounded-3xl shadow-xl space-y-4">
                     <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
@@ -175,7 +205,7 @@
                 </div>
             </div>
 
-            <!-- 2. BAGIAN YANG TETAP TERBUKA BEBAS (Rekapitulasi Statistik & Log Aktivitas) -->
+            <!-- REKAPITULASI STATISTIK (TERBUKA BEBAS) -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
                     <h2 id="labelRekapTitle" class="text-lg font-black text-slate-900 dark:text-white">Rekapitulasi Statistik Kehadiran</h2>
@@ -196,7 +226,7 @@
                 </div>
             </div>
 
-            <!-- Tabel Log Absensi Harian Lengkap -->
+            <!-- TABEL LOG ABSENSI HARIAN -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
@@ -267,6 +297,7 @@
         let databaseAbsenSheet = {};
         let dataLaporanGlobal = [];
         let cachedDates = null;
+        let jadwalOffManual = {}; 
         let gasWebhookUrl = localStorage.getItem('gas_webhook_url') || "";
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -310,8 +341,8 @@
         window.closeModal = closeModal;
 
         window.switchTab = function(tabName) {
-            const tabs = ['tabJadwal', 'tabAdmin'];
-            const btns = ['btnJadwal', 'btnAdmin'];
+            const tabs = ['tabJadwal', 'tabLapangan', 'tabAdmin'];
+            const btns = ['btnJadwal', 'btnLapangan', 'btnAdmin'];
 
             tabs.forEach((t, i) => {
                 const el = document.getElementById(t);
@@ -327,7 +358,9 @@
                 }
             });
 
-            if (tabName === 'admin') {
+            if (tabName === 'lapangan') {
+                renderMatrixOff();
+            } else if (tabName === 'admin') {
                 renderListKaryawanAdmin();
                 renderTabelRekap();
                 renderTabelAdminLog();
@@ -343,7 +376,7 @@
             }
         }
 
-        // VERIFIKASI PASSWORD ADMIN KE GOOGLE SHEET
+        // VERIFIKASI PASSWORD ADMIN
         window.bukaMenuAdminSensitif = async function() {
             let passwordInput = prompt("Masukkan Password Admin:");
             if (!passwordInput) return;
@@ -455,7 +488,7 @@
                         dataLaporanGlobal = result.data;
                         parseLaporanToAbsenSheet(dataLaporanGlobal);
                         
-                        await saveDataToCloudFirebase();
+                        await loadCloudFirebaseData();
 
                         if(cloudStatusText) cloudStatusText.innerText = "Server Synced ✓";
                         if(cloudPing) cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
@@ -469,6 +502,13 @@
                 }
             }
 
+            await loadCloudFirebaseData();
+        }
+
+        async function loadCloudFirebaseData() {
+            const cloudStatusText = document.getElementById('cloudStatusText');
+            const cloudPing = document.getElementById('cloudPing');
+            const cloudDot = document.getElementById('cloudDot');
             try {
                 if(cloudStatusText) cloudStatusText.innerText = "Memuat Cache Server...";
                 const docRef = doc(db, "nexabsent_data", "main_database");
@@ -485,6 +525,10 @@
                         dataLaporanGlobal = cloudData.laporan.map(rowStr => rowStr.split("|||"));
                         parseLaporanToAbsenSheet(dataLaporanGlobal);
                     }
+                    if (cloudData.jadwalOffManual) {
+                        jadwalOffManual = cloudData.jadwalOffManual;
+                        applyManualOffToSheet();
+                    }
                 }
 
                 if(cloudStatusText) cloudStatusText.innerText = "Connected (Cache)";
@@ -493,12 +537,11 @@
 
                 updateDropdownKaryawan();
                 renderJadwalKaryawan();
+                renderMatrixOff();
 
             } catch (err) {
                 console.error(err);
                 if(cloudStatusText) cloudStatusText.innerText = "Koneksi Gagal";
-                if(cloudPing) cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75";
-                if(cloudDot) cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500";
             }
         }
 
@@ -519,6 +562,7 @@
                 await setDoc(docRef, {
                     karyawan: daftarKaryawan,
                     laporan: laporanFlattened,
+                    jadwalOffManual: jadwalOffManual,
                     updatedAt: new Date().toISOString()
                 });
                 return true;
@@ -594,9 +638,76 @@
                 }
             }
 
+            applyManualOffToSheet();
+
             if (detectedNames.size > 0) {
                 daftarKaryawan = Array.from(detectedNames).sort();
             }
+        }
+
+        function applyManualOffToSheet() {
+            for (let key in jadwalOffManual) {
+                if (jadwalOffManual[key] === "OFF") {
+                    if (!databaseAbsenSheet[key]) {
+                        databaseAbsenSheet[key] = { checkIn: "OFF", checkOut: "-" };
+                    } else if (databaseAbsenSheet[key].checkIn === "-") {
+                        databaseAbsenSheet[key].checkIn = "OFF";
+                    }
+                }
+            }
+        }
+
+        // RENDER TABEL MATRIX OFF
+        window.renderMatrixOff = function() {
+            const table = document.getElementById('tabelMatrixOff');
+            if(!table) return;
+            const dates = getDynamicCutOffDates();
+
+            let headerHtml = `<thead class="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 uppercase font-bold text-[11px] sticky top-0 border-b border-slate-300 dark:border-slate-800">
+                <tr>
+                    <th class="py-2.5 px-3 text-left">Tanggal</th>`;
+            daftarKaryawan.forEach(nama => {
+                headerHtml += `<th class="py-2.5 px-2 text-center">${nama}</th>`;
+            });
+            headerHtml += `</tr></thead><tbody class="divide-y divide-slate-200 dark:divide-slate-800/60">`;
+
+            let bodyHtml = "";
+            dates.forEach(item => {
+                bodyHtml += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+                    <td class="py-2.5 px-3 text-left font-bold text-slate-900 dark:text-white whitespace-nowrap">${item.label}</td>`;
+                
+                daftarKaryawan.forEach(nama => {
+                    let key = `${nama}_${item.dateStr}`;
+                    let isOff = (jadwalOffManual[key] === "OFF") || (databaseAbsenSheet[key]?.checkIn === "OFF");
+                    let cellClass = isOff ? "bg-rose-500/20 text-rose-800 dark:text-rose-300 font-extrabold border border-rose-500/40" : "text-slate-400 dark:text-slate-600";
+                    let label = isOff ? "OFF" : "-";
+
+                    bodyHtml += `<td class="py-2 px-2 text-center">
+                        <button onclick="toggleMatrixOff('${nama}', '${item.dateStr}')" class="w-12 h-8 rounded-lg text-[10px] font-bold transition-all ${cellClass}">${label}</button>
+                    </td>`;
+                });
+                bodyHtml += `</tr>`;
+            });
+
+            table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
+        }
+
+        window.toggleMatrixOff = function(nama, dateStr) {
+            let key = `${nama}_${dateStr}`;
+            if (jadwalOffManual[key] === "OFF") {
+                delete jadwalOffManual[key];
+            } else {
+                jadwalOffManual[key] = "OFF";
+            }
+            applyManualOffToSheet();
+            renderMatrixOff();
+            renderJadwalKaryawan();
+        }
+
+        window.simpanJadwalOffManual = async function() {
+            await saveDataToCloudFirebase();
+            showModal("Sukses", "Jadwal OFF manual berhasil disimpan ke Cloud Firebase!");
+            renderJadwalKaryawan();
         }
 
         window.prosesUploadFile = async function() {
@@ -816,6 +927,7 @@
             await saveDataToCloudFirebase();
             updateDropdownKaryawan(); 
             renderListKaryawanAdmin();
+            renderMatrixOff();
             showModal("Sukses", `Karyawan "${namaBaru}" ditambahkan.`);
         }
 
@@ -826,6 +938,7 @@
             await saveDataToCloudFirebase();
             updateDropdownKaryawan();
             renderListKaryawanAdmin();
+            renderMatrixOff();
             renderJadwalKaryawan();
         }
 
@@ -834,10 +947,12 @@
             daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
             dataLaporanGlobal = [];
             databaseAbsenSheet = {};
+            jadwalOffManual = {};
 
             await saveDataToCloudFirebase();
             updateDropdownKaryawan();
             renderListKaryawanAdmin();
+            renderMatrixOff();
             renderJadwalKaryawan();
             showModal("Reset Selesai", "Cache server berhasil dibersihkan.");
         }
