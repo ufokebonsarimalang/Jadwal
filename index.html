@@ -94,7 +94,7 @@
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
                         <h2 class="text-xl font-black text-slate-900 dark:text-white">📅 Jadwal Lapangan & Tukar OFF / PS</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Master jadwal lapangan. Klik kotak untuk mengubah status (<span class="text-rose-500 font-bold">OFF</span> ➔ <span class="text-orange-500 font-bold">PS</span> ➔ Kosong). Data yang kosong akan mengikuti monitoring web.</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Pengaturan jadwal libur dari web. Klik kotak untuk mengubah status (<span class="text-rose-500 font-bold">OFF</span> ➔ <span class="text-orange-500 font-bold">PS</span> ➔ Kosong).</p>
                     </div>
                     <button onclick="simpanJadwalOffManual()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all">💾 Simpan Perubahan Jadwal</button>
                 </div>
@@ -294,7 +294,6 @@
         const db = getFirestore(app);
 
         let daftarKaryawan = [];
-        let databaseAbsenSheet = {};
         let dataLaporanGlobal = [];
         let cachedDates = null;
         let jadwalOffManual = {}; // Format: { "NAMA_YYYY-MM-DD": "OFF" atau "PS" }
@@ -442,13 +441,15 @@
                 let y = curr.getFullYear();
                 let m = String(curr.getMonth() + 1).padStart(2, '0');
                 let d = String(curr.getDate()).padStart(2, '0');
-                let dateString = `${y}-${m}-${d}`; // Format YYYY-MM-DD
-                let dateStringAlt = `${d}/${m}/${y}`; // Format DD/MM/YYYY
-                let dateStringAlt2 = `${y}/${m}/${d}`; // Format YYYY/MM/DD
                 
+                let isoStr = `${y}-${m}-${d}`;
+                let idStr1 = `${d}-${m}-${y}`;
+                let idStr2 = `${d}/${m}/${y}`;
+                let idStr3 = `${y}/${m}/${d}`;
+
                 dates.push({
-                    dateStr: dateString,
-                    altKeys: [dateString, dateStringAlt, dateStringAlt2],
+                    dateStr: isoStr,
+                    possibleKeys: [isoStr, idStr1, idStr2, idStr3],
                     label: `${curr.toLocaleDateString('id-ID', { weekday: 'short' })}, ${d} ${curr.toLocaleDateString('id-ID', { month: 'short' })}`,
                     isWeekend: (curr.getDay() === 0 || curr.getDay() === 6)
                 });
@@ -491,8 +492,7 @@
                     let result = await response.json();
                     if (result && Array.isArray(result.data)) {
                         dataLaporanGlobal = result.data;
-                        parseLaporanToAbsenSheet(dataLaporanGlobal);
-                        
+                        ekstrakKaryawanDariLog();
                         await loadCloudFirebaseData();
 
                         if(cloudStatusText) cloudStatusText.innerText = "Server Synced ✓";
@@ -529,11 +529,14 @@
                     }
                     if (cloudData.laporan && Array.isArray(cloudData.laporan)) {
                         dataLaporanGlobal = cloudData.laporan.map(rowStr => rowStr.split("|||"));
-                        parseLaporanToAbsenSheet(dataLaporanGlobal);
                     }
                     if (cloudData.jadwalOffManual) {
                         jadwalOffManual = cloudData.jadwalOffManual;
                     }
+                }
+
+                if (daftarKaryawan.length === 0 && dataLaporanGlobal.length > 0) {
+                    ekstrakKaryawanDariLog();
                 }
 
                 if(cloudStatusText) cloudStatusText.innerText = "Connected (Cache)";
@@ -577,69 +580,58 @@
             }
         }
 
-        function parseWaktuToIsoAndHms(rawWaktu) {
-            if (!rawWaktu) return { tglIso: "", timePart: "" };
-            let waktuStr = String(rawWaktu).trim();
-
-            let parts = waktuStr.split(" ");
-            let datePartStr = parts[0] || "";
-            let timePartStr = parts[1] ? parts[1].substring(0, 5) : "";
-
-            let tglIso = "";
-            if (datePartStr.includes("-") || datePartStr.includes("/")) {
-                let sep = datePartStr.includes("-") ? "-" : "/";
-                let arr = datePartStr.split(sep);
-                if (arr.length === 3) {
-                    if (arr[0].length === 4) {
-                        tglIso = `${arr[0]}-${arr[1].padStart(2,'0')}-${arr[2].padStart(2,'0')}`;
-                    } else {
-                        tglIso = `${arr[2]}-${arr[1].padStart(2,'0')}-${arr[0].padStart(2,'0')}`;
+        function ekstrakKaryawanDariLog() {
+            let detected = new Set();
+            for (let i = 1; i < dataLaporanGlobal.length; i++) {
+                let row = dataLaporanGlobal[i];
+                if (row && row[1]) {
+                    let nama = String(row[1]).trim().toUpperCase();
+                    if (nama && nama.length < 30 && !nama.includes('<')) {
+                        detected.add(nama);
                     }
                 }
             }
-            return { tglIso, timePart: timePartStr, datePartStr };
+            if (detected.size > 0) {
+                daftarKaryawan = Array.from(detected).sort();
+            } else if (daftarKaryawan.length === 0) {
+                daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
+            }
         }
 
-        function parseLaporanToAbsenSheet(parsedRows) {
-            databaseAbsenSheet = {};
-            let detectedNames = new Set();
-            let rawLogMap = {};
+        // FUNGSI UTAMA MEMBACA LANGSUNG DARI DATA MONITORING GLOBAL
+        function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
+            let checkIn = "-";
+            let checkOut = "-";
 
-            for (let i = 1; i < parsedRows.length; i++) {
-                let row = parsedRows[i];
-                if(!row || row.length === 0) continue;
-                let waktuRaw = row[0];
-                let nama = String(row[1] || "").trim().toUpperCase();
-                let statusAbsen = String(row[2] || "").trim().toLowerCase();
+            for (let i = 1; i < dataLaporanGlobal.length; i++) {
+                let row = dataLaporanGlobal[i];
+                if (!row || row.length < 3) continue;
 
-                if (nama && nama.length < 30 && !nama.includes('<')) {
-                    detectedNames.add(nama);
-                }
+                let waktuFull = String(row[0] || "").trim();
+                let namaRow = String(row[1] || "").trim().toUpperCase();
+                let statusRow = String(row[2] || "").trim().toLowerCase();
 
-                let parsed = parseWaktuToIsoAndHms(waktuRaw);
-                let tglIso = parsed.tglIso;
-                let timePartStr = parsed.timePart;
+                if (namaRow === karyawanTarget) {
+                    // Cek apakah tanggal di log mengandung salah satu format tanggal kalender
+                    let matched = false;
+                    for (let pKey of possibleKeys) {
+                        if (waktuFull.includes(pKey)) {
+                            matched = true;
+                            break;
+                        }
+                    }
 
-                if (tglIso && nama) {
-                    let key = `${nama}_${tglIso}`;
-                    if (!rawLogMap[key]) rawLogMap[key] = { checkIn: "-", checkOut: "-" };
-
-                    if (statusAbsen.includes("in") || statusAbsen.includes("masuk")) {
-                        rawLogMap[key].checkIn = timePartStr;
-                    } else if (statusAbsen.includes("out") || statusAbsen.includes("pulang")) {
-                        rawLogMap[key].checkOut = timePartStr;
+                    if (matched) {
+                        let timePart = waktuFull.split(" ")[1] ? waktuFull.split(" ")[1].substring(0, 5) : "";
+                        if (statusRow.includes("in") || statusRow.includes("masuk")) {
+                            checkIn = timePart;
+                        } else if (statusRow.includes("out") || statusRow.includes("pulang")) {
+                            checkOut = timePart;
+                        }
                     }
                 }
             }
-
-            for (let key in rawLogMap) {
-                let log = rawLogMap[key];
-                databaseAbsenSheet[key] = { checkIn: log.checkIn, checkOut: log.checkOut };
-            }
-
-            if (detectedNames.size > 0) {
-                daftarKaryawan = Array.from(detectedNames).sort();
-            }
+            return { checkIn, checkOut };
         }
 
         // RENDER TABEL MATRIX OFF / PS MURNI DARI WEB
@@ -663,7 +655,7 @@
                 
                 daftarKaryawan.forEach(nama => {
                     let manualStatus;
-                    for(let kKey of item.altKeys) {
+                    for(let kKey of item.possibleKeys) {
                         if(jadwalOffManual[`${nama}_${kKey}`]) {
                             manualStatus = jadwalOffManual[`${nama}_${kKey}`];
                             break;
@@ -691,7 +683,6 @@
             table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
         }
 
-        // SIKLUS KLIK MURNI WEB: Kosong -> OFF -> PS -> Kosong
         window.toggleMatrixStatus = function(nama, dateStr) {
             let key = `${nama}_${dateStr}`;
             let current = jadwalOffManual[key];
@@ -736,7 +727,7 @@
 
                     if (parsedRows.length > 0) {
                         dataLaporanGlobal = parsedRows;
-                        parseLaporanToAbsenSheet(dataLaporanGlobal);
+                        ekstrakKaryawanDariLog();
                         await saveDataToCloudFirebase();
 
                         updateDropdownKaryawan();
@@ -765,7 +756,7 @@
             }
         }
 
-        // MONITORING KARYAWAN: MENGECEK BERBAGAI VARIASI FORMAT TANGGAL PADA DATABASE SHEET
+        // MONITORING KARYAWAN: MENGAMBIL LANGSUNG DARI DATA MONITORING
         window.renderJadwalKaryawan = function() {
             let selectEl = document.getElementById('selectKaryawan');
             const karyawan = (selectEl?.value || daftarKaryawan[0] || "").toUpperCase();
@@ -777,19 +768,16 @@
 
             for (let i = 0; i < dates.length; i++) {
                 let item = dates[i];
-                
-                // Cari apakah ada setelan manual atau data absen di berbagai variasi format tanggal
                 let manualStatus = "";
-                let dataAbsen = { checkIn: "-", checkOut: "-" };
 
-                for(let altKey of item.altKeys) {
+                for(let altKey of item.possibleKeys) {
                     if (jadwalOffManual[`${karyawan}_${altKey}`]) {
                         manualStatus = jadwalOffManual[`${karyawan}_${altKey}`];
                     }
-                    if (databaseAbsenSheet[`${karyawan}_${altKey}`]) {
-                        dataAbsen = databaseAbsenSheet[`${karyawan}_${altKey}`];
-                    }
                 }
+
+                // Ambil data langsung dari log monitoring
+                let dataAbsen = cariDataAbsenDariLog(karyawan, item.possibleKeys);
 
                 let badgeClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
                 let statusLabel = "FULL";
@@ -868,12 +856,11 @@
                 for (let i = 0; i < dates.length; i++) {
                     let item = dates[i];
                     let manualStatus = "";
-                    let absen = { checkIn: "-", checkOut: "-" };
-
-                    for(let altKey of item.altKeys) {
+                    for(let altKey of item.possibleKeys) {
                         if (jadwalOffManual[`${nama}_${altKey}`]) manualStatus = jadwalOffManual[`${nama}_${altKey}`];
-                        if (databaseAbsenSheet[`${nama}_${altKey}`]) absen = databaseAbsenSheet[`${nama}_${altKey}`];
                     }
+
+                    let absen = cariDataAbsenDariLog(nama, item.possibleKeys);
 
                     if (manualStatus === "OFF") {
                         countOffTotal++; if (item.isWeekend) countOffWeekend++;
@@ -981,7 +968,6 @@
             if (!confirm("Konfirmasi purge cache dan reset database?")) return;
             daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
             dataLaporanGlobal = [];
-            databaseAbsenSheet = {};
             jadwalOffManual = {};
 
             await saveDataToCloudFirebase();
