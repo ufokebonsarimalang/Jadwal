@@ -45,11 +45,11 @@
         </div>
 
         <nav class="flex md:flex-col gap-2 mt-0 md:mt-6">
-            <!-- Menu 1 (Paling Atas): Jadwal Lapangan (OFF / PS) - Terbuka untuk Umum -->
+            <!-- Menu 1 (Paling Atas): Jadwal Lapangan (OFF / PS Manual Web) -->
             <button onclick="switchTab('lapangan')" id="btnLapangan" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-200 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
-                <span class="hidden sm:inline">Jadwal Lapangan (OFF / PS)</span>
+                <span class="hidden sm:inline">Jadwal Lapangan</span>
             </button>
 
             <!-- Menu 2: Monitoring Kehadiran & Shift -->
@@ -88,13 +88,13 @@
     <!-- KONTEN UTAMA -->
     <main class="flex-1 p-4 md:p-10 overflow-y-auto z-10 text-slate-900 dark:text-slate-100">
 
-        <!-- HALAMAN 1: JADWAL LAPANGAN (OFF / PS) - POSISI PALING ATAS & TERBUKA UMUM -->
+        <!-- HALAMAN 1: JADWAL LAPANGAN (OFF / PS MANUAL WEB) -->
         <section id="tabLapangan" class="space-y-6 max-w-6xl mx-auto">
             <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-6 rounded-3xl shadow-xl space-y-4">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
-                        <h2 class="text-xl font-black text-slate-900 dark:text-white">📅 Jadwal Lapangan & Tukar OFF / PS</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Tabel jadwal libur dan shift seluruh karyawan. Klik kotak untuk mengubah status (<span class="text-rose-500 font-bold">OFF</span> ➔ <span class="text-orange-500 font-bold">PS</span> ➔ Kosong). Data kehadiran otomatis sinkron dari web.</p>
+                        <h2 class="text-xl font-black text-slate-900 dark:text-white">📅 Jadwal Lapangan</h2>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Pengaturan jadwal libur murni dari web. Klik kotak untuk mengubah status (<span class="text-rose-500 font-bold">OFF</span> ➔ <span class="text-orange-500 font-bold">PS</span> ➔ Kosong).</p>
                     </div>
                     <button onclick="simpanJadwalOffManual()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all">💾 Simpan Perubahan Jadwal</button>
                 </div>
@@ -297,7 +297,7 @@
         let databaseAbsenSheet = {};
         let dataLaporanGlobal = [];
         let cachedDates = null;
-        let jadwalOffManual = {}; // Format: { "NAMA_YYYY-MM-DD": "OFF" atau "PS" }
+        let jadwalOffManual = {}; // Format murni web: { "NAMA_YYYY-MM-DD": "OFF" atau "PS" }
         let gasWebhookUrl = localStorage.getItem('gas_webhook_url') || "";
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -530,7 +530,6 @@
                     }
                     if (cloudData.jadwalOffManual) {
                         jadwalOffManual = cloudData.jadwalOffManual;
-                        applyManualStatusToSheet();
                     }
                 }
 
@@ -626,46 +625,21 @@
                         rawLogMap[key].checkIn = timePartStr;
                     } else if (statusAbsen.includes("out") || statusAbsen.includes("pulang")) {
                         rawLogMap[key].checkOut = timePartStr;
-                    } else if (statusAbsen.includes("off")) {
-                        rawLogMap[key].checkIn = "OFF";
                     }
                 }
             }
 
             for (let key in rawLogMap) {
                 let log = rawLogMap[key];
-                if (log.checkIn === "OFF") {
-                    databaseAbsenSheet[key] = { checkIn: "OFF", checkOut: "-" };
-                } else {
-                    databaseAbsenSheet[key] = { checkIn: log.checkIn, checkOut: log.checkOut };
-                }
+                databaseAbsenSheet[key] = { checkIn: log.checkIn, checkOut: log.checkOut };
             }
-
-            applyManualStatusToSheet();
 
             if (detectedNames.size > 0) {
                 daftarKaryawan = Array.from(detectedNames).sort();
             }
         }
 
-        function applyManualStatusToSheet() {
-            for (let key in jadwalOffManual) {
-                let statusManual = jadwalOffManual[key]; // "OFF" atau "PS"
-                if (statusManual === "OFF") {
-                    if (!databaseAbsenSheet[key]) {
-                        databaseAbsenSheet[key] = { checkIn: "OFF", checkOut: "-" };
-                    } else if (databaseAbsenSheet[key].checkIn === "-") {
-                        databaseAbsenSheet[key].checkIn = "OFF";
-                    }
-                } else if (statusManual === "PS") {
-                    if (!databaseAbsenSheet[key]) {
-                        databaseAbsenSheet[key] = { checkIn: "08:00", checkOut: "17:00" }; // Simulasi PS
-                    }
-                }
-            }
-        }
-
-        // RENDER TABEL MATRIX OFF / PS & OTOMATIS AMBIL DATA MONITORING
+        // RENDER TABEL MATRIX OFF / PS MURNI DARI WEB (TIDAK TERGANTUNG SHEET)
         window.renderMatrixOff = function() {
             const table = document.getElementById('tabelMatrixOff');
             if(!table) return;
@@ -687,34 +661,16 @@
                 daftarKaryawan.forEach(nama => {
                     let key = `${nama}_${item.dateStr}`;
                     let manualStatus = jadwalOffManual[key]; // "OFF", "PS", atau undefined
-                    let absenData = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
 
                     let cellClass = "text-slate-400 dark:text-slate-600";
                     let label = "-";
 
-                    if (manualStatus === "OFF" || absenData.checkIn === "OFF") {
+                    if (manualStatus === "OFF") {
                         cellClass = "bg-rose-500/20 text-rose-800 dark:text-rose-300 font-extrabold border border-rose-500/40";
                         label = "OFF";
                     } else if (manualStatus === "PS") {
                         cellClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 font-extrabold border border-orange-500/40";
                         label = "PS";
-                    } else if (absenData.checkIn !== "-" && absenData.checkOut !== "-") {
-                        // Otomatis dari data monitoring web (Hadir / Masuk)
-                        let [jamIn, menitIn] = absenData.checkIn.split(":").map(Number);
-                        let jamOut = parseInt(absenData.checkOut.split(":")[0]) || 0;
-                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-                            cellClass = "bg-amber-500/15 text-amber-800 dark:text-amber-300 font-bold border border-amber-500/30";
-                            label = "TERLAMBAT";
-                        } else if (jamOut < 19) {
-                            cellClass = "bg-orange-500/15 text-orange-800 dark:text-orange-300 font-bold border border-orange-500/30";
-                            label = "PS";
-                        } else {
-                            cellClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/30";
-                            label = "HADIR";
-                        }
-                    } else if (absenData.checkIn !== "-" && absenData.checkOut === "-") {
-                        cellClass = "bg-blue-500/15 text-blue-800 dark:text-blue-300 font-bold border border-blue-500/30";
-                        label = "PROSES";
                     }
 
                     bodyHtml += `<td class="py-2 px-2 text-center">
@@ -727,7 +683,7 @@
             table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
         }
 
-      // Siklus klik: Kosong -> OFF -> PS -> Kosong (Otomatis Monitoring Web)
+        // SIKLUS KLIK MURNI WEB: Kosong -> OFF -> PS -> Kosong
         window.toggleMatrixStatus = function(nama, dateStr) {
             let key = `${nama}_${dateStr}`;
             let current = jadwalOffManual[key];
@@ -740,15 +696,12 @@
                 delete jadwalOffManual[key];
             }
 
-            applyManualStatusToSheet();
             renderMatrixOff();
-            renderJadwalKaryawan();
         }
 
         window.simpanJadwalOffManual = async function() {
             await saveDataToCloudFirebase();
-            showModal("Sukses", "Perubahan jadwal berhasil disimpan ke Cloud Firebase!");
-            renderJadwalKaryawan();
+            showModal("Sukses", "Jadwal OFF/PS manual berhasil disimpan ke Cloud Firebase!");
         }
 
         window.prosesUploadFile = async function() {
@@ -811,16 +764,20 @@
             for (let i = 0; i < dates.length; i++) {
                 let item = dates[i];
                 let keyJadwal = `${karyawan}_${item.dateStr}`;
+                let manualStatus = jadwalOffManual[keyJadwal];
                 let dataAbsen = databaseAbsenSheet[keyJadwal] || { checkIn: "-", checkOut: "-" };
 
                 let badgeClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
                 let statusLabel = "FULL";
                 let jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
 
-                if (dataAbsen.checkIn === "OFF") {
+                if (manualStatus === "OFF") {
                     badgeClass = "bg-red-500/20 text-red-800 dark:text-red-300 border-red-500/40";
                     statusLabel = "OFF"; jamTampil = "LIBUR"; countOffTotal++;
                     if (item.isWeekend) countOffWeekend++;
+                } else if (manualStatus === "PS") {
+                    badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
+                    statusLabel = "PS"; jamTampil = "PART SHIFT"; countPs++;
                 } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
                     countMasuk++;
                     let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
@@ -881,10 +838,13 @@
                 for (let i = 0; i < dates.length; i++) {
                     let item = dates[i];
                     let key = `${nama}_${item.dateStr}`;
+                    let manualStatus = jadwalOffManual[key];
                     let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
 
-                    if (absen.checkIn === "OFF") {
+                    if (manualStatus === "OFF") {
                         countOffTotal++; if (item.isWeekend) countOffWeekend++;
+                    } else if (manualStatus === "PS") {
+                        countPs++;
                     } else if (absen.checkIn !== "-") {
                         let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
                         if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
@@ -938,7 +898,7 @@
                 let fotoUrl = row[5];
 
                 if (filterNama === "SEMUA" || nama === filterNama.toUpperCase()) {
-                    let badgeClass = status.toLowerCase().includes('in') ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/30 font-extrabold' : (status.toUpperCase() === 'OFF' ? 'bg-rose-500/20 text-rose-800 dark:text-rose-300 border-rose-500/40 font-extrabold' : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-emerald-500/30 font-extrabold');
+                    let badgeClass = status.toLowerCase().includes('in') ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/30 font-extrabold' : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-emerald-500/30 font-extrabold';
                     let koordinat = (lat && lng && lat !== "-") ? `${lat}, ${lng}` : '-';
                     let fotoLink = (fotoUrl && fotoUrl !== '-') ? `<a href="${fotoUrl}" target="_blank" class="px-2.5 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 rounded-lg font-bold border border-indigo-500/20">Lihat Foto</a>` : '<span class="text-slate-400">Tanpa Foto</span>';
 
