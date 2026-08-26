@@ -9,7 +9,7 @@
     <script>
         tailwind.config = { darkMode: 'class' }
     </script>
-    <!-- SheetJS (XLSX) untuk membaca file Excel & CSV dengan sempurna -->
+    <!-- SheetJS (XLSX) untuk membaca file Excel & CSV -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- Google Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -248,9 +248,12 @@
                 </div>
             </div>
 
-            <!-- Kelola Karyawan (Tambah & Hapus) -->
+            <!-- Kelola Karyawan (Tambah, Hapus, & Reset Database) -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
-                <h2 class="text-xl font-black text-slate-900 dark:text-white">Kelola Daftar Karyawan</h2>
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-black text-slate-900 dark:text-white">Kelola Daftar Karyawan</h2>
+                    <button onclick="resetDatabaseCloud()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow">🗑️ Reset & Bersihkan Cloud</button>
+                </div>
                 <div class="flex gap-3">
                     <input type="text" id="inputNamaBaru" placeholder="Nama Karyawan Baru (cth: Budi)" class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
                     <button onclick="tambahKaryawanBaru()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Tambah</button>
@@ -274,7 +277,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA (SHEETJS EXCEL SUPPORT + HAPUS KARYAWAN + FIREBASE) -->
+    <!-- SCRIPT UTAMA -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -292,7 +295,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let daftarKaryawan = [];
+        let daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
         let databaseJadwal = {};
         let databaseAbsenSheet = {};
         let dataLaporanGlobal = [];
@@ -362,7 +365,12 @@
 
                 if (docSnap.exists()) {
                     let cloudData = docSnap.data();
-                    if (cloudData.karyawan) daftarKaryawan = cloudData.karyawan.map(n => n.toUpperCase());
+                    if (cloudData.karyawan && Array.isArray(cloudData.karyawan)) {
+                        // Filter agar hanya mengambil nama bersih (tanpa karakter korup/HTML tag)
+                        daftarKaryawan = cloudData.karyawan
+                            .map(n => String(n).trim().toUpperCase())
+                            .filter(n => n.length > 0 && n.length < 30 && !n.includes('<') && !n.includes(''));
+                    }
                     if (cloudData.jadwal) databaseJadwal = cloudData.jadwal;
                     if (cloudData.laporan && Array.isArray(cloudData.laporan)) {
                         dataLaporanGlobal = cloudData.laporan.map(rowStr => rowStr.split("|||"));
@@ -408,10 +416,9 @@
             }
         }
 
-        // PARSE MENGGUNAKAN SHEETJS (Mendukung Excel & CSV secara native)
         function parseLaporanToAbsenSheet(parsedRows) {
             databaseAbsenSheet = {};
-            let detectedNames = new Set(daftarKaryawan.map(n => n.toUpperCase()));
+            let detectedNames = new Set(daftarKaryawan);
             let rawLogMap = {};
 
             for (let i = 1; i < parsedRows.length; i++) {
@@ -421,7 +428,9 @@
                 let nama = String(row[1] || "").trim().toUpperCase();
                 let statusAbsen = String(row[2] || "").trim().toLowerCase();
 
-                if (nama) detectedNames.add(nama);
+                if (nama && nama.length < 30 && !nama.includes('<') && !nama.includes('')) {
+                    detectedNames.add(nama);
+                }
 
                 if (waktuStr && nama) {
                     let parts = waktuStr.split(" ");
@@ -467,7 +476,7 @@
                 }
             }
 
-            daftarKaryawan = Array.from(detectedNames).sort();
+            daftarKaryawan = Array.from(detectedNames).filter(n => n.length > 0 && !n.includes('')).sort();
         }
 
         window.prosesUploadFile = async function() {
@@ -784,7 +793,6 @@
             }
         }
 
-        // FUNGSI HAPUS KARYAWAN
         window.hapusKaryawan = async function(nama) {
             if (!confirm(`Yakin ingin menghapus karyawan "${nama}" dari daftar?`)) return;
             daftarKaryawan = daftarKaryawan.filter(n => n !== nama);
@@ -797,6 +805,26 @@
                 renderTabelRekap();
                 renderTabelSemuaJadwal();
                 showModal("Sukses", `Karyawan "${nama}" berhasil dihapus.`);
+            }
+        }
+
+        // FUNGSI RESET DATABASE CLOUD DARI DATA KORUP
+        window.resetDatabaseCloud = async function() {
+            if (!confirm("Yakin ingin mereset dan membersihkan data database Cloud dari nama-nama korup/sampah?")) return;
+            daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
+            databaseJadwal = {};
+            dataLaporanGlobal = [];
+            databaseAbsenSheet = {};
+
+            let success = await saveDataToCloud();
+            if (success) {
+                updateDropdownKaryawan();
+                renderListKaryawanAdmin();
+                renderJadwalKaryawan();
+                renderTabelRekap();
+                renderTabelSemuaJadwal();
+                renderTabelAdminLog();
+                showModal("Berhasil Reset", "Database Cloud berhasil dibersihkan dari data korup! Silakan upload ulang file Excel rekap absen Anda.");
             }
         }
 
