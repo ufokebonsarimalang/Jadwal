@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexAbsent - Super Dashboard Admin & Jadwal (Firebase Cloud)</title>
+    <title>NexAbsent - Super Dashboard Admin & Jadwal (Optimized)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -22,11 +22,11 @@
         .light ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
         .app-card {
             backdrop-filter: blur(20px);
-            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
         }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col md:flex-row selection:bg-indigo-500 selection:text-white relative overflow-x-hidden transition-colors duration-300">
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col md:flex-row selection:bg-indigo-500 selection:text-white relative overflow-x-hidden">
 
     <!-- Background Ambient Glow -->
     <div class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -46,23 +46,23 @@
 
         <nav class="flex md:flex-col gap-2 mt-0 md:mt-6">
             <button onclick="switchTab('jadwal')" id="btnJadwal" 
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-300 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30">
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-200 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <span class="hidden sm:inline">Jadwal Karyawan</span>
             </button>
             <button onclick="switchTab('semuaJadwal')" id="btnSemuaJadwal" 
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                 <span class="hidden sm:inline">Semua Karyawan</span>
             </button>
             <button onclick="switchTab('admin')" id="btnAdmin" 
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-300 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
                 <span class="hidden sm:inline">Panel Admin & Upload</span>
             </button>
         </nav>
 
-        <!-- Tombol Pengganti Tema & Status -->
+        <!-- Tombol Tema & Status -->
         <div class="hidden md:flex flex-col gap-3 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs">
             <div class="flex items-center justify-between bg-slate-100 dark:bg-slate-950 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
                 <span class="text-slate-700 dark:text-slate-300 font-semibold px-2">Tema</span>
@@ -232,9 +232,9 @@
                     </div>
                 </div>
 
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto max-h-96">
                     <table class="w-full text-left text-xs text-slate-800 dark:text-slate-200 border-collapse">
-                        <thead class="bg-slate-100 dark:bg-slate-950 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800">
+                        <thead class="bg-slate-100 dark:bg-slate-950 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800 sticky top-0">
                             <tr>
                                 <th class="py-3 px-4">Waktu</th>
                                 <th class="py-3 px-4">Nama</th>
@@ -248,7 +248,7 @@
                 </div>
             </div>
 
-            <!-- Kelola Karyawan (Tambah, Hapus, & Reset Database) -->
+            <!-- Kelola Karyawan -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
                 <div class="flex justify-between items-center">
                     <h2 class="text-xl font-black text-slate-900 dark:text-white">Kelola Daftar Karyawan</h2>
@@ -277,7 +277,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA -->
+    <!-- SCRIPT UTAMA (OPTIMIZED PERFORMANCE) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -299,6 +299,7 @@
         let databaseJadwal = {};
         let databaseAbsenSheet = {};
         let dataLaporanGlobal = [];
+        let cachedDates = null;
 
         function toggleTheme() {
             const root = document.getElementById('htmlRoot');
@@ -366,10 +367,9 @@
                 if (docSnap.exists()) {
                     let cloudData = docSnap.data();
                     if (cloudData.karyawan && Array.isArray(cloudData.karyawan)) {
-                        // Filter agar hanya mengambil nama bersih (tanpa karakter korup/HTML tag)
                         daftarKaryawan = cloudData.karyawan
                             .map(n => String(n).trim().toUpperCase())
-                            .filter(n => n.length > 0 && n.length < 30 && !n.includes('<') && !n.includes(''));
+                            .filter(n => n.length > 0 && n.length < 30 && !n.includes('<'));
                     }
                     if (cloudData.jadwal) databaseJadwal = cloudData.jadwal;
                     if (cloudData.laporan && Array.isArray(cloudData.laporan)) {
@@ -384,10 +384,6 @@
 
                 updateDropdownKaryawan();
                 renderJadwalKaryawan();
-                renderTabelSemuaJadwal();
-                renderTabelRekap();
-                renderTabelAdminLog();
-                renderListKaryawanAdmin();
 
             } catch (err) {
                 console.error(err);
@@ -428,7 +424,7 @@
                 let nama = String(row[1] || "").trim().toUpperCase();
                 let statusAbsen = String(row[2] || "").trim().toLowerCase();
 
-                if (nama && nama.length < 30 && !nama.includes('<') && !nama.includes('')) {
+                if (nama && nama.length < 30 && !nama.includes('<')) {
                     detectedNames.add(nama);
                 }
 
@@ -476,7 +472,7 @@
                 }
             }
 
-            daftarKaryawan = Array.from(detectedNames).filter(n => n.length > 0 && !n.includes('')).sort();
+            daftarKaryawan = Array.from(detectedNames).filter(n => n.length > 0).sort();
         }
 
         window.prosesUploadFile = async function() {
@@ -512,10 +508,6 @@
                         if (success) {
                             updateDropdownKaryawan();
                             renderJadwalKaryawan();
-                            renderTabelSemuaJadwal();
-                            renderTabelRekap();
-                            renderTabelAdminLog();
-                            renderListKaryawanAdmin();
                             showModal("Sukses!", "File berhasil dibaca, dihitung otomatis, dan disinkronkan ke Cloud Firebase!");
                         }
                     }
@@ -546,6 +538,7 @@
         }
 
         function getCutOffDates() {
+            if (cachedDates) return cachedDates;
             let dates = [];
             let currDate = new Date("2026-07-26");
             let endDate = new Date("2026-08-25");
@@ -561,6 +554,7 @@
                 });
                 currDate.setDate(currDate.getDate() + 1);
             }
+            cachedDates = dates;
             return dates;
         }
 
@@ -572,7 +566,8 @@
             let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
             let html = "";
 
-            dates.forEach(item => {
+            for (let i = 0; i < dates.length; i++) {
+                let item = dates[i];
                 let keyJadwal = `${karyawan}_${item.dateStr}`;
                 let statusJadwal = databaseJadwal[keyJadwal];
                 let dataAbsen = databaseAbsenSheet[keyJadwal] || { checkIn: "-", checkOut: "-" };
@@ -606,7 +601,7 @@
                         <span class="text-[11px] font-extrabold text-slate-900 dark:text-white block">${jamTampil}</span>
                     </div>
                 `;
-            });
+            }
 
             if (container) container.innerHTML = html;
             document.getElementById('statMasuk').innerText = `${countMasuk} Hari`;
@@ -621,15 +616,18 @@
             const dates = getCutOffDates();
 
             let headerHtml = `<tr><th class="py-3 px-4 text-slate-900 dark:text-white">Tanggal</th>`;
-            daftarKaryawan.forEach(nama => { headerHtml += `<th class="py-3 px-4 text-center font-extrabold text-indigo-600 dark:text-indigo-400">${nama}</th>`; });
+            for (let j = 0; j < daftarKaryawan.length; j++) {
+                headerHtml += `<th class="py-3 px-4 text-center font-extrabold text-indigo-600 dark:text-indigo-400">${daftarKaryawan[j]}</th>`;
+            }
             headerHtml += `</tr>`;
             if(headerEl) headerEl.innerHTML = headerHtml;
 
             let bodyHtml = "";
-            dates.forEach(item => {
-                bodyHtml += `<tr class="hover:bg-slate-100 dark:hover:bg-slate-900/40">`;
-                bodyHtml += `<td class="py-2.5 px-4 font-bold text-slate-900 dark:text-white whitespace-nowrap">${item.label}</td>`;
-                daftarKaryawan.forEach(nama => {
+            for (let i = 0; i < dates.length; i++) {
+                let item = dates[i];
+                bodyHtml += `<tr class="hover:bg-slate-100 dark:hover:bg-slate-900/40"><td class="py-2.5 px-4 font-bold text-slate-900 dark:text-white whitespace-nowrap">${item.label}</td>`;
+                for (let j = 0; j < daftarKaryawan.length; j++) {
+                    let nama = daftarKaryawan[j];
                     let key = `${nama}_${item.dateStr}`;
                     let status = databaseJadwal[key];
                     let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
@@ -643,9 +641,9 @@
                         if (status === "PS" || jamOut < 19) label += " (PS)";
                     }
                     bodyHtml += `<td class="py-2.5 px-4 text-center"><span class="inline-block px-2.5 py-1 rounded-lg text-[10px] font-black border ${badgeStyle}">${label}</span></td>`;
-                });
+                }
                 bodyHtml += `</tr>`;
-            });
+            }
             if(bodyEl) bodyEl.innerHTML = bodyHtml;
         }
 
@@ -654,9 +652,12 @@
             const dates = getCutOffDates();
             let html = "";
 
-            daftarKaryawan.forEach(nama => {
+            for (let j = 0; j < daftarKaryawan.length; j++) {
+                let nama = daftarKaryawan[j];
                 let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
-                dates.forEach(item => {
+                
+                for (let i = 0; i < dates.length; i++) {
+                    let item = dates[i];
                     let key = `${nama}_${item.dateStr}`;
                     let statusJadwal = databaseJadwal[key];
                     let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
@@ -670,7 +671,7 @@
                         let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
                         if (statusJadwal === "PS" || jamOut < 19) countPs++;
                     }
-                });
+                }
 
                 html += `
                     <tr class="hover:bg-slate-100 dark:hover:bg-slate-900/50">
@@ -681,7 +682,7 @@
                         <td class="py-3 px-4 text-center font-extrabold text-amber-700 dark:text-amber-400">${countTerlambat} Hari</td>
                     </tr>
                 `;
-            });
+            }
             if(tbody) tbody.innerHTML = html;
         }
 
@@ -690,13 +691,16 @@
             const filterNama = document.getElementById('filterNamaAdmin')?.value || "SEMUA";
             if(!tbody) return;
 
-            tbody.innerHTML = "";
             if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) {
                 tbody.innerHTML = "<tr><td colspan='5' class='text-center py-6 text-slate-500'>Belum ada data laporan di Cloud.</td></tr>";
                 return;
             }
 
-            for (let i = 1; i < dataLaporanGlobal.length; i++) {
+            let html = "";
+            let limit = 200; // Batasi max 200 baris render agar sangat cepat
+            let count = 0;
+
+            for (let i = 1; i < dataLaporanGlobal.length && count < limit; i++) {
                 let row = dataLaporanGlobal[i];
                 if (!row || row.length < 3) continue;
                 let waktu = row[0] || "-";
@@ -711,7 +715,7 @@
                     let koordinat = (lat && lng && lat !== "-") ? `${lat}, ${lng}` : '-';
                     let fotoLink = (fotoUrl && fotoUrl !== '-') ? `<a href="${fotoUrl}" target="_blank" class="px-2.5 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 rounded-lg font-bold border border-indigo-500/20">Lihat Foto</a>` : '<span class="text-slate-400">Tanpa Foto</span>';
 
-                    tbody.innerHTML += `
+                    html += `
                         <tr class="hover:bg-slate-100 dark:hover:bg-slate-900/40">
                             <td class="py-3 px-4 whitespace-nowrap font-medium text-slate-900 dark:text-slate-100">${waktu}</td>
                             <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">${nama}</td>
@@ -720,8 +724,10 @@
                             <td class="py-3 px-4 text-center">${fotoLink}</td>
                         </tr>
                     `;
+                    count++;
                 }
             }
+            tbody.innerHTML = html;
         }
 
         window.cetakPdfSemuaJadwal = function() { window.print(); }
@@ -732,9 +738,11 @@
             let headerRow = ["Tanggal", ...daftarKaryawan];
             csvContent += headerRow.map(val => `"${String(val || "").replace(/"/g, '""')}"`).join(";") + "\r\n";
 
-            dates.forEach(item => {
+            for (let i = 0; i < dates.length; i++) {
+                let item = dates[i];
                 let rowData = [item.label];
-                daftarKaryawan.forEach(nama => {
+                for (let j = 0; j < daftarKaryawan.length; j++) {
+                    let nama = daftarKaryawan[j];
                     let key = `${nama}_${item.dateStr}`;
                     let status = databaseJadwal[key];
                     let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
@@ -747,9 +755,9 @@
                         if (status === "PS" || jamOut < 19) label += " (PS)";
                     } else if (status === "PS") label = "PS";
                     rowData.push(label);
-                });
+                }
                 csvContent += rowData.map(val => `"${String(val || "").replace(/"/g, '""')}"`).join(";") + "\r\n";
-            });
+            }
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
@@ -774,8 +782,6 @@
             if (success) {
                 showModal("Sukses", `Jadwal ${karyawan} pada tanggal ${tanggal} berhasil disimpan ke Cloud.`);
                 renderJadwalKaryawan();
-                renderTabelRekap();
-                renderTabelSemuaJadwal();
             }
         }
 
@@ -802,15 +808,12 @@
                 updateDropdownKaryawan();
                 renderListKaryawanAdmin();
                 renderJadwalKaryawan();
-                renderTabelRekap();
-                renderTabelSemuaJadwal();
                 showModal("Sukses", `Karyawan "${nama}" berhasil dihapus.`);
             }
         }
 
-        // FUNGSI RESET DATABASE CLOUD DARI DATA KORUP
         window.resetDatabaseCloud = async function() {
-            if (!confirm("Yakin ingin mereset dan membersihkan data database Cloud dari nama-nama korup/sampah?")) return;
+            if (!confirm("Yakin ingin mereset dan membersihkan data database Cloud?")) return;
             daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
             databaseJadwal = {};
             dataLaporanGlobal = [];
@@ -821,10 +824,7 @@
                 updateDropdownKaryawan();
                 renderListKaryawanAdmin();
                 renderJadwalKaryawan();
-                renderTabelRekap();
-                renderTabelSemuaJadwal();
-                renderTabelAdminLog();
-                showModal("Berhasil Reset", "Database Cloud berhasil dibersihkan dari data korup! Silakan upload ulang file Excel rekap absen Anda.");
+                showModal("Berhasil Reset", "Database Cloud berhasil dibersihkan!");
             }
         }
 
@@ -832,14 +832,15 @@
             const container = document.getElementById('listKaryawanAdmin');
             if(!container) return;
             let html = "";
-            daftarKaryawan.forEach(nama => {
+            for (let j = 0; j < daftarKaryawan.length; j++) {
+                let nama = daftarKaryawan[j];
                 html += `
                     <div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-900 dark:text-white shadow-sm flex items-center gap-2">
                         <span>👤 ${nama}</span>
                         <button onclick="hapusKaryawan('${nama}')" class="text-rose-500 hover:text-rose-700 font-black px-1.5 py-0.5 rounded-md bg-rose-500/10 hover:bg-rose-500/20 transition-all" title="Hapus Karyawan">✕</button>
                     </div>
                 `;
-            });
+            }
             container.innerHTML = html;
         }
 
