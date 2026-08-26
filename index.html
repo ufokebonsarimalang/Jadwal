@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexAbsent - Super Dashboard Admin & Jadwal (Pro)</title>
+    <title>NexAbsent - Auto-Sync Google Sheet Dashboard</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class' }
     </script>
-    <!-- SheetJS (XLSX) untuk membaca file Excel & CSV -->
+    <!-- SheetJS (XLSX) untuk cadangan upload file -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- Google Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -39,8 +39,8 @@
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
             </div>
             <div class="hidden sm:block">
-                <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight flex items-center gap-1.5">NexAbsent<span class="text-[10px] bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">ADMIN</span></h1>
-                <p id="labelCutOffInfoSidebar" class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">Cut-Off: Memuat...</p>
+                <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight flex items-center gap-1.5">NexAbsent<span class="text-[10px] bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">AUTO-SYNC</span></h1>
+                <p id="labelCutOffSidebar" class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">Cut-Off: Memuat...</p>
             </div>
         </div>
 
@@ -53,7 +53,7 @@
             <button onclick="switchTab('admin')" id="btnAdmin" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
-                <span class="hidden sm:inline">Panel Admin & Upload</span>
+                <span class="hidden sm:inline">Panel Admin & Konfigurasi</span>
             </button>
         </nav>
 
@@ -118,27 +118,37 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
                     <h3 id="labelKalenderTitle" class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift Cut-Off</h3>
-                    <button onclick="loadDataFromCloud()" class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 rounded-xl font-bold hover:bg-indigo-500/20">🔄 Muat Ulang Cloud</button>
+                    <button onclick="loadDataFromCloud()" class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 rounded-xl font-bold hover:bg-indigo-500/20">🔄 Sinkronkan Otomatis</button>
                 </div>
                 <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
             </div>
         </section>
 
-        <!-- HALAMAN 2: PANEL ADMIN & UPLOAD -->
+        <!-- HALAMAN 2: PANEL ADMIN & KONFIGURASI -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-6xl mx-auto">
 
-            <!-- KOTAK UPLOAD FILE EXCEL / CSV -->
+            <!-- KOTAK KONFIGURASI GOOGLE APPS SCRIPT / SHEET URL -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/40 p-6 rounded-3xl shadow-xl space-y-4">
                 <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl text-xl">☁️</div>
+                    <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl text-xl">🔗</div>
                     <div>
-                        <h2 class="text-lg font-black text-slate-900 dark:text-white">Upload Data Absensi ke Cloud (Firebase)</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Unggah file Excel (.xlsx, .xls) atau CSV, sistem akan membaca dan menghitung otomatis.</p>
+                        <h2 class="text-lg font-black text-slate-900 dark:text-white">Koneksi Otomatis Google Sheet (Tanpa Upload Manual)</h2>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Masukkan Web App URL dari Google Apps Script (GAS) Anda agar data sinkron otomatis saat dibuka.</p>
                     </div>
                 </div>
+                <div class="flex flex-col sm:flex-row items-center gap-3">
+                    <input type="text" id="inputGasUrl" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white"/>
+                    <button onclick="simpanGasUrl()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow">Simpan URL</button>
+                    <button onclick="tarikDataDariGas()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow">Tarik Data Sekarang</button>
+                </div>
+            </div>
+
+            <!-- CADANGAN UPLOAD MANUAL -->
+            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
+                <h2 class="text-sm font-black text-slate-900 dark:text-white">📂 Cadangan: Upload File Manual (.xlsx / .csv)</h2>
                 <div class="flex flex-col sm:flex-row items-center gap-4">
-                    <input type="file" id="csvFileInput" accept=".csv, .xlsx, .xls" class="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2"/>
-                    <button onclick="prosesUploadFile()" id="btnUpload" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-xs shadow-lg whitespace-nowrap">Proses & Hitung Otomatis</button>
+                    <input type="file" id="csvFileInput" accept=".csv, .xlsx, .xls" class="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-700 file:text-white hover:file:bg-slate-600 cursor-pointer bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2"/>
+                    <button onclick="prosesUploadFile()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow">Proses File</button>
                 </div>
             </div>
 
@@ -225,7 +235,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA (DYNAMIC CUT-OFF & UI REVISED) -->
+    <!-- SCRIPT UTAMA (SAFE ELEMENT BINDING) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -244,20 +254,26 @@
         const db = getFirestore(app);
 
         let daftarKaryawan = [];
-        let databaseJadwal = {};
         let databaseAbsenSheet = {};
         let dataLaporanGlobal = [];
         let cachedDates = null;
+        let gasWebhookUrl = localStorage.getItem('gas_webhook_url') || "";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            let inputUrl = document.getElementById('inputGasUrl');
+            if(inputUrl) inputUrl.value = gasWebhookUrl;
+            loadDataFromCloud();
+        });
 
         function toggleTheme() {
             const root = document.getElementById('htmlRoot');
             const icon = document.getElementById('themeIcon');
             if (root.classList.contains('dark')) {
                 root.classList.remove('dark'); root.classList.add('light');
-                localStorage.setItem('theme', 'light'); icon.innerText = "🌙 Gelap";
+                localStorage.setItem('theme', 'light'); if(icon) icon.innerText = "🌙 Gelap";
             } else {
                 root.classList.remove('light'); root.classList.add('dark');
-                localStorage.setItem('theme', 'dark'); icon.innerText = "☀️ Terang";
+                localStorage.setItem('theme', 'dark'); if(icon) icon.innerText = "☀️ Terang";
             }
         }
         window.toggleTheme = toggleTheme;
@@ -269,13 +285,18 @@
 
         function showModal(title, message) {
             const modal = document.getElementById('customModal');
-            document.getElementById('modalTitle').innerText = title;
-            document.getElementById('modalMessage').innerText = message;
-            modal.classList.remove('hidden');
+            let mTitle = document.getElementById('modalTitle');
+            let mMsg = document.getElementById('modalMessage');
+            if(mTitle) mTitle.innerText = title;
+            if(mMsg) mMsg.innerText = message;
+            if(modal) modal.classList.remove('hidden');
         }
         window.showModal = showModal;
 
-        function closeModal() { document.getElementById('customModal').classList.add('hidden'); }
+        function closeModal() { 
+            let modal = document.getElementById('customModal');
+            if(modal) modal.classList.add('hidden'); 
+        }
         window.closeModal = closeModal;
 
         window.switchTab = function(tabName) {
@@ -285,12 +306,14 @@
             tabs.forEach((t, i) => {
                 const el = document.getElementById(t);
                 const btn = document.getElementById(btns[i]);
-                if (t === 'tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)) {
-                    el.classList.remove('hidden');
-                    btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30";
-                } else {
-                    el.classList.add('hidden');
-                    btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60";
+                if (el) {
+                    if (t === 'tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)) {
+                        el.classList.remove('hidden');
+                        if(btn) btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30";
+                    } else {
+                        el.classList.add('hidden');
+                        if(btn) btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60";
+                    }
                 }
             });
 
@@ -301,12 +324,20 @@
             }
         }
 
-        // CUT-OFF DINAMIS OTOMATIS (26 TGL INI - 25 TGL DEPAN)
+        window.simpanGasUrl = function() {
+            let inputUrl = document.getElementById('inputGasUrl');
+            if(inputUrl) {
+                gasWebhookUrl = inputUrl.value.trim();
+                localStorage.setItem('gas_webhook_url', gasWebhookUrl);
+                showModal("Sukses", "Google Apps Script URL berhasil disimpan!");
+            }
+        }
+
         function getDynamicCutOffDates() {
             if (cachedDates) return cachedDates;
             let now = new Date();
             let year = now.getFullYear();
-            let month = now.getMonth(); // 0-indexed (0 = Jan, 7 = Agu, dst)
+            let month = now.getMonth();
 
             let startDate, endDate;
             if (now.getDate() >= 26) {
@@ -333,15 +364,19 @@
                 curr.setDate(curr.getDate() + 1);
             }
 
-            // Update Label Teks Cut-Off di UI
             let startFormatted = startDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
             let endFormatted = endDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
             let infoText = `Cut-Off: ${startFormatted} - ${endFormatted}`;
             
-            document.getElementById('labelCutOffSidebar').innerText = infoText;
-            document.getElementById('labelCutOffHeader').innerText = `Periode Cut-Off: ${infoText}`;
-            document.getElementById('labelKalenderTitle').innerText = `Kalender Shift (${infoText})`;
-            document.getElementById('labelRekapTitle').innerText = `Rekapitulasi Statistik Otomatis (${infoText})`;
+            let el1 = document.getElementById('labelCutOffSidebar');
+            let el2 = document.getElementById('labelCutOffHeader');
+            let el3 = document.getElementById('labelKalenderTitle');
+            let el4 = document.getElementById('labelRekapTitle');
+
+            if(el1) el1.innerText = infoText;
+            if(el2) el2.innerText = `Periode Cut-Off: ${infoText}`;
+            if(el3) el3.innerText = `Kalender Shift (${infoText})`;
+            if(el4) el4.innerText = `Rekapitulasi Statistik Otomatis (${infoText})`;
 
             cachedDates = dates;
             return dates;
@@ -352,8 +387,30 @@
             const cloudPing = document.getElementById('cloudPing');
             const cloudDot = document.getElementById('cloudDot');
 
+            if (gasWebhookUrl) {
+                try {
+                    if(cloudStatusText) cloudStatusText.innerText = "Mengambil data dari Google Sheet...";
+                    let response = await fetch(gasWebhookUrl);
+                    let result = await response.json();
+                    if (result && Array.isArray(result.data)) {
+                        dataLaporanGlobal = result.data;
+                        parseLaporanToAbsenSheet(dataLaporanGlobal);
+                        await saveDataToCloudFirebase();
+
+                        if(cloudStatusText) cloudStatusText.innerText = "Auto-Sync Google Sheet ✓";
+                        if(cloudPing) cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
+                        if(cloudDot) cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500";
+                        updateDropdownKaryawan();
+                        renderJadwalKaryawan();
+                        return;
+                    }
+                } catch (gasErr) {
+                    console.warn("GAS fetch warning, fallback to Firebase cache:", gasErr);
+                }
+            }
+
             try {
-                cloudStatusText.innerText = "Menyinkronkan Cloud...";
+                if(cloudStatusText) cloudStatusText.innerText = "Menyinkronkan Cloud...";
                 const docRef = doc(db, "nexabsent_data", "main_database");
                 const docSnap = await getDoc(docRef);
 
@@ -370,22 +427,31 @@
                     }
                 }
 
-                cloudStatusText.innerText = "Cloud Terhubung ✓";
-                cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
-                cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500";
+                if(cloudStatusText) cloudStatusText.innerText = "Cloud Terhubung ✓";
+                if(cloudPing) cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
+                if(cloudDot) cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500";
 
                 updateDropdownKaryawan();
                 renderJadwalKaryawan();
 
             } catch (err) {
                 console.error(err);
-                cloudStatusText.innerText = "Gagal Koneksi Cloud";
-                cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75";
-                cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500";
+                if(cloudStatusText) cloudStatusText.innerText = "Gagal Koneksi Cloud";
+                if(cloudPing) cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75";
+                if(cloudDot) cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500";
             }
         }
 
-        async function saveDataToCloud() {
+        window.tarikDataDariGas = async function() {
+            if(!gasWebhookUrl) {
+                showModal("Peringatan", "Masukkan dan simpan Google Apps Script URL terlebih dahulu!");
+                return;
+            }
+            await window.loadDataFromCloud();
+            showModal("Sukses", "Data berhasil ditarik otomatis dari Google Sheet!");
+        }
+
+        async function saveDataToCloudFirebase() {
             try {
                 const docRef = doc(db, "nexabsent_data", "main_database");
                 let laporanFlattened = dataLaporanGlobal.map(row => row.join("|||"));
@@ -398,7 +464,6 @@
                 return true;
             } catch (err) {
                 console.error(err);
-                showModal("Error Cloud", "Gagal menyimpan data ke Firebase: " + err.message);
                 return false;
             }
         }
@@ -493,14 +558,10 @@
 
         window.prosesUploadFile = async function() {
             const fileInput = document.getElementById('csvFileInput');
-            const btnUpload = document.getElementById('btnUpload');
-            if (fileInput.files.length === 0) {
-                showModal("Peringatan", "Pilih file Excel (.xlsx) atau CSV terlebih dahulu!");
+            if (!fileInput || fileInput.files.length === 0) {
+                showModal("Peringatan", "Pilih file Excel atau CSV terlebih dahulu!");
                 return;
             }
-
-            btnUpload.disabled = true;
-            btnUpload.innerText = "⏳ Membaca & Menghitung...";
 
             const file = fileInput.files[0];
             const reader = new FileReader();
@@ -516,22 +577,14 @@
                     if (parsedRows.length > 0) {
                         dataLaporanGlobal = parsedRows;
                         parseLaporanToAbsenSheet(dataLaporanGlobal);
+                        await saveDataToCloudFirebase();
 
-                        let success = await saveDataToCloud();
-                        btnUpload.disabled = false;
-                        btnUpload.innerText = "Proses & Hitung Otomatis";
-
-                        if (success) {
-                            updateDropdownKaryawan();
-                            renderJadwalKaryawan();
-                            showModal("Sukses!", "File berhasil dibaca, dihitung otomatis, dan disinkronkan ke Cloud Firebase!");
-                        }
+                        updateDropdownKaryawan();
+                        renderJadwalKaryawan();
+                        showModal("Sukses!", "File cadangan berhasil diproses!");
                     }
                 } catch (err) {
-                    console.error(err);
-                    btnUpload.disabled = false;
-                    btnUpload.innerText = "Proses & Hitung Otomatis";
-                    showModal("Gagal Membaca File", "Terjadi kesalahan saat memproses file: " + err.message);
+                    showModal("Gagal Membaca File", err.message);
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -552,7 +605,8 @@
         }
 
         window.renderJadwalKaryawan = function() {
-            const karyawan = (document.getElementById('selectKaryawan')?.value || daftarKaryawan[0] || "").toUpperCase();
+            let selectEl = document.getElementById('selectKaryawan');
+            const karyawan = (selectEl?.value || daftarKaryawan[0] || "").toUpperCase();
             const container = document.getElementById('gridJadwal');
             const dates = getDynamicCutOffDates();
 
@@ -596,11 +650,17 @@
             }
 
             if (container) container.innerHTML = html;
-            document.getElementById('statMasuk').innerText = `${countMasuk} Hari`;
-            document.getElementById('statOff').innerText = `${countOffTotal} Hari`;
-            document.getElementById('statOffSub').innerText = `(Sab/Min: ${countOffWeekend})`;
-            document.getElementById('statPs').innerText = `${countPs} Hari`;
-            document.getElementById('statTerlambat').innerText = `${countTerlambat} Hari`;
+            let elMasuk = document.getElementById('statMasuk');
+            let elOff = document.getElementById('statOff');
+            let elOffSub = document.getElementById('statOffSub');
+            let elPs = document.getElementById('statPs');
+            let elTerlambat = document.getElementById('statTerlambat');
+
+            if(elMasuk) elMasuk.innerText = `${countMasuk} Hari`;
+            if(elOff) elOff.innerText = `${countOffTotal} Hari`;
+            if(elOffSub) elOffSub.innerText = `(Sab/Min: ${countOffWeekend})`;
+            if(elPs) elPs.innerText = `${countPs} Hari`;
+            if(elTerlambat) elTerlambat.innerText = `${countTerlambat} Hari`;
         }
 
         function renderTabelRekap() {
@@ -643,11 +703,12 @@
 
         window.renderTabelAdminLog = function() {
             const tbody = document.getElementById('isiTabelAdminLog');
-            const filterNama = document.getElementById('filterNamaAdmin')?.value || "SEMUA";
+            let filterEl = document.getElementById('filterNamaAdmin');
+            const filterNama = filterEl?.value || "SEMUA";
             if(!tbody) return;
 
             if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) {
-                tbody.innerHTML = "<tr><td colspan='5' class='text-center py-6 text-slate-500'>Belum ada data laporan di Cloud.</td></tr>";
+                tbody.innerHTML = "<tr><td colspan='5' class='text-center py-6 text-slate-500'>Belum ada data laporan.</td></tr>";
                 return;
             }
 
@@ -686,45 +747,40 @@
         }
 
         window.tambahKaryawanBaru = async function() {
-            const input = document.getElementById('inputNamaBaru');
+            let input = document.getElementById('inputNamaBaru');
+            if(!input) return;
             const namaBaru = input.value.trim().toUpperCase();
             if (!namaBaru) { showModal("Peringatan", "Masukkan nama karyawan!"); return; }
             if (!daftarKaryawan.includes(namaBaru)) daftarKaryawan.push(namaBaru);
             input.value = ""; 
 
-            let success = await saveDataToCloud();
-            if (success) {
-                updateDropdownKaryawan(); renderListKaryawanAdmin();
-                showModal("Sukses", `Karyawan "${namaBaru}" ditambahkan ke Cloud!`);
-            }
+            await saveDataToCloudFirebase();
+            updateDropdownKaryawan(); 
+            renderListKaryawanAdmin();
+            showModal("Sukses", `Karyawan "${namaBaru}" ditambahkan!`);
         }
 
         window.hapusKaryawan = async function(nama) {
-            if (!confirm(`Yakin ingin menghapus karyawan "${nama}" dari daftar?`)) return;
+            if (!confirm(`Yakin ingin menghapus karyawan "${nama}"?`)) return;
             daftarKaryawan = daftarKaryawan.filter(n => n !== nama);
 
-            let success = await saveDataToCloud();
-            if (success) {
-                updateDropdownKaryawan();
-                renderListKaryawanAdmin();
-                renderJadwalKaryawan();
-                showModal("Sukses", `Karyawan "${nama}" berhasil dihapus.`);
-            }
+            await saveDataToCloudFirebase();
+            updateDropdownKaryawan();
+            renderListKaryawanAdmin();
+            renderJadwalKaryawan();
         }
 
         window.resetDatabaseCloud = async function() {
-            if (!confirm("Yakin ingin mereset dan membersihkan data database Cloud?")) return;
+            if (!confirm("Yakin ingin mereset data?")) return;
             daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
             dataLaporanGlobal = [];
             databaseAbsenSheet = {};
 
-            let success = await saveDataToCloud();
-            if (success) {
-                updateDropdownKaryawan();
-                renderListKaryawanAdmin();
-                renderJadwalKaryawan();
-                showModal("Berhasil Reset", "Database Cloud berhasil dibersihkan!");
-            }
+            await saveDataToCloudFirebase();
+            updateDropdownKaryawan();
+            renderListKaryawanAdmin();
+            renderJadwalKaryawan();
+            showModal("Berhasil Reset", "Database dibersihkan!");
         }
 
         function renderListKaryawanAdmin() {
@@ -736,7 +792,7 @@
                 html += `
                     <div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-900 dark:text-white shadow-sm flex items-center gap-2">
                         <span>👤 ${nama}</span>
-                        <button onclick="hapusKaryawan('${nama}')" class="text-rose-500 hover:text-rose-700 font-black px-1.5 py-0.5 rounded-md bg-rose-500/10 hover:bg-rose-500/20 transition-all" title="Hapus Karyawan">✕</button>
+                        <button onclick="hapusKaryawan('${nama}')" class="text-rose-500 hover:text-rose-700 font-black px-1.5 py-0.5 rounded-md bg-rose-500/10 hover:bg-rose-500/20 transition-all">✕</button>
                     </div>
                 `;
             }
@@ -771,8 +827,6 @@
             link.setAttribute("download", `Rekap_Absen_UFO_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
-
-        window.loadDataFromCloud();
     </script>
 </body>
 </html>
