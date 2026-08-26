@@ -470,7 +470,7 @@
             daftarKaryawan = Array.from(detectedNames);
         }
 
-        window.prosesUploadFile = async function() {
+       window.prosesUploadFile = async function() {
             const fileInput = document.getElementById('csvFileInput');
             const btnUpload = document.getElementById('btnUpload');
             if (fileInput.files.length === 0) {
@@ -491,7 +491,9 @@
 
                 lines.forEach(line => {
                     if (!line.trim()) return;
-                    let cols = line.split(/,|;/).map(val => val.replace(/^"|"$/g, '').trim());
+                    // Deteksi pemisah otomatis (titik koma ';' atau koma ',')
+                    let delimiter = line.includes(";") ? ";" : ",";
+                    let cols = line.split(delimiter).map(val => val.replace(/^"|"$/g, '').trim());
                     parsedRows.push(cols);
                 });
 
