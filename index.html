@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexAbsent - Super Dashboard Admin & Jadwal (Optimized)</title>
+    <title>NexAbsent - Super Dashboard Admin & Jadwal (Pro)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -40,7 +40,7 @@
             </div>
             <div class="hidden sm:block">
                 <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight flex items-center gap-1.5">NexAbsent<span class="text-[10px] bg-gradient-to-r from-indigo-500 to-violet-500 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">ADMIN</span></h1>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">Cut-Off: 26 Jul - 25 Agt</p>
+                <p id="labelCutOffInfoSidebar" class="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-wide">Cut-Off: Memuat...</p>
             </div>
         </div>
 
@@ -48,12 +48,7 @@
             <button onclick="switchTab('jadwal')" id="btnJadwal" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-200 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span class="hidden sm:inline">Jadwal Karyawan</span>
-            </button>
-            <button onclick="switchTab('semuaJadwal')" id="btnSemuaJadwal" 
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                <span class="hidden sm:inline">Semua Karyawan</span>
+                <span class="hidden sm:inline">Jadwal & Absensi Karyawan</span>
             </button>
             <button onclick="switchTab('admin')" id="btnAdmin" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
@@ -88,7 +83,7 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
                 <div>
                     <h2 class="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Jadwal & Riwayat Absensi</h2>
-                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Uji Coba Periode: 26 Juli - 25 Agustus 2026</p>
+                    <p id="labelCutOffHeader" class="text-xs text-slate-600 dark:text-slate-300 mt-1">Periode Cut-Off Otomatis</p>
                 </div>
                 <div>
                     <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
@@ -104,7 +99,10 @@
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-red-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
                     <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total OFF (Libur)</span>
-                    <span id="statOff" class="text-xl font-black text-red-700 dark:text-red-400 mt-1">0 Hari</span>
+                    <div class="flex items-baseline gap-2 mt-1">
+                        <span id="statOff" class="text-xl font-black text-red-700 dark:text-red-400">0 Hari</span>
+                        <span id="statOffSub" class="text-[11px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap">(Sab/Min: 0)</span>
+                    </div>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-orange-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
                     <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total PS</span>
@@ -119,40 +117,14 @@
             <!-- Kalender Jadwal -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <h3 class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift (26 Jul - 25 Agt)</h3>
+                    <h3 id="labelKalenderTitle" class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift Cut-Off</h3>
                     <button onclick="loadDataFromCloud()" class="text-xs px-3 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/20 rounded-xl font-bold hover:bg-indigo-500/20">🔄 Muat Ulang Cloud</button>
                 </div>
                 <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
             </div>
         </section>
 
-      <!-- HALAMAN 2: JADWAL SEMUA KARYAWAN -->
-        <section id="tabSemuaJadwal" class="hidden space-y-6 max-w-7xl mx-auto">
-            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <div>
-                        <h2 class="text-xl font-black text-slate-900 dark:text-white tracking-tight">Matriks Jadwal Semua Karyawan</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 mt-0.5">Uji Coba Periode: 26 Juli - 25 Agustus 2026</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="downloadExcelSemuaJadwal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow flex items-center gap-1.5">
-                            📥 Unduh Ringkasan
-                        </button>
-                        <button onclick="cetakPdfSemuaJadwal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow flex items-center gap-1.5">
-                            🖨️ Cetak / PDF
-                        </button>
-                    </div>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-800 dark:text-slate-200 border-collapse">
-                        <thead id="tabelSemuaHeader" class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-200 uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-800"></thead>
-                        <tbody id="tabelSemuaBody" class="divide-y divide-slate-200 dark:divide-slate-800/60"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- HALAMAN 3: PANEL ADMIN & UPLOAD -->
+        <!-- HALAMAN 2: PANEL ADMIN & UPLOAD -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-6xl mx-auto">
 
             <!-- KOTAK UPLOAD FILE EXCEL / CSV -->
@@ -173,7 +145,7 @@
             <!-- Rekapitulasi Statistik -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <h2 class="text-lg font-black text-slate-900 dark:text-white">Rekapitulasi Statistik Otomatis (26 Jul - 25 Agt)</h2>
+                    <h2 id="labelRekapTitle" class="text-lg font-black text-slate-900 dark:text-white">Rekapitulasi Statistik Otomatis Cut-Off</h2>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-800 dark:text-slate-200">
@@ -189,30 +161,6 @@
                         <tbody id="tabelRekapBody" class="divide-y divide-slate-200 dark:divide-slate-800/60"></tbody>
                     </table>
                 </div>
-            </div>
-
-            <!-- Atur Jadwal Manual / OFF Karyawan -->
-            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl">
-                <h2 class="text-xl font-black text-slate-900 dark:text-white mb-4">⚙️ Atur Jadwal / OFF Karyawan (Cloud Sync)</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Karyawan:</label>
-                        <select id="adminKaryawan" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white"></select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Tanggal:</label>
-                        <input type="date" id="adminTanggal" min="2026-07-26" max="2026-08-25" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-medium text-slate-900 dark:text-white">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1 uppercase">Status:</label>
-                        <select id="adminStatus" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white">
-                            <option value="FULL">Normal</option>
-                            <option value="OFF">OFF (Libur)</option>
-                            <option value="PS">PS (Pulang Sore)</option>
-                        </select>
-                    </div>
-                </div>
-                <button onclick="simpanJadwalAdmin()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-sm shadow-lg">Simpan Perubahan ke Cloud</button>
             </div>
 
             <!-- Tabel Log Absensi Harian Lengkap -->
@@ -277,7 +225,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA (CHECK IN & CHECK OUT DISPLAYED) -->
+    <!-- SCRIPT UTAMA (DYNAMIC CUT-OFF & UI REVISED) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -331,8 +279,8 @@
         window.closeModal = closeModal;
 
         window.switchTab = function(tabName) {
-            const tabs = ['tabJadwal', 'tabSemuaJadwal', 'tabAdmin'];
-            const btns = ['btnJadwal', 'btnSemuaJadwal', 'btnAdmin'];
+            const tabs = ['tabJadwal', 'tabAdmin'];
+            const btns = ['btnJadwal', 'btnAdmin'];
 
             tabs.forEach((t, i) => {
                 const el = document.getElementById(t);
@@ -346,12 +294,57 @@
                 }
             });
 
-            if (tabName === 'semuaJadwal') renderTabelSemuaJadwal();
             if (tabName === 'admin') {
                 renderListKaryawanAdmin();
                 renderTabelRekap();
                 renderTabelAdminLog();
             }
+        }
+
+        // CUT-OFF DINAMIS OTOMATIS (26 TGL INI - 25 TGL DEPAN)
+        function getDynamicCutOffDates() {
+            if (cachedDates) return cachedDates;
+            let now = new Date();
+            let year = now.getFullYear();
+            let month = now.getMonth(); // 0-indexed (0 = Jan, 7 = Agu, dst)
+
+            let startDate, endDate;
+            if (now.getDate() >= 26) {
+                startDate = new Date(year, month, 26);
+                endDate = new Date(year, month + 1, 25);
+            } else {
+                startDate = new Date(year, month - 1, 26);
+                endDate = new Date(year, month, 25);
+            }
+
+            let dates = [];
+            let curr = new Date(startDate);
+            while (curr <= endDate) {
+                let y = curr.getFullYear();
+                let m = String(curr.getMonth() + 1).padStart(2, '0');
+                let d = String(curr.getDate()).padStart(2, '0');
+                let dateString = `${y}-${m}-${d}`;
+                
+                dates.push({
+                    dateStr: dateString,
+                    label: `${curr.toLocaleDateString('id-ID', { weekday: 'short' })}, ${d} ${curr.toLocaleDateString('id-ID', { month: 'short' })}`,
+                    isWeekend: (curr.getDay() === 0 || curr.getDay() === 6)
+                });
+                curr.setDate(curr.getDate() + 1);
+            }
+
+            // Update Label Teks Cut-Off di UI
+            let startFormatted = startDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            let endFormatted = endDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+            let infoText = `Cut-Off: ${startFormatted} - ${endFormatted}`;
+            
+            document.getElementById('labelCutOffSidebar').innerText = infoText;
+            document.getElementById('labelCutOffHeader').innerText = `Periode Cut-Off: ${infoText}`;
+            document.getElementById('labelKalenderTitle').innerText = `Kalender Shift (${infoText})`;
+            document.getElementById('labelRekapTitle').innerText = `Rekapitulasi Statistik Otomatis (${infoText})`;
+
+            cachedDates = dates;
+            return dates;
         }
 
         window.loadDataFromCloud = async function() {
@@ -371,7 +364,6 @@
                             .map(n => String(n).trim().toUpperCase())
                             .filter(n => n.length > 0 && n.length < 30 && !n.includes('<'));
                     }
-                    if (cloudData.jadwal) databaseJadwal = cloudData.jadwal;
                     if (cloudData.laporan && Array.isArray(cloudData.laporan)) {
                         dataLaporanGlobal = cloudData.laporan.map(rowStr => rowStr.split("|||"));
                         parseLaporanToAbsenSheet(dataLaporanGlobal);
@@ -400,7 +392,6 @@
 
                 await setDoc(docRef, {
                     karyawan: daftarKaryawan,
-                    jadwal: databaseJadwal,
                     laporan: laporanFlattened,
                     updatedAt: new Date().toISOString()
                 });
@@ -548,45 +539,22 @@
 
         function updateDropdownKaryawan() {
             let selectKaryawanEl = document.getElementById('selectKaryawan');
-            let adminKaryawanEl = document.getElementById('adminKaryawan');
             let filterAdminEl = document.getElementById('filterNamaAdmin');
 
             let optionsHtml = "";
             daftarKaryawan.forEach(nama => { optionsHtml += `<option value="${nama}">${nama}</option>`; });
             
             if(selectKaryawanEl) selectKaryawanEl.innerHTML = optionsHtml;
-            if(adminKaryawanEl) adminKaryawanEl.innerHTML = optionsHtml;
             if(filterAdminEl) {
                 filterAdminEl.innerHTML = '<option value="SEMUA">-- Semua Karyawan --</option>';
                 daftarKaryawan.forEach(nama => { filterAdminEl.innerHTML += `<option value="${nama}">${nama}</option>`; });
             }
         }
 
-        function getCutOffDates() {
-            if (cachedDates) return cachedDates;
-            let dates = [];
-            let currDate = new Date("2026-07-26");
-            let endDate = new Date("2026-08-25");
-            while (currDate <= endDate) {
-                let year = currDate.getFullYear();
-                let month = String(currDate.getMonth() + 1).padStart(2, '0');
-                let day = String(currDate.getDate()).padStart(2, '0');
-                let dateString = `${year}-${month}-${day}`;
-                dates.push({
-                    dateStr: dateString,
-                    label: `${currDate.toLocaleDateString('id-ID', { weekday: 'short' })}, ${day} ${currDate.toLocaleDateString('id-ID', { month: 'short' })}`,
-                    isWeekend: (currDate.getDay() === 0 || currDate.getDay() === 6)
-                });
-                currDate.setDate(currDate.getDate() + 1);
-            }
-            cachedDates = dates;
-            return dates;
-        }
-
         window.renderJadwalKaryawan = function() {
             const karyawan = (document.getElementById('selectKaryawan')?.value || daftarKaryawan[0] || "").toUpperCase();
             const container = document.getElementById('gridJadwal');
-            const dates = getCutOffDates();
+            const dates = getDynamicCutOffDates();
 
             let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
             let html = "";
@@ -594,15 +562,14 @@
             for (let i = 0; i < dates.length; i++) {
                 let item = dates[i];
                 let keyJadwal = `${karyawan}_${item.dateStr}`;
-                let statusJadwal = databaseJadwal[keyJadwal];
                 let dataAbsen = databaseAbsenSheet[keyJadwal] || { checkIn: "-", checkOut: "-" };
 
-                let badgeClass = "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20";
-                let statusLabel = "Full";
-                let jamTampil = `In: ${dataAbsen.checkIn} | Out: ${dataAbsen.checkOut}`;
+                let badgeClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
+                let statusLabel = "FULL";
+                let jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
 
-                if (statusJadwal === "OFF" || dataAbsen.checkIn === "OFF") {
-                    badgeClass = "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30";
+                if (dataAbsen.checkIn === "OFF") {
+                    badgeClass = "bg-red-500/20 text-red-800 dark:text-red-300 border-red-500/40";
                     statusLabel = "OFF"; jamTampil = "LIBUR"; countOffTotal++;
                     if (item.isWeekend) countOffWeekend++;
                 } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
@@ -611,8 +578,8 @@
                     if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) countTerlambat++;
                     
                     let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
-                    if (statusJadwal === "PS" || jamOut < 19) {
-                        badgeClass = "bg-orange-500/15 text-orange-700 dark:text-orange-400 border-orange-500/30";
+                    if (jamOut < 19) {
+                        badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
                         statusLabel = "PS"; countPs++;
                     }
                 }
@@ -621,62 +588,24 @@
                     <div class="bg-slate-50 dark:bg-slate-950/80 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col justify-between space-y-2">
                         <div class="flex justify-between items-center">
                             <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300">${item.label}</span>
-                            <span class="text-[10px] px-2 py-0.5 rounded-lg border font-black ${badgeClass}">${statusLabel}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-lg border font-black tracking-wider ${badgeClass}">${statusLabel}</span>
                         </div>
-                        <span class="text-[11px] font-extrabold text-slate-900 dark:text-white block">${jamTampil}</span>
+                        <div class="text-[11px] text-slate-900 dark:text-white pt-1">${jamTampil}</div>
                     </div>
                 `;
             }
 
             if (container) container.innerHTML = html;
             document.getElementById('statMasuk').innerText = `${countMasuk} Hari`;
-            document.getElementById('statOff').innerHTML = `${countOffTotal} Hari <span class="text-[10px] font-normal block text-rose-600 dark:text-rose-400">(Sab/Min: ${countOffWeekend})</span>`;
+            document.getElementById('statOff').innerText = `${countOffTotal} Hari`;
+            document.getElementById('statOffSub').innerText = `(Sab/Min: ${countOffWeekend})`;
             document.getElementById('statPs').innerText = `${countPs} Hari`;
             document.getElementById('statTerlambat').innerText = `${countTerlambat} Hari`;
         }
 
-        function renderTabelSemuaJadwal() {
-            const headerEl = document.getElementById('tabelSemuaHeader');
-            const bodyEl = document.getElementById('tabelSemuaBody');
-            const dates = getCutOffDates();
-
-            let headerHtml = `<tr><th class="py-3 px-4 text-slate-900 dark:text-white">Tanggal</th>`;
-            for (let j = 0; j < daftarKaryawan.length; j++) {
-                headerHtml += `<th class="py-3 px-4 text-center font-extrabold text-indigo-600 dark:text-indigo-400">${daftarKaryawan[j]}</th>`;
-            }
-            headerHtml += `</tr>`;
-            if(headerEl) headerEl.innerHTML = headerHtml;
-
-            let bodyHtml = "";
-            for (let i = 0; i < dates.length; i++) {
-                let item = dates[i];
-                bodyHtml += `<tr class="hover:bg-slate-100 dark:hover:bg-slate-900/40"><td class="py-2.5 px-4 font-bold text-slate-900 dark:text-white whitespace-nowrap">${item.label}</td>`;
-                for (let j = 0; j < daftarKaryawan.length; j++) {
-                    let nama = daftarKaryawan[j];
-                    let key = `${nama}_${item.dateStr}`;
-                    let status = databaseJadwal[key];
-                    let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
-                    let label = "-", badgeStyle = "bg-slate-500/10 text-slate-700 dark:text-slate-300";
-
-                    if (status === "OFF" || absen.checkIn === "OFF") {
-                        badgeStyle = "bg-red-500/15 text-red-700 dark:text-red-400 border-red-500/30"; label = "OFF";
-                    } else if (absen.checkIn !== "-" && absen.checkOut !== "-") {
-                        badgeStyle = "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"; 
-                        // TAMPILKAN CHECK IN & CHECK OUT LENGKAP DI MATRIKS
-                        label = `${absen.checkIn} - ${absen.checkOut}`;
-                        let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
-                        if (status === "PS" || jamOut < 19) label += " (PS)";
-                    }
-                    bodyHtml += `<td class="py-2.5 px-4 text-center"><span class="inline-block px-2.5 py-1 rounded-lg text-[10px] font-black border ${badgeStyle}">${label}</span></td>`;
-                }
-                bodyHtml += `</tr>`;
-            }
-            if(bodyEl) bodyEl.innerHTML = bodyHtml;
-        }
-
         function renderTabelRekap() {
             const tbody = document.getElementById('tabelRekapBody');
-            const dates = getCutOffDates();
+            const dates = getDynamicCutOffDates();
             let html = "";
 
             for (let j = 0; j < daftarKaryawan.length; j++) {
@@ -686,17 +615,16 @@
                 for (let i = 0; i < dates.length; i++) {
                     let item = dates[i];
                     let key = `${nama}_${item.dateStr}`;
-                    let statusJadwal = databaseJadwal[key];
                     let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
 
-                    if (statusJadwal === "OFF" || absen.checkIn === "OFF") {
+                    if (absen.checkIn === "OFF") {
                         countOffTotal++; if (item.isWeekend) countOffWeekend++;
                     } else if (absen.checkIn !== "-" && absen.checkOut !== "-") {
                         countMasuk++;
                         let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
                         if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) countTerlambat++;
                         let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
-                        if (statusJadwal === "PS" || jamOut < 19) countPs++;
+                        if (jamOut < 19) countPs++;
                     }
                 }
 
@@ -704,7 +632,7 @@
                     <tr class="hover:bg-slate-100 dark:hover:bg-slate-900/50">
                         <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">👤 ${nama}</td>
                         <td class="py-3 px-4 text-center font-extrabold text-emerald-700 dark:text-emerald-400">${countMasuk} Hari</td>
-                        <td class="py-3 px-4 text-center font-extrabold text-red-700 dark:text-red-400">${countOffTotal} Hari <span class="block text-[10px] text-slate-600 dark:text-slate-400">(Sab/Min: ${countOffWeekend})</span></td>
+                        <td class="py-3 px-4 text-center font-extrabold text-red-700 dark:text-red-400">${countOffTotal} Hari <span class="text-[10px] font-normal text-slate-500 dark:text-slate-400">(Sab/Min: ${countOffWeekend})</span></td>
                         <td class="py-3 px-4 text-center font-extrabold text-orange-700 dark:text-orange-400">${countPs} Hari</td>
                         <td class="py-3 px-4 text-center font-extrabold text-amber-700 dark:text-amber-400">${countTerlambat} Hari</td>
                     </tr>
@@ -738,7 +666,7 @@
                 let fotoUrl = row[5];
 
                 if (filterNama === "SEMUA" || nama === filterNama.toUpperCase()) {
-                    let badgeClass = status.toLowerCase().includes('in') ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20' : (status.toUpperCase() === 'OFF' ? 'bg-rose-500/15 text-rose-700 dark:text-rose-400 border-rose-500/30' : 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20');
+                    let badgeClass = status.toLowerCase().includes('in') ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/30 font-extrabold' : (status.toUpperCase() === 'OFF' ? 'bg-rose-500/20 text-rose-800 dark:text-rose-300 border-rose-500/40 font-extrabold' : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30 font-extrabold');
                     let koordinat = (lat && lng && lat !== "-") ? `${lat}, ${lng}` : '-';
                     let fotoLink = (fotoUrl && fotoUrl !== '-') ? `<a href="${fotoUrl}" target="_blank" class="px-2.5 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 rounded-lg font-bold border border-indigo-500/20">Lihat Foto</a>` : '<span class="text-slate-400">Tanpa Foto</span>';
 
@@ -746,7 +674,7 @@
                         <tr class="hover:bg-slate-100 dark:hover:bg-slate-900/40">
                             <td class="py-3 px-4 whitespace-nowrap font-medium text-slate-900 dark:text-slate-100">${waktu}</td>
                             <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">${nama}</td>
-                            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-lg text-[10px] font-black border ${badgeClass}">${status}</span></td>
+                            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-lg text-[10px] border ${badgeClass}">${status}</span></td>
                             <td class="py-3 px-4 font-mono text-slate-700 dark:text-slate-300">${koordinat}</td>
                             <td class="py-3 px-4 text-center">${fotoLink}</td>
                         </tr>
@@ -755,61 +683,6 @@
                 }
             }
             tbody.innerHTML = html;
-        }
-
-        window.cetakPdfSemuaJadwal = function() { window.print(); }
-
-        window.downloadExcelSemuaJadwal = function() {
-            const dates = getCutOffDates();
-            let csvContent = "\uFEFF";
-            let headerRow = ["Tanggal", ...daftarKaryawan];
-            csvContent += headerRow.map(val => `"${String(val || "").replace(/"/g, '""')}"`).join(";") + "\r\n";
-
-            for (let i = 0; i < dates.length; i++) {
-                let item = dates[i];
-                let rowData = [item.label];
-                for (let j = 0; j < daftarKaryawan.length; j++) {
-                    let nama = daftarKaryawan[j];
-                    let key = `${nama}_${item.dateStr}`;
-                    let status = databaseJadwal[key];
-                    let absen = databaseAbsenSheet[key] || { checkIn: "-", checkOut: "-" };
-                    let label = "Full";
-
-                    if (status === "OFF" || absen.checkIn === "OFF") label = "OFF";
-                    else if (absen.checkIn !== "-" && absen.checkOut !== "-") {
-                        label = `${absen.checkIn} - ${absen.checkOut}`;
-                        let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
-                        if (status === "PS" || jamOut < 19) label += " (PS)";
-                    } else if (status === "PS") label = "PS";
-                    rowData.push(label);
-                }
-                csvContent += rowData.map(val => `"${String(val || "").replace(/"/g, '""')}"`).join(";") + "\r\n";
-            }
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `Matriks_Jadwal_Karyawan_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
-        }
-
-        window.simpanJadwalAdmin = async function() {
-            const karyawan = document.getElementById('adminKaryawan').value;
-            const tanggal = document.getElementById('adminTanggal').value;
-            const status = document.getElementById('adminStatus').value;
-
-            if (!tanggal) { showModal("Peringatan", "Pilih tanggal terlebih dahulu!"); return; }
-
-            let key = `${karyawan}_${tanggal}`;
-            if (status === "FULL") delete databaseJadwal[key];
-            else databaseJadwal[key] = status;
-
-            let success = await saveDataToCloud();
-            if (success) {
-                showModal("Sukses", `Jadwal ${karyawan} pada tanggal ${tanggal} berhasil disimpan ke Cloud.`);
-                renderJadwalKaryawan();
-            }
         }
 
         window.tambahKaryawanBaru = async function() {
@@ -842,7 +715,6 @@
         window.resetDatabaseCloud = async function() {
             if (!confirm("Yakin ingin mereset dan membersihkan data database Cloud?")) return;
             daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
-            databaseJadwal = {};
             dataLaporanGlobal = [];
             databaseAbsenSheet = {};
 
