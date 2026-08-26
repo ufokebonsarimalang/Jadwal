@@ -473,24 +473,11 @@
                 return false;
             }
         }
-
-        function parseWaktuToIsoAndHms(rawWaktu) {
+function parseWaktuToIsoAndHms(rawWaktu) {
             if (!rawWaktu) return { tglIso: "", timePart: "" };
             let waktuStr = String(rawWaktu).trim();
 
-            if (!waktuStr.includes("-") && !waktuStr.includes("/") && !waktuStr.includes(" ")) {
-                let num = parseFloat(waktuStr);
-                if (!isNaN(num) && num > 10000) {
-                    let d = new Date(Math.round((num - (25567 + 2))*86400*1000));
-                    let y = d.getFullYear();
-                    let m = String(d.getMonth() + 1).padStart(2, '0');
-                    let day = String(d.getDate()).padStart(2, '0');
-                    let hh = String(d.getHours()).padStart(2, '0');
-                    let mm = String(d.getMinutes()).padStart(2, '0');
-                    return { tglIso: `${y}-${m}-${day}`, timePart: `${hh}:${mm}` };
-                }
-            }
-
+            // Jika format dari sheet: "26-08-2026 07:53:02" atau "26/08/2026 07:53:02"
             let parts = waktuStr.split(" ");
             let datePartStr = parts[0] || "";
             let timePartStr = parts[1] ? parts[1].substring(0, 5) : "";
@@ -501,8 +488,10 @@
                 let arr = datePartStr.split(sep);
                 if (arr.length === 3) {
                     if (arr[0].length === 4) {
+                        // Format YYYY-MM-DD
                         tglIso = `${arr[0]}-${arr[1].padStart(2,'0')}-${arr[2].padStart(2,'0')}`;
                     } else {
+                        // Format DD-MM-YYYY atau DD/MM/YYYY
                         tglIso = `${arr[2]}-${arr[1].padStart(2,'0')}-${arr[0].padStart(2,'0')}`;
                     }
                 }
@@ -520,7 +509,7 @@
                 if(!row || row.length === 0) continue;
                 let waktuRaw = row[0];
                 let nama = String(row[1] || "").trim().toUpperCase();
-                let statusAbsen = String(row[2] || "").trim().toLowerCase();
+                let statusAbsen = String(row[2] || "").trim().toLowerCase(); // contoh: "check in", "check out", "off"
 
                 if (nama && nama.length < 30 && !nama.includes('<')) {
                     detectedNames.add(nama);
@@ -534,11 +523,12 @@
                     let key = `${nama}_${tglIso}`;
                     if (!rawLogMap[key]) rawLogMap[key] = { checkIn: "-", checkOut: "-" };
 
-                    if (statusAbsen.includes("in")) {
+                    // Deteksi Check In & Check Out lebih fleksibel
+                    if (statusAbsen.includes("in") || statusAbsen.includes("masuk")) {
                         rawLogMap[key].checkIn = timePartStr;
-                    } else if (statusAbsen.includes("out")) {
+                    } else if (statusAbsen.includes("out") || statusAbsen.includes("pulang")) {
                         rawLogMap[key].checkOut = timePartStr;
-                    } else if (statusAbsen === "off") {
+                    } else if (statusAbsen.includes("off")) {
                         rawLogMap[key].checkIn = "OFF";
                     }
                 }
@@ -548,54 +538,15 @@
                 let log = rawLogMap[key];
                 if (log.checkIn === "OFF") {
                     databaseAbsenSheet[key] = { checkIn: "OFF", checkOut: "-" };
-                } else if (log.checkIn !== "-" && log.checkOut !== "-") {
-                    databaseAbsenSheet[key] = { checkIn: log.checkIn, checkOut: log.checkOut };
                 } else {
-                    databaseAbsenSheet[key] = { checkIn: "-", checkOut: "-" };
+                    databaseAbsenSheet[key] = { checkIn: log.checkIn, checkOut: log.checkOut };
                 }
             }
 
             if (detectedNames.size > 0) {
                 daftarKaryawan = Array.from(detectedNames).sort();
-            } else if (daftarKaryawan.length === 0) {
-                daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
             }
         }
-
-        window.prosesUploadFile = async function() {
-            const fileInput = document.getElementById('csvFileInput');
-            if (!fileInput || fileInput.files.length === 0) {
-                showModal("Peringatan", "Pilih file Excel atau CSV terlebih dahulu!");
-                return;
-            }
-
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-
-            reader.onload = async function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const parsedRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-                    if (parsedRows.length > 0) {
-                        dataLaporanGlobal = parsedRows;
-                        parseLaporanToAbsenSheet(dataLaporanGlobal);
-                        await saveDataToCloudFirebase();
-
-                        updateDropdownKaryawan();
-                        renderJadwalKaryawan();
-                        showModal("Sukses!", "File cadangan berhasil diproses!");
-                    }
-                } catch (err) {
-                    showModal("Gagal Membaca File", err.message);
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
         function updateDropdownKaryawan() {
             let selectKaryawanEl = document.getElementById('selectKaryawan');
             let filterAdminEl = document.getElementById('filterNamaAdmin');
