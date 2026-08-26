@@ -634,7 +634,7 @@
             return { checkIn, checkOut };
         }
 
-        // RENDER TABEL MATRIX OFF / PS MURNI DARI WEB
+     // RENDER TABEL MATRIX / RINGKASAN UTAMA
         window.renderMatrixOff = function() {
             const table = document.getElementById('tabelMatrixOff');
             if(!table) return;
@@ -654,13 +654,16 @@
                     <td class="py-2.5 px-3 text-left font-bold text-slate-900 dark:text-white whitespace-nowrap">${item.label}</td>`;
                 
                 daftarKaryawan.forEach(nama => {
-                    let manualStatus;
+                    let manualStatus = "";
                     for(let kKey of item.possibleKeys) {
                         if(jadwalOffManual[`${nama}_${kKey}`]) {
                             manualStatus = jadwalOffManual[`${nama}_${kKey}`];
                             break;
                         }
                     }
+
+                    // Ambil data langsung dari log monitoring agar sinkron dengan kalender
+                    let absenData = cariDataAbsenDariLog(nama, item.possibleKeys);
 
                     let cellClass = "text-slate-400 dark:text-slate-600";
                     let label = "-";
@@ -671,6 +674,12 @@
                     } else if (manualStatus === "PS") {
                         cellClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 font-extrabold border border-orange-500/40";
                         label = "PS";
+                    } else if (absenData.checkIn !== "-" && absenData.checkOut !== "-") {
+                        cellClass = "bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/40";
+                        label = "HADIR";
+                    } else if (absenData.checkIn !== "-" && absenData.checkOut === "-") {
+                        cellClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 font-bold border border-blue-500/40";
+                        label = "PROSES";
                     }
 
                     bodyHtml += `<td class="py-2 px-2 text-center">
@@ -682,7 +691,6 @@
 
             table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
         }
-
         window.toggleMatrixStatus = function(nama, dateStr) {
             let key = `${nama}_${dateStr}`;
             let current = jadwalOffManual[key];
