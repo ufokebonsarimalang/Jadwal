@@ -378,42 +378,23 @@
         }
 
         // VERIFIKASI PASSWORD ADMIN
-        window.bukaMenuAdminSensitif = async function() {
-            let passwordInput = prompt("Masukkan Password Admin:");
-            if (!passwordInput) return;
+       window.bukaMenuAdminSensitif = async function() {
+    let passwordInput = prompt("Masukkan Password Admin:");
+    if (!passwordInput) return;
 
-            if (!gasWebhookUrl) {
-                showModal("Peringatan", "Endpoint API Server belum dikonfigurasi!");
-                return;
-            }
-
-            try {
-                showModal("Memverifikasi...", "Mengecek kredensial admin ke server...");
-                
-                let response = await fetch(gasWebhookUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({ 
-                        aksi: "login", 
-                        username: "admin", 
-                        password: passwordInput.trim() 
-                    })
-                });
-
-                let result = await response.json();
-                closeModal();
-
-                if (result && result.status === "sukses" && result.role === "admin") {
-                    let kotakGembok = document.getElementById('kotakTombolAdmin');
-                    let panelAdmin = document.getElementById('panelAdminSensitif');
-                    if(kotakGembok) kotakGembok.classList.add('hidden');
-                    if(panelAdmin) {
-                        panelAdmin.classList.remove('hidden');
-                        showModal("Akses Diterima", "Menu konfigurasi admin berhasil dibuka.");
-                    }
-                } else {
-                    showModal("Akses Ditolak", "Password admin salah atau akun tidak ditemukan!");
-                }
+    // Ganti "1234" di bawah ini dengan password admin yang Anda inginkan
+    if (passwordInput.trim() === "1234") {
+        let kotakGembok = document.getElementById('kotakTombolAdmin');
+        let panelAdmin = document.getElementById('panelAdminSensitif');
+        if(kotakGembok) kotakGembok.classList.add('hidden');
+        if(panelAdmin) {
+            panelAdmin.classList.remove('hidden');
+            showModal("Akses Diterima", "Menu konfigurasi admin berhasil dibuka.");
+        }
+    } else {
+        showModal("Akses Ditolak", "Password admin salah!");
+    }
+}
             } catch (err) {
                 closeModal();
                 showModal("Gagal Koneksi", "Terjadi kesalahan saat memverifikasi password: " + err.message);
