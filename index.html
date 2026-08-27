@@ -45,21 +45,16 @@
         </div>
 
         <nav class="flex md:flex-col gap-2 mt-0 md:mt-6">
-            <!-- Menu 1 (Paling Atas): Jadwal Lapangan (OFF / PS Manual Web) -->
             <button onclick="switchTab('lapangan')" id="btnLapangan" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-200 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
                 <span class="hidden sm:inline">Jadwal Lapangan (OFF / PS)</span>
             </button>
-
-            <!-- Menu 2: Monitoring Kehadiran & Shift -->
             <button onclick="switchTab('jadwal')" id="btnJadwal" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <span class="hidden sm:inline">Monitoring Kehadiran & Shift</span>
             </button>
-
-            <!-- Menu 3: Konfigurasi & Endpoint Server (Terproteksi Sandi) -->
             <button onclick="switchTab('admin')" id="btnAdmin" 
                 class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
@@ -67,7 +62,6 @@
             </button>
         </nav>
 
-        <!-- Tombol Tema & Status -->
         <div class="hidden md:flex flex-col gap-3 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs">
             <div class="flex items-center justify-between bg-slate-100 dark:bg-slate-950 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
                 <span class="text-slate-700 dark:text-slate-300 font-semibold px-2">Interface Theme</span>
@@ -88,7 +82,7 @@
     <!-- KONTEN UTAMA -->
     <main class="flex-1 p-4 md:p-10 overflow-y-auto z-10 text-slate-900 dark:text-slate-100">
 
-        <!-- HALAMAN 1: JADWAL LAPANGAN (OFF / PS MANUAL WEB) -->
+        <!-- HALAMAN 1: JADWAL LAPANGAN -->
         <section id="tabLapangan" class="space-y-6 max-w-6xl mx-auto">
             <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-6 rounded-3xl shadow-xl space-y-4">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
@@ -99,9 +93,7 @@
                     <button onclick="simpanJadwalOffManual()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all">💾 Simpan Perubahan Jadwal</button>
                 </div>
                 <div class="overflow-x-auto max-h-[600px]">
-                    <table id="tabelMatrixOff" class="w-full text-center text-xs border-collapse">
-                        <!-- Render via JS -->
-                    </table>
+                    <table id="tabelMatrixOff" class="w-full text-center text-xs border-collapse"></table>
                 </div>
             </div>
         </section>
@@ -119,7 +111,6 @@
                 </div>
             </div>
 
-            <!-- Kartu Statistik Ringkasan -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-emerald-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
                     <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total Hadir (Masuk)</span>
@@ -142,7 +133,6 @@
                 </div>
             </div>
 
-            <!-- Kalender Jadwal -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
                     <h3 id="labelKalenderTitle" class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Shift Periode Aktif</h3>
@@ -152,10 +142,8 @@
             </div>
         </section>
 
-        <!-- HALAMAN 3: PANEL ADMIN & KONFIGURASI (TERPROTEKSI SANDI) -->
+        <!-- HALAMAN 3: PANEL ADMIN -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-6xl mx-auto">
-
-            <!-- TOMBOL KUNCI / GEMBOK MENU ADMIN -->
             <div id="kotakTombolAdmin" class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-8 rounded-3xl shadow-xl text-center space-y-4">
                 <div class="text-4xl">🔐</div>
                 <h2 class="text-lg font-black text-slate-900 dark:text-white">Panel Konfigurasi Terproteksi</h2>
@@ -163,10 +151,7 @@
                 <button onclick="bukaMenuAdminSensitif()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded-xl text-xs shadow-lg transition-all hover:scale-105">Buka Menu Admin</button>
             </div>
 
-            <!-- KONTEN SENSITIF YANG TERKUNCI -->
             <div id="panelAdminSensitif" class="hidden space-y-6">
-
-                <!-- KOTAK KONFIGURASI ENDPOINT SERVER -->
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/40 p-6 rounded-3xl shadow-xl space-y-4">
                     <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
                         <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl text-xl">⚡</div>
@@ -182,7 +167,6 @@
                     </div>
                 </div>
 
-                <!-- CADANGAN OFFLINE IMPORT -->
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
                     <h2 class="text-sm font-black text-slate-900 dark:text-white">📂 Offline Backup: Import Data (.xlsx / .csv)</h2>
                     <div class="flex flex-col sm:flex-row items-center gap-4">
@@ -191,7 +175,6 @@
                     </div>
                 </div>
 
-                <!-- Manajemen Karyawan -->
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
                     <div class="flex justify-between items-center">
                         <h2 class="text-xl font-black text-slate-900 dark:text-white">Direktori Karyawan</h2>
@@ -205,11 +188,8 @@
                 </div>
             </div>
 
-            <!-- REKAPITULASI STATISTIK (TERBUKA BEBAS) -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
-                <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <h2 id="labelRekapTitle" class="text-lg font-black text-slate-900 dark:text-white">Rekapitulasi Statistik Kehadiran</h2>
-                </div>
+                <h2 id="labelRekapTitle" class="text-lg font-black text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-4">Rekapitulasi Statistik Kehadiran</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-800 dark:text-slate-200">
                         <thead class="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-800">
@@ -226,7 +206,6 @@
                 </div>
             </div>
 
-            <!-- TABEL LOG ABSENSI HARIAN -->
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
@@ -237,9 +216,7 @@
                         <select id="filterNamaAdmin" onchange="renderTabelAdminLog()" class="px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
                             <option value="SEMUA">-- Semua Karyawan --</option>
                         </select>
-                        <button onclick="downloadCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow">
-                            📥 Export CSV
-                        </button>
+                        <button onclick="downloadCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow">📥 Export CSV</button>
                     </div>
                 </div>
 
@@ -258,9 +235,7 @@
                     </table>
                 </div>
             </div>
-
         </section>
-
     </main>
 
     <!-- MODAL NOTIFIKASI -->
@@ -296,7 +271,7 @@
         let daftarKaryawan = [];
         let dataLaporanGlobal = [];
         let cachedDates = null;
-        let jadwalOffManual = {}; // Format: { "NAMA_YYYY-MM-DD": "OFF" atau "PS" }
+        let jadwalOffManual = {}; 
         let gasWebhookUrl = localStorage.getItem('gas_webhook_url') || "";
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -339,6 +314,7 @@
         }
         window.closeModal = closeModal;
 
+        // PENDAFTARAN FUNGSI KE GLOBAL WINDOW AGAR TIDAK ERROR "is not defined"
         window.switchTab = function(tabName) {
             const tabs = ['tabLapangan', 'tabJadwal', 'tabAdmin'];
             const btns = ['btnLapangan', 'btnJadwal', 'btnAdmin'];
@@ -377,27 +353,20 @@
             }
         }
 
-        // VERIFIKASI PASSWORD ADMIN
-       window.bukaMenuAdminSensitif = async function() {
-    let passwordInput = prompt("Masukkan Password Admin:");
-    if (!passwordInput) return;
+        window.bukaMenuAdminSensitif = function() {
+            let passwordInput = prompt("Masukkan Password Admin:");
+            if (!passwordInput) return;
 
-    // Ganti "1234" di bawah ini dengan password admin yang Anda inginkan
-    if (passwordInput.trim() === "1234") {
-        let kotakGembok = document.getElementById('kotakTombolAdmin');
-        let panelAdmin = document.getElementById('panelAdminSensitif');
-        if(kotakGembok) kotakGembok.classList.add('hidden');
-        if(panelAdmin) {
-            panelAdmin.classList.remove('hidden');
-            showModal("Akses Diterima", "Menu konfigurasi admin berhasil dibuka.");
-        }
-    } else {
-        showModal("Akses Ditolak", "Password admin salah!");
-    }
-}
-            } catch (err) {
-                closeModal();
-                showModal("Gagal Koneksi", "Terjadi kesalahan saat memverifikasi password: " + err.message);
+            if (passwordInput.trim() === "1234") {
+                let kotakGembok = document.getElementById('kotakTombolAdmin');
+                let panelAdmin = document.getElementById('panelAdminSensitif');
+                if(kotakGembok) kotakGembok.classList.add('hidden');
+                if(panelAdmin) {
+                    panelAdmin.classList.remove('hidden');
+                    showModal("Akses Diterima", "Menu konfigurasi admin berhasil dibuka.");
+                }
+            } else {
+                showModal("Akses Ditolak", "Password admin salah!");
             }
         }
 
@@ -463,13 +432,11 @@
             if (gasWebhookUrl) {
                 try {
                     if(cloudStatusText) cloudStatusText.innerText = "Mengambil data dari Server...";
-                    
                     let response = await fetch(gasWebhookUrl, {
                         method: "POST",
                         headers: { "Content-Type": "text/plain;charset=utf-8" },
                         body: JSON.stringify({ aksi: "get_laporan_admin" })
                     });
-                    
                     let result = await response.json();
                     if (result && Array.isArray(result.data)) {
                         dataLaporanGlobal = result.data;
@@ -488,7 +455,6 @@
                     console.warn("API Server fetch warning, falling back to cache:", gasErr);
                 }
             }
-
             await loadCloudFirebaseData();
         }
 
@@ -527,7 +493,6 @@
                 updateDropdownKaryawan();
                 renderJadwalKaryawan();
                 renderMatrixOff();
-
             } catch (err) {
                 console.error(err);
                 if(cloudStatusText) cloudStatusText.innerText = "Koneksi Gagal";
@@ -547,7 +512,6 @@
             try {
                 const docRef = doc(db, "nexabsent_data", "main_database");
                 let laporanFlattened = dataLaporanGlobal.map(row => row.join("|||"));
-
                 await setDoc(docRef, {
                     karyawan: daftarKaryawan,
                     laporan: laporanFlattened,
@@ -579,7 +543,6 @@
             }
         }
 
-        // FUNGSI UTAMA MEMBACA LANGSUNG DARI DATA MONITORING GLOBAL
         function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
             let checkIn = "-";
             let checkOut = "-";
@@ -593,7 +556,6 @@
                 let statusRow = String(row[2] || "").trim().toLowerCase();
 
                 if (namaRow === karyawanTarget) {
-                    // Cek apakah tanggal di log mengandung salah satu format tanggal kalender
                     let matched = false;
                     for (let pKey of possibleKeys) {
                         if (waktuFull.includes(pKey)) {
@@ -615,7 +577,6 @@
             return { checkIn, checkOut };
         }
 
-     // RENDER TABEL MATRIX / RINGKASAN UTAMA
         window.renderMatrixOff = function() {
             const table = document.getElementById('tabelMatrixOff');
             if(!table) return;
@@ -643,9 +604,7 @@
                         }
                     }
 
-                    // Ambil data langsung dari log monitoring agar sinkron dengan kalender
                     let absenData = cariDataAbsenDariLog(nama, item.possibleKeys);
-
                     let cellClass = "text-slate-400 dark:text-slate-600";
                     let label = "-";
 
@@ -672,6 +631,7 @@
 
             table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
         }
+
         window.toggleMatrixStatus = function(nama, dateStr) {
             let key = `${nama}_${dateStr}`;
             let current = jadwalOffManual[key];
@@ -745,7 +705,6 @@
             }
         }
 
-        // MONITORING KARYAWAN: MENGAMBIL LANGSUNG DARI DATA MONITORING
         window.renderJadwalKaryawan = function() {
             let selectEl = document.getElementById('selectKaryawan');
             const karyawan = (selectEl?.value || daftarKaryawan[0] || "").toUpperCase();
@@ -765,7 +724,6 @@
                     }
                 }
 
-                // Ambil data langsung dari log monitoring
                 let dataAbsen = cariDataAbsenDariLog(karyawan, item.possibleKeys);
 
                 let badgeClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
