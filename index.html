@@ -90,7 +90,7 @@
                         <h2 class="text-xl font-black text-slate-900 dark:text-white">📅 Jadwal Lapangan & Tukar OFF / PS</h2>
                         <p class="text-xs text-slate-600 dark:text-slate-300">Pengaturan jadwal libur dari web. Klik kotak untuk mengubah status (<span class="text-rose-500 font-bold">OFF</span> ➔ <span class="text-orange-500 font-bold">PS</span> ➔ Kosong).</p>
                     </div>
-                    <button onclick="simpanJadwalOffManual()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all">💾 Simpan Perubahan Jadwal</button>
+                    <button onclick="simpanJadwalOffManual()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all">💾 Simpan Manual ke Cloud</button>
                 </div>
                 <div class="overflow-x-auto max-h-[600px]">
                     <table id="tabelMatrixOff" class="w-full text-center text-xs border-collapse"></table>
@@ -429,7 +429,8 @@
             const cloudPing = document.getElementById('cloudPing');
             const cloudDot = document.getElementById('cloudDot');
 
-            let gasSuccess = false;
+            // Ambil data dari Firebase terlebih dahulu agar status OFF/PS manual tidak tertimpa
+            await loadCloudFirebaseData();
 
             if (gasWebhookUrl) {
                 try {
@@ -443,7 +444,6 @@
                     if (result && Array.isArray(result.data) && result.data.length > 0) {
                         dataLaporanGlobal = result.data;
                         ekstrakKaryawanDariLog();
-                        gasSuccess = true;
                         
                         await saveDataToCloudFirebase();
 
@@ -454,15 +454,10 @@
                         updateDropdownKaryawan();
                         renderJadwalKaryawan();
                         renderMatrixOff();
-                        return;
                     }
                 } catch (gasErr) {
                     console.warn("API Server fetch warning, falling back to cache:", gasErr);
                 }
-            }
-            
-            if (!gasSuccess) {
-                await loadCloudFirebaseData();
             }
         }
 
@@ -534,7 +529,7 @@
         }
 
         function ekstrakKaryawanDariLog() {
-            let detected = new Set();
+            let detected = new Set(daftarKaryawan);
             for (let i = 1; i < dataLaporanGlobal.length; i++) {
                 let row = dataLaporanGlobal[i];
                 if (row && row[1]) {
@@ -663,7 +658,8 @@
             table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
         }
 
-        window.toggleMatrixStatus = function(nama, dateStr) {
+        // PERBAIKAN: Ditambahkan auto-save ke Firebase setiap kali status diklik
+        window.toggleMatrixStatus = async function(nama, dateStr) {
             let key = `${nama}_${dateStr}`;
             let current = jadwalOffManual[key];
 
@@ -678,6 +674,9 @@
             renderMatrixOff();
             renderJadwalKaryawan();
             renderTabelRekap();
+
+            // Simpan langsung ke Cloud Firebase secara background
+            await saveDataToCloudFirebase();
         }
 
         window.simpanJadwalOffManual = async function() {
@@ -788,10 +787,10 @@
                     statusLabel = "PS"; 
                     jamTampil = "PULANG SORE"; 
                     countPs++;
-                    countMasuk++; // PS DIHITUNG HADIR (MASUK)
+                    countMasuk++;
                 } else {
                     if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
-                        countMasuk++; // HADIR FULL
+                        countMasuk++;
                         let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
                         if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
                             countTerlambat++;
@@ -867,7 +866,7 @@
                         countOffTotal++; if (item.isWeekend) countOffWeekend++;
                     } else if (manualStatus === "PS") {
                         countPs++;
-                        countMasuk++; // PS DIHITUNG HADIR (MASUK)
+                        countMasuk++;
                     } else if (absen.checkIn !== "-") {
                         let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
                         if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
