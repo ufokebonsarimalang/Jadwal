@@ -543,40 +543,75 @@
             }
         }
 
-        function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
-            let checkIn = "-";
-            let checkOut = "-";
+       function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
+    let checkIn = "-";
+    let checkOut = "-";
 
-            for (let i = 1; i < dataLaporanGlobal.length; i++) {
-                let row = dataLaporanGlobal[i];
-                if (!row || row.length < 3) continue;
+    if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) {
+        return { checkIn, checkOut };
+    }
 
-                let waktuFull = String(row[0] || "").trim();
-                let namaRow = String(row[1] || "").trim().toUpperCase();
-                let statusRow = String(row[2] || "").trim().toLowerCase();
+    // Standardisasi nama karyawan yang dicari
+    let targetNamaClean = String(karyawanTarget || "").trim().toUpperCase();
 
-                if (namaRow === karyawanTarget) {
-                    let matched = false;
-                    for (let pKey of possibleKeys) {
-                        if (waktuFull.includes(pKey)) {
-                            matched = true;
-                            break;
-                        }
-                    }
+    for (let i = 1; i < dataLaporanGlobal.length; i++) {
+        let row = dataLaporanGlobal[i];
+        if (!row || row.length < 3) continue;
 
-                    if (matched) {
-                        let timePart = waktuFull.split(" ")[1] ? waktuFull.split(" ")[1].substring(0, 5) : "";
-                        if (statusRow.includes("in") || statusRow.includes("masuk")) {
-                            checkIn = timePart;
-                        } else if (statusRow.includes("out") || statusRow.includes("pulang")) {
-                            checkOut = timePart;
-                        }
+        let waktuFull = String(row[0] || "").trim();
+        let namaRow = String(row[1] || "").trim().toUpperCase();
+        let statusRow = String(row[2] || "").trim().toLowerCase();
+
+        // Pastikan nama cocok (toleran terhadap spasi berlebih)
+        if (namaRow === targetNamaClean) {
+            let matched = false;
+
+            // Pengecekan variasi tanggal
+            for (let pKey of possibleKeys) {
+                if (waktuFull.includes(pKey)) {
+                    matched = true;
+                    break;
+                }
+                
+                // Pengecekan jika tanggal di Google Sheets tanpa leading zero (contoh: 27/8/2026)
+                let parts = pKey.split('-'); // format pKey: YYYY-MM-DD
+                if (parts.length === 3) {
+                    let yyyy = parts[0];
+                    let mm = String(parseInt(parts[1], 10)); // 08 -> 8
+                    let dd = String(parseInt(parts[2], 10)); // 07 -> 7
+                    
+                    if (waktuFull.includes(`${dd}/${mm}/${yyyy}`) || 
+                        waktuFull.includes(`${mm}/${dd}/${yyyy}`) ||
+                        waktuFull.includes(`${dd}-${mm}-${yyyy}`)) {
+                        matched = true;
+                        break;
                     }
                 }
             }
-            return { checkIn, checkOut };
-        }
 
+            if (matched) {
+                // Ekstraksi jam menggunakan Regex (Aman dari koma, spasi, atau format . / :)
+                let timeMatch = waktuFull.match(/(\d{1,2})[:.]((\d{2}))/);
+                let timePart = "";
+                
+                if (timeMatch) {
+                    let hh = timeMatch[1].padStart(2, '0');
+                    let mm = timeMatch[2];
+                    timePart = `${hh}:${mm}`;
+                }
+
+                if (timePart) {
+                    if (statusRow.includes("in") || statusRow.includes("masuk") || statusRow.includes("checkin")) {
+                        checkIn = timePart;
+                    } else if (statusRow.includes("out") || statusRow.includes("pulang") || statusRow.includes("checkout")) {
+                        checkOut = timePart;
+                    }
+                }
+            }
+        }
+    }
+    return { checkIn, checkOut };
+}
         window.renderMatrixOff = function() {
             const table = document.getElementById('tabelMatrixOff');
             if(!table) return;
