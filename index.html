@@ -543,7 +543,7 @@
             }
         }
 
-     function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
+    function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
     let checkIn = "-";
     let checkOut = "-";
 
@@ -551,22 +551,22 @@
         return { checkIn, checkOut };
     }
 
-    let targetNamaClean = String(karyawanTarget || "").trim().toUpperCase();
+    let targetNamaClean = String(karyawanTarget || "").trim().toLowerCase();
 
     for (let i = 1; i < dataLaporanGlobal.length; i++) {
         let row = dataLaporanGlobal[i];
         if (!row || row.length < 3) continue;
 
-        let waktuFull = String(row[0] || "").trim(); // Contoh: "28-08-2026 07:53:24"
-        let namaRow = String(row[1] || "").trim().toUpperCase(); // Contoh: "DEMY"
-        let statusRow = String(row[2] || "").trim().toLowerCase(); // Contoh: "check in"
+        let rawWaktu = String(row[0] || "").trim(); // "28-08-2026 07:53:24"
+        let kolomNama = String(row[1] || "").trim().toLowerCase(); // "demy"
+        let kolomStatus = String(row[2] || "").trim().toLowerCase(); // "check in"
 
-        if (namaRow === targetNamaClean) {
+        if (kolomNama === targetNamaClean) {
             let matched = false;
 
-            // Pengecekan kecocokan tanggal (Handling format DD-MM-YYYY dari Sheet)
-            for (let pKey of possibleKeys) { // pKey contoh: "2026-08-28"
-                if (waktuFull.includes(pKey)) {
+            // Pencocokan Tanggal (Sangat toleran terhadap DD-MM-YYYY dari GAS)
+            for (let pKey of possibleKeys) { // pKey bawaan Vercel: "2026-08-28"
+                if (rawWaktu.includes(pKey)) {
                     matched = true;
                     break;
                 }
@@ -578,10 +578,9 @@
                     let mm = parts[1];
                     let dd = parts[2];
                     
-                    // Cek format "28-08-2026" atau "28/08/2026"
-                    if (waktuFull.includes(`${dd}-${mm}-${yyyy}`) || 
-                        waktuFull.includes(`${dd}/${mm}/${yyyy}`) ||
-                        waktuFull.includes(`${yyyy}/${mm}/${dd}`)) {
+                    // Cek ketersediaan format "28-08-2026" atau "28/08/2026" di rawWaktu
+                    if (rawWaktu.includes(`${dd}-${mm}-${yyyy}`) || 
+                        rawWaktu.includes(`${dd}/${mm}/${yyyy}`)) {
                         matched = true;
                         break;
                     }
@@ -589,17 +588,17 @@
             }
 
             if (matched) {
-                // Ekstraksi Jam HH:MM dari timestamp "28-08-2026 07:53:24"
-                let timeMatch = waktuFull.match(/(\d{2}):(\d{2})/);
+                // Ekstraksi Jam (HH:MM) menggunakan Regex dari "28-08-2026 07:53:24"
+                let timeMatch = rawWaktu.match(/(\d{2}):(\d{2})/);
                 let timePart = timeMatch ? `${timeMatch[1]}:${timeMatch[2]}` : "";
 
                 if (timePart) {
-                    // Deteksi "check in", "checkin", "in", "masuk"
-                    if (statusRow.includes("in") || statusRow.includes("masuk")) {
+                    // Deteksi "check in", "checkin", "masuk"
+                    if (kolomStatus.includes("in") || kolomStatus.includes("masuk")) {
                         checkIn = timePart;
                     } 
-                    // Deteksi "check out", "checkout", "out", "pulang"
-                    else if (statusRow.includes("out") || statusRow.includes("pulang") || statusRow.includes("keluar")) {
+                    // Deteksi "check out", "checkout", "pulang"
+                    else if (kolomStatus.includes("out") || kolomStatus.includes("pulang") || kolomStatus.includes("keluar")) {
                         checkOut = timePart;
                     }
                 }
