@@ -839,12 +839,15 @@
 
                 if (manualStatus === "OFF") {
                     badgeClass = "bg-red-500/20 text-red-800 dark:text-red-300 border-red-500/40";
-                    statusLabel = "OFF"; jamTampil = "LIBUR"; countOffTotal++;
+                    statusLabel = "OFF"; 
+                    jamTampil = "LIBUR"; 
+                    countOffTotal++;
                     if (item.isWeekend) countOffWeekend++;
                 } else if (manualStatus === "PS") {
                     badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
                     statusLabel = "PS"; 
-                    jamTampil = "PULANG SORE"; 
+                    // PERBAIKAN: Tampilkan jam In & Out asli tanpa tulisan PULANG SORE
+                    jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`; 
                     countPs++;
                     countMasuk++;
                 } else {
@@ -861,7 +864,8 @@
                         if (jamOut < 19) {
                             badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
                             statusLabel = "PS"; 
-                            jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong> (PS)</span>`;
+                            // PERBAIKAN: Tampilkan jam In & Out asli tanpa tambahan teks
+                            jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
                             countPs++;
                         }
                     } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
