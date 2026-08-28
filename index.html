@@ -543,7 +543,7 @@
             }
         }
 
-       function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
+     function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
     let checkIn = "-";
     let checkOut = "-";
 
@@ -551,38 +551,37 @@
         return { checkIn, checkOut };
     }
 
-    // Standardisasi nama karyawan yang dicari
     let targetNamaClean = String(karyawanTarget || "").trim().toUpperCase();
 
     for (let i = 1; i < dataLaporanGlobal.length; i++) {
         let row = dataLaporanGlobal[i];
         if (!row || row.length < 3) continue;
 
-        let waktuFull = String(row[0] || "").trim();
-        let namaRow = String(row[1] || "").trim().toUpperCase();
-        let statusRow = String(row[2] || "").trim().toLowerCase();
+        let waktuFull = String(row[0] || "").trim(); // Contoh: "28-08-2026 07:53:24"
+        let namaRow = String(row[1] || "").trim().toUpperCase(); // Contoh: "DEMY"
+        let statusRow = String(row[2] || "").trim().toLowerCase(); // Contoh: "check in"
 
-        // Pastikan nama cocok (toleran terhadap spasi berlebih)
         if (namaRow === targetNamaClean) {
             let matched = false;
 
-            // Pengecekan variasi tanggal
-            for (let pKey of possibleKeys) {
+            // Pengecekan kecocokan tanggal (Handling format DD-MM-YYYY dari Sheet)
+            for (let pKey of possibleKeys) { // pKey contoh: "2026-08-28"
                 if (waktuFull.includes(pKey)) {
                     matched = true;
                     break;
                 }
                 
-                // Pengecekan jika tanggal di Google Sheets tanpa leading zero (contoh: 27/8/2026)
-                let parts = pKey.split('-'); // format pKey: YYYY-MM-DD
+                // Konversi YYYY-MM-DD ke DD-MM-YYYY & DD/MM/YYYY
+                let parts = pKey.split('-'); 
                 if (parts.length === 3) {
                     let yyyy = parts[0];
-                    let mm = String(parseInt(parts[1], 10)); // 08 -> 8
-                    let dd = String(parseInt(parts[2], 10)); // 07 -> 7
+                    let mm = parts[1];
+                    let dd = parts[2];
                     
-                    if (waktuFull.includes(`${dd}/${mm}/${yyyy}`) || 
-                        waktuFull.includes(`${mm}/${dd}/${yyyy}`) ||
-                        waktuFull.includes(`${dd}-${mm}-${yyyy}`)) {
+                    // Cek format "28-08-2026" atau "28/08/2026"
+                    if (waktuFull.includes(`${dd}-${mm}-${yyyy}`) || 
+                        waktuFull.includes(`${dd}/${mm}/${yyyy}`) ||
+                        waktuFull.includes(`${yyyy}/${mm}/${dd}`)) {
                         matched = true;
                         break;
                     }
@@ -590,20 +589,17 @@
             }
 
             if (matched) {
-                // Ekstraksi jam menggunakan Regex (Aman dari koma, spasi, atau format . / :)
-                let timeMatch = waktuFull.match(/(\d{1,2})[:.]((\d{2}))/);
-                let timePart = "";
-                
-                if (timeMatch) {
-                    let hh = timeMatch[1].padStart(2, '0');
-                    let mm = timeMatch[2];
-                    timePart = `${hh}:${mm}`;
-                }
+                // Ekstraksi Jam HH:MM dari timestamp "28-08-2026 07:53:24"
+                let timeMatch = waktuFull.match(/(\d{2}):(\d{2})/);
+                let timePart = timeMatch ? `${timeMatch[1]}:${timeMatch[2]}` : "";
 
                 if (timePart) {
-                    if (statusRow.includes("in") || statusRow.includes("masuk") || statusRow.includes("checkin")) {
+                    // Deteksi "check in", "checkin", "in", "masuk"
+                    if (statusRow.includes("in") || statusRow.includes("masuk")) {
                         checkIn = timePart;
-                    } else if (statusRow.includes("out") || statusRow.includes("pulang") || statusRow.includes("checkout")) {
+                    } 
+                    // Deteksi "check out", "checkout", "out", "pulang"
+                    else if (statusRow.includes("out") || statusRow.includes("pulang") || statusRow.includes("keluar")) {
                         checkOut = timePart;
                     }
                 }
