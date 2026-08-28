@@ -124,7 +124,7 @@
                     </div>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-orange-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total PS</span>
+                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total PS (Pulang Sore)</span>
                     <span id="statPs" class="text-xl font-black text-orange-700 dark:text-orange-400 mt-1">0 Hari</span>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-amber-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
@@ -429,6 +429,8 @@
             const cloudPing = document.getElementById('cloudPing');
             const cloudDot = document.getElementById('cloudDot');
 
+            let gasSuccess = false;
+
             if (gasWebhookUrl) {
                 try {
                     if(cloudStatusText) cloudStatusText.innerText = "Mengambil data dari Server...";
@@ -438,14 +440,17 @@
                         body: JSON.stringify({ aksi: "get_laporan_admin" })
                     });
                     let result = await response.json();
-                    if (result && Array.isArray(result.data)) {
+                    if (result && Array.isArray(result.data) && result.data.length > 0) {
                         dataLaporanGlobal = result.data;
                         ekstrakKaryawanDariLog();
-                        await loadCloudFirebaseData();
+                        gasSuccess = true;
+                        
+                        await saveDataToCloudFirebase();
 
                         if(cloudStatusText) cloudStatusText.innerText = "Server Synced ✓";
                         if(cloudPing) cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
                         if(cloudDot) cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500";
+                        
                         updateDropdownKaryawan();
                         renderJadwalKaryawan();
                         renderMatrixOff();
@@ -455,7 +460,10 @@
                     console.warn("API Server fetch warning, falling back to cache:", gasErr);
                 }
             }
-            await loadCloudFirebaseData();
+            
+            if (!gasSuccess) {
+                await loadCloudFirebaseData();
+            }
         }
 
         async function loadCloudFirebaseData() {
@@ -474,7 +482,7 @@
                             .map(n => String(n).trim().toUpperCase())
                             .filter(n => n.length > 0 && n.length < 30 && !n.includes('<'));
                     }
-                    if (cloudData.laporan && Array.isArray(cloudData.laporan)) {
+                    if ((!dataLaporanGlobal || dataLaporanGlobal.length === 0) && cloudData.laporan && Array.isArray(cloudData.laporan)) {
                         dataLaporanGlobal = cloudData.laporan.map(rowStr => rowStr.split("|||"));
                     }
                     if (cloudData.jadwalOffManual) {
@@ -543,69 +551,63 @@
             }
         }
 
-   function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
-    let checkIn = "-";
-    let checkOut = "-";
+        function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
+            let checkIn = "-";
+            let checkOut = "-";
 
-    if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) {
-        return { checkIn, checkOut };
-    }
+            if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) {
+                return { checkIn, checkOut };
+            }
 
-    let targetNamaClean = String(karyawanTarget || "").trim().toLowerCase();
+            let targetNamaClean = String(karyawanTarget || "").trim().toLowerCase();
 
-    for (let i = 1; i < dataLaporanGlobal.length; i++) {
-        let row = dataLaporanGlobal[i];
-        if (!row || row.length < 3) continue;
+            for (let i = 1; i < dataLaporanGlobal.length; i++) {
+                let row = dataLaporanGlobal[i];
+                if (!row || row.length < 3) continue;
 
-        // Ambil data langsung dari Sheet 2
-        let rawWaktu = String(row[0] || "").trim(); // Contoh: "28-08-2026 07:53:24"
-        let kolomNama = String(row[1] || "").trim().toLowerCase(); // Contoh: "demy"
-        let kolomStatus = String(row[2] || "").trim().toLowerCase(); // Contoh: "check in"
+                let rawWaktu = String(row[0] || "").trim(); 
+                let kolomNama = String(row[1] || "").trim().toLowerCase(); 
+                let kolomStatus = String(row[2] || "").trim().toLowerCase(); 
 
-        if (kolomNama === targetNamaClean && rawWaktu) {
-            let matched = false;
+                if (kolomNama === targetNamaClean && rawWaktu) {
+                    let matched = false;
 
-            // Pencocokan Tanggal (Toleran untuk DD-MM-YYYY, YYYY-MM-DD, & DD/MM/YYYY)
-            for (let pKey of possibleKeys) { // pKey bawaan Vercel formatnya "2026-08-28"
-                if (rawWaktu.includes(pKey)) {
-                    matched = true;
-                    break;
-                }
-                
-                // Konversi YYYY-MM-DD ke DD-MM-YYYY (Format asli Sheet 2)
-                let parts = pKey.split('-'); 
-                if (parts.length === 3) {
-                    let yyyy = parts[0];
-                    let mm = parts[1];
-                    let dd = parts[2];
-                    
-                    if (rawWaktu.includes(`${dd}-${mm}-${yyyy}`) || rawWaktu.includes(`${dd}/${mm}/${yyyy}`)) {
-                        matched = true;
-                        break;
+                    for (let pKey of possibleKeys) { 
+                        if (rawWaktu.includes(pKey)) {
+                            matched = true;
+                            break;
+                        }
+                        
+                        let parts = pKey.split('-'); 
+                        if (parts.length === 3) {
+                            let yyyy = parts[0];
+                            let mm = parts[1];
+                            let dd = parts[2];
+                            
+                            if (rawWaktu.includes(`${dd}-${mm}-${yyyy}`) || rawWaktu.includes(`${dd}/${mm}/${yyyy}`)) {
+                                matched = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (matched) {
+                        let timeMatch = rawWaktu.match(/(\d{2}):(\d{2})/);
+                        let timePart = timeMatch ? `${timeMatch[1]}:${timeMatch[2]}` : "";
+
+                        if (timePart) {
+                            if (kolomStatus.includes("in") || kolomStatus.includes("masuk")) {
+                                checkIn = timePart;
+                            } else if (kolomStatus.includes("out") || kolomStatus.includes("pulang") || kolomStatus.includes("keluar")) {
+                                checkOut = timePart;
+                            }
+                        }
                     }
                 }
             }
-
-            if (matched) {
-                // Ekstraksi Jam (HH:MM) menggunakan Regex dari "28-08-2026 07:53:24"
-                let timeMatch = rawWaktu.match(/(\d{2}):(\d{2})/);
-                let timePart = timeMatch ? `${timeMatch[1]}:${timeMatch[2]}` : "";
-
-                if (timePart) {
-                    // Deteksi kata kunci "check in", "in", atau "masuk"
-                    if (kolomStatus.includes("in") || kolomStatus.includes("masuk")) {
-                        checkIn = timePart;
-                    } 
-                    // Deteksi kata kunci "check out", "out", "pulang", atau "keluar"
-                    else if (kolomStatus.includes("out") || kolomStatus.includes("pulang") || kolomStatus.includes("keluar")) {
-                        checkOut = timePart;
-                    }
-                }
-            }
+            return { checkIn, checkOut };
         }
-    }
-    return { checkIn, checkOut };
-}
+
         window.renderMatrixOff = function() {
             const table = document.getElementById('tabelMatrixOff');
             if(!table) return;
@@ -698,19 +700,37 @@
             reader.onload = async function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const parsedRows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    const workbook = XLSX.read(data, { type: 'array', cellDates: false, raw: false });
+                    let sheetName = workbook.SheetNames[0];
+
+                    const worksheet = workbook.Sheets[sheetName];
+                    const parsedRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
 
                     if (parsedRows.length > 0) {
-                        dataLaporanGlobal = parsedRows;
+                        let cleanedData = [];
+                        for (let i = 0; i < parsedRows.length; i++) {
+                            let row = parsedRows[i];
+                            if (!row || row.length < 3) continue;
+                            let rawWaktu = String(row[0] || "").trim();
+                            let nama = String(row[1] || "").trim().toUpperCase();
+                            let status = String(row[2] || "").trim();
+
+                            if (rawWaktu.toLowerCase().includes("timestamp") || rawWaktu.toLowerCase().includes("waktu")) continue;
+
+                            if (rawWaktu && nama) {
+                                cleanedData.push([rawWaktu, nama, status, row[3] || "-", row[4] || "-", row[5] || "-"]);
+                            }
+                        }
+                        cleanedData.unshift(["Timestamp", "Nama", "Status", "Lat", "Lng", "Foto"]);
+
+                        dataLaporanGlobal = cleanedData;
                         ekstrakKaryawanDariLog();
                         await saveDataToCloudFirebase();
 
                         updateDropdownKaryawan();
                         renderJadwalKaryawan();
                         renderMatrixOff();
+                        renderTabelAdminLog();
                         showModal("Sukses", "Berkas backup berhasil diproses.");
                     }
                 } catch (err) {
@@ -765,10 +785,13 @@
                     if (item.isWeekend) countOffWeekend++;
                 } else if (manualStatus === "PS") {
                     badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
-                    statusLabel = "PS"; jamTampil = "PART SHIFT"; countPs++;
+                    statusLabel = "PS"; 
+                    jamTampil = "PULANG SORE"; 
+                    countPs++;
+                    countMasuk++; // PS DIHITUNG HADIR (MASUK)
                 } else {
                     if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
-                        countMasuk++;
+                        countMasuk++; // HADIR FULL
                         let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
                         if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
                             countTerlambat++;
@@ -779,7 +802,9 @@
                         let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
                         if (jamOut < 19) {
                             badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
-                            statusLabel = "PS"; countPs++;
+                            statusLabel = "PS"; 
+                            jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong> (PS)</span>`;
+                            countPs++;
                         }
                     } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
                         let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
@@ -842,6 +867,7 @@
                         countOffTotal++; if (item.isWeekend) countOffWeekend++;
                     } else if (manualStatus === "PS") {
                         countPs++;
+                        countMasuk++; // PS DIHITUNG HADIR (MASUK)
                     } else if (absen.checkIn !== "-") {
                         let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
                         if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
