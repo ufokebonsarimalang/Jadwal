@@ -32,41 +32,73 @@
     <div class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute bottom-10 right-10 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-  <!-- SIDEBAR NAVIGASI -->
-    <aside class="w-full md:w-72 h-auto md:h-screen sticky top-0 bg-white dark:bg-slate-900/90 backdrop-blur-2xl border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 flex flex-row md:flex-col justify-between p-4 md:p-6 shrink-0 z-30 items-center md:items-stretch shadow-xl">
-        <div class="flex flex-col gap-3">
+    <!-- HEADER KHUSUS HP (MOBILE TOP BAR) -->
+    <header class="md:hidden flex items-center justify-between bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 z-40 shadow-md">
+        <div class="flex items-center gap-2.5">
+            <div class="p-2 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 text-white rounded-xl shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            </div>
+            <h1 class="font-black text-slate-900 dark:text-white text-sm tracking-tight">Ufo Malang Kebonsari</h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="toggleTheme()" class="p-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-yellow-400 rounded-xl text-xs shadow">
+                <span id="themeIconMobile">☀️</span>
+            </button>
+            <button onclick="toggleMobileMenu()" class="p-2.5 bg-indigo-600 text-white rounded-xl shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- MENU DROPDOWN MOBILE (MUNCUL SAAT HAMBURGER DIKLIK) -->
+    <div id="mobileMenuDropdown" class="hidden md:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 space-y-3 z-30 shadow-xl">
+        <div class="flex justify-center pb-2 border-b border-slate-200 dark:border-slate-800">
+            <img src="logo.png" alt="Logo Ufo Malang" class="h-20 w-auto object-contain">
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+            <button onclick="switchTab('lapangan'); toggleMobileMenu();" class="p-2.5 rounded-xl text-xs font-bold bg-indigo-600 text-white text-center shadow">Jadwal</button>
+            <button onclick="switchTab('jadwal'); toggleMobileMenu();" class="p-2.5 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-center">Absen</button>
+            <button onclick="switchTab('admin'); toggleMobileMenu();" class="p-2.5 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-center">Admin</button>
+        </div>
+    </div>
+
+    <!-- SIDEBAR NAVIGASI (KHUSUS DESKTOP / PC) -->
+    <aside class="hidden md:flex md:w-72 h-screen sticky top-0 bg-white dark:bg-slate-900/90 backdrop-blur-2xl border-r border-slate-200 dark:border-slate-800 flex-col justify-between p-6 shrink-0 z-30 shadow-xl">
+        <div class="flex flex-col gap-6">
             <div class="flex items-center gap-3.5">
                 <div class="p-2.5 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 text-white rounded-2xl shadow-lg shadow-indigo-500/30 shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </div>
-                <div class="hidden sm:block">
+                <div>
                     <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight whitespace-nowrap">Ufo Malang Kebonsari</h1>
                 </div>
             </div>
 
-            <!-- LOGO DIPERBESAR LAGI -->
-            <div class="hidden sm:flex items-center justify-center px-1 pt-3">
+            <!-- LOGO UKURAN BESAR DI DESKTOP SIDEBAR -->
+            <div class="flex items-center justify-center pt-1 pb-2">
                 <img src="logo.png" alt="Logo Ufo Malang" class="w-full max-w-[220px] h-36 object-contain">
             </div>
-        <nav class="flex md:flex-col gap-2 mt-0 md:mt-6">
-            <button onclick="switchTab('lapangan')" id="btnLapangan" 
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm transition-all duration-200 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
-                <span class="hidden sm:inline">Jadwal Lapangan</span>
-            </button>
-            <button onclick="switchTab('jadwal')" id="btnJadwal" 
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span class="hidden sm:inline">Monitoring Absen</span>
-            </button>
-            <button onclick="switchTab('admin')" id="btnAdmin" 
-                class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 md:w-5 md:h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
-                <span class="hidden sm:inline">Konfigurasi</span>
-            </button>
-        </nav>
 
-        <div class="hidden md:flex flex-col gap-3 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs">
+            <nav class="flex flex-col gap-2">
+                <button onclick="switchTab('lapangan')" id="btnLapangan" 
+                    class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-sm transition-all duration-200 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
+                    <span>Jadwal Lapangan</span>
+                </button>
+                <button onclick="switchTab('jadwal')" id="btnJadwal" 
+                    class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Monitoring Absen</span>
+                </button>
+                <button onclick="switchTab('admin')" id="btnAdmin" 
+                    class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
+                    <span>Konfigurasi</span>
+                </button>
+            </nav>
+        </div>
+
+        <div class="flex flex-col gap-3 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs">
             <div class="flex items-center justify-between bg-slate-100 dark:bg-slate-950 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
                 <span class="text-slate-700 dark:text-slate-300 font-semibold px-2">Interface Theme</span>
                 <button onclick="toggleTheme()" class="p-2 bg-white dark:bg-slate-800 text-slate-800 dark:text-yellow-400 rounded-lg shadow transition-all hover:scale-105">
@@ -88,13 +120,13 @@
 
         <!-- HALAMAN 1: JADWAL LAPANGAN -->
         <section id="tabLapangan" class="space-y-6 max-w-6xl mx-auto">
-            <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-6 rounded-3xl shadow-xl space-y-4">
+            <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-4 md:p-6 rounded-3xl shadow-xl space-y-4">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
-                        <h2 class="text-xl font-black text-slate-900 dark:text-white">📅 Jadwal Lapangan & Tukar OFF / PS</h2>
+                        <h2 class="text-lg md:text-xl font-black text-slate-900 dark:text-white">📅 Jadwal Lapangan & Tukar OFF / PS</h2>
                         <p class="text-xs text-slate-600 dark:text-slate-300">Pengaturan jadwal libur dari web. Klik kotak untuk mengubah status (<span class="text-rose-500 font-bold">OFF</span> ➔ <span class="text-orange-500 font-bold">PS</span> ➔ Kosong).</p>
                     </div>
-                    <button onclick="simpanJadwalOffManual()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all">💾 Simpan Manual ke Cloud</button>
+                    <button onclick="simpanJadwalOffManual()" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all">💾 Simpan Manual ke Cloud</button>
                 </div>
                 <div class="overflow-x-auto max-h-[600px]">
                     <table id="tabelMatrixOff" class="w-full text-center text-xs border-collapse"></table>
@@ -104,42 +136,42 @@
 
         <!-- HALAMAN 2: MONITORING KEHADIRAN -->
         <section id="tabJadwal" class="hidden space-y-6 max-w-5xl mx-auto">
-            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
+            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-4 md:p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
                 <div>
                     <h2 class="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">Monitoring Absen</h2>
                     <p id="labelCutOffHeader" class="text-xs text-slate-600 dark:text-slate-300 mt-1">Periode Otomatis</p>
                 </div>
-                <div>
+                <div class="w-full md:w-auto">
                     <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">Pilih Karyawan:</label>
-                    <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+                    <select id="selectKaryawan" onchange="renderJadwalKaryawan()" class="w-full md:w-auto px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-emerald-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total Hadir (Masuk)</span>
-                    <span id="statMasuk" class="text-xl font-black text-emerald-700 dark:text-emerald-400 mt-1">0 Hari</span>
+                    <span class="text-[10px] md:text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total Hadir (Masuk)</span>
+                    <span id="statMasuk" class="text-lg md:text-xl font-black text-emerald-700 dark:text-emerald-400 mt-1">0 Hari</span>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-red-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total OFF (Libur)</span>
-                    <div class="flex items-baseline gap-2 mt-1">
-                        <span id="statOff" class="text-xl font-black text-red-700 dark:text-red-400">0 Hari</span>
-                        <span id="statOffSub" class="text-[11px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap">(Sab/Min: 0)</span>
+                    <span class="text-[10px] md:text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total OFF (Libur)</span>
+                    <div class="flex flex-col md:flex-row items-start md:items-baseline gap-0 md:gap-2 mt-1">
+                        <span id="statOff" class="text-lg md:text-xl font-black text-red-700 dark:text-red-400">0 Hari</span>
+                        <span id="statOffSub" class="text-[10px] md:text-[11px] font-bold text-slate-500 dark:text-slate-400 whitespace-nowrap">(Sab/Min: 0)</span>
                     </div>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-orange-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total PS (Pulang Sore)</span>
-                    <span id="statPs" class="text-xl font-black text-orange-700 dark:text-orange-400 mt-1">0 Hari</span>
+                    <span class="text-[10px] md:text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total PS (Pulang Sore)</span>
+                    <span id="statPs" class="text-lg md:text-xl font-black text-orange-700 dark:text-orange-400 mt-1">0 Hari</span>
                 </div>
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-amber-500/30 p-4 rounded-2xl shadow-lg flex flex-col justify-between">
-                    <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total Terlambat</span>
-                    <span id="statTerlambat" class="text-xl font-black text-amber-700 dark:text-amber-400 mt-1">0 Hari</span>
+                    <span class="text-[10px] md:text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total Terlambat</span>
+                    <span id="statTerlambat" class="text-lg md:text-xl font-black text-amber-700 dark:text-amber-400 mt-1">0 Hari</span>
                 </div>
             </div>
 
-            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
+            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-4 md:p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <h3 id="labelKalenderTitle" class="font-extrabold text-slate-900 dark:text-white text-sm">Kalender Jadwal Periode Aktif</h3>
+                    <h3 id="labelKalenderTitle" class="font-extrabold text-slate-900 dark:text-white text-xs md:text-sm">Kalender Jadwal Periode Aktif</h3>
                 </div>
                 <div id="gridJadwal" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 gap-3"></div>
             </div>
@@ -147,7 +179,7 @@
 
         <!-- HALAMAN 3: PANEL ADMIN -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-6xl mx-auto">
-            <div id="kotakTombolAdmin" class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-8 rounded-3xl shadow-xl text-center space-y-4">
+            <div id="kotakTombolAdmin" class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-6 md:p-8 rounded-3xl shadow-xl text-center space-y-4">
                 <div class="text-4xl">🔐</div>
                 <h2 class="text-lg font-black text-slate-900 dark:text-white">Panel Konfigurasi Terproteksi</h2>
                 <button onclick="bukaPinModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded-xl text-xs shadow-lg transition-all hover:scale-105 flex items-center gap-2 mx-auto">
@@ -166,16 +198,16 @@
                         <span>Sesi Akses Admin Aktif</span>
                     </div>
                     <button onclick="kunciMenuAdminSensitif()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-lg transition-all flex items-center gap-1.5 hover:scale-105">
-                        <span>🔒 Kunci Kembali Panel Admin</span>
+                        <span>🔒 Kunci Kembali</span>
                     </button>
                 </div>
 
-                <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
+                <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-4 md:p-6 rounded-3xl shadow-xl space-y-4">
                     <div class="flex justify-between items-center">
-                        <h2 class="text-xl font-black text-slate-900 dark:text-white">Direktori Karyawan</h2>
-                        <button onclick="resetServerDatabase()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow">🗑️ Purge Cache & Reset</button>
+                        <h2 class="text-lg md:text-xl font-black text-slate-900 dark:text-white">Direktori Karyawan</h2>
+                        <button onclick="resetServerDatabase()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs shadow">🗑️ Reset</button>
                     </div>
-                    <div class="flex gap-3">
+                    <div class="flex flex-col md:flex-row gap-3">
                         <input type="text" id="inputNamaBaru" placeholder="Nama Karyawan Baru (cth: BUDI)" class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white">
                         <button onclick="tambahKaryawanBaru()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-sm">Tambahkan</button>
                     </div>
@@ -183,8 +215,8 @@
                 </div>
             </div>
 
-            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
-                <h2 id="labelRekapTitle" class="text-lg font-black text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-4">Rekapitulasi Statistik Kehadiran</h2>
+            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-4 md:p-6 rounded-3xl space-y-4 shadow-xl">
+                <h2 id="labelRekapTitle" class="text-base md:text-lg font-black text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-4">Rekapitulasi Statistik Kehadiran</h2>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-800 dark:text-slate-200">
                         <thead class="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-800">
@@ -201,17 +233,17 @@
                 </div>
             </div>
 
-            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-4 shadow-xl">
+            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-4 md:p-6 rounded-3xl space-y-4 shadow-xl">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
-                        <h2 class="text-lg font-black text-slate-900 dark:text-white">Log Aktivitas & Verifikasi Foto</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Riwayat lengkap timestamp, koordinat geolokasi, dan swafoto karyawan.</p>
+                        <h2 class="text-base md:text-lg font-black text-slate-900 dark:text-white">Log Aktivitas & Verifikasi Foto</h2>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Riwayat lengkap timestamp, koordinat geolokasi, dan swafoto.</p>
                     </div>
-                    <div class="flex items-center gap-3 w-full md:w-auto">
-                        <select id="filterNamaAdmin" onchange="renderTabelAdminLog()" class="px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
+                    <div class="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
+                        <select id="filterNamaAdmin" onchange="renderTabelAdminLog()" class="w-full md:w-auto px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
                             <option value="SEMUA">-- Semua Karyawan --</option>
                         </select>
-                        <button onclick="downloadCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow">📥 Export CSV</button>
+                        <button onclick="downloadCSV()" class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow">📥 Export CSV</button>
                     </div>
                 </div>
 
@@ -316,15 +348,27 @@
             loadDataFromServer();
         });
 
+        window.toggleMobileMenu = function() {
+            const menu = document.getElementById('mobileMenuDropdown');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
         function toggleTheme() {
             const root = document.getElementById('htmlRoot');
             const icon = document.getElementById('themeIcon');
+            const iconMob = document.getElementById('themeIconMobile');
             if (root.classList.contains('dark')) {
                 root.classList.remove('dark'); root.classList.add('light');
-                localStorage.setItem('theme', 'light'); if(icon) icon.innerText = "🌙 Dark";
+                localStorage.setItem('theme', 'light'); 
+                if(icon) icon.innerText = "🌙 Dark";
+                if(iconMob) iconMob.innerText = "🌙";
             } else {
                 root.classList.remove('light'); root.classList.add('dark');
-                localStorage.setItem('theme', 'dark'); if(icon) icon.innerText = "☀️ Light";
+                localStorage.setItem('theme', 'dark'); 
+                if(icon) icon.innerText = "☀️ Light";
+                if(iconMob) iconMob.innerText = "☀️";
             }
         }
         window.toggleTheme = toggleTheme;
@@ -332,6 +376,8 @@
         (function() {
             const savedTheme = localStorage.getItem('theme') || 'dark';
             document.getElementById('htmlRoot').className = savedTheme;
+            const iconMob = document.getElementById('themeIconMobile');
+            if(iconMob) iconMob.innerText = savedTheme === 'dark' ? '☀️' : '🌙';
         })();
 
         function showModal(title, message) {
@@ -436,10 +482,10 @@
                 if (el) {
                     if (t === 'tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)) {
                         el.classList.remove('hidden');
-                        if(btn) btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs md:text-sm bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30";
+                        if(btn) btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-sm bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30";
                     } else {
                         el.classList.add('hidden');
-                        if(btn) btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-xs md:text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60";
+                        if(btn) btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60";
                     }
                 }
             });
