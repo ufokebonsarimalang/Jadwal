@@ -776,7 +776,7 @@
                         }
                         badgeClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40";
                         statusLabel = "PROSES";
-                        countMasuk++; 
+                        // countMasuk TIDAK ditambahkan di sini agar baru check in saja tidak terhitung
                     } else {
                         badgeClass = "bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20";
                         statusLabel = "-";
@@ -834,7 +834,7 @@
                         if (absen.checkIn !== "-" || absen.checkOut !== "-") {
                             countMasuk++;
                         }
-                    } else if (absen.checkIn !== "-") {
+                    } else if (absen.checkIn !== "-" && absen.checkOut !== "-") {
                         countMasuk++;
                         let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
                         if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
