@@ -410,7 +410,7 @@
                 endDate = new Date(year, month, 25);
             }
 
-            let dates = [];
+         let dates = [];
             let curr = new Date(startDate);
             while (curr <= endDate) {
                 let y = curr.getFullYear();
@@ -425,7 +425,7 @@
                 dates.push({
                     dateStr: isoStr,
                     possibleKeys: [isoStr, idStr1, idStr2, idStr3],
-                    label: `${curr.toLocaleDateString('id-ID', { weekday: 'short' })}, ${d} ${curr.toLocaleDateString('id-ID', { month: 'short' })}`,
+                    label: `${curr.toLocaleDateString('id-ID', { weekday: 'short' })}, ${d} ${curr.toLocaleDateString('id-ID', { month: 'short' })}`, // <-- UBAH DI SINI
                     isWeekend: (curr.getDay() === 0 || curr.getDay() === 6)
                 });
                 curr.setDate(curr.getDate() + 1);
