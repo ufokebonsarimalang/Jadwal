@@ -9,7 +9,7 @@
     <script>
         tailwind.config = { darkMode: 'class' }
     </script>
-    <!-- SheetJS (XLSX) untuk backup data offline -->
+    <!-- SheetJS (XLSX) untuk export data -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <!-- Google Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -165,16 +165,6 @@
                     <button onclick="kunciMenuAdminSensitif()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-4 py-2 rounded-xl text-xs shadow-lg transition-all flex items-center gap-1.5 hover:scale-105">
                         <span>🔒 Kunci Kembali Panel Admin</span>
                     </button>
-                </div>
-
-                <!-- (Kotak Input URL GAS sudah dihapus karena kini sudah otomatis tertanam di dalam kode) -->
-
-                <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
-                    <h2 class="text-sm font-black text-slate-900 dark:text-white">📂 Offline Backup: Import Data (.xlsx / .csv)</h2>
-                    <div class="flex flex-col sm:flex-row items-center gap-4">
-                        <input type="file" id="csvFileInput" accept=".csv, .xlsx, .xls" class="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-slate-700 file:text-white hover:file:bg-slate-600 cursor-pointer bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2"/>
-                        <button onclick="prosesUploadFile()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow">Proses Berkas</button>
-                    </div>
                 </div>
 
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
@@ -707,59 +697,6 @@
             showModal("Sukses", "Jadwal OFF/PS manual berhasil disimpan ke Cloud Firebase!");
             renderJadwalKaryawan();
             renderTabelRekap();
-        }
-
-        window.prosesUploadFile = async function() {
-            const fileInput = document.getElementById('csvFileInput');
-            if (!fileInput || fileInput.files.length === 0) {
-                showModal("Peringatan", "Pilih berkas backup terlebih dahulu!");
-                return;
-            }
-
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-
-            reader.onload = async function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array', cellDates: false, raw: false });
-                    let sheetName = workbook.SheetNames[0];
-
-                    const worksheet = workbook.Sheets[sheetName];
-                    const parsedRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
-
-                    if (parsedRows.length > 0) {
-                        let cleanedData = [];
-                        for (let i = 0; i < parsedRows.length; i++) {
-                            let row = parsedRows[i];
-                            if (!row || row.length < 3) continue;
-                            let rawWaktu = String(row[0] || "").trim();
-                            let nama = String(row[1] || "").trim().toUpperCase();
-                            let status = String(row[2] || "").trim();
-
-                            if (rawWaktu.toLowerCase().includes("timestamp") || rawWaktu.toLowerCase().includes("waktu")) continue;
-
-                            if (rawWaktu && nama) {
-                                cleanedData.push([rawWaktu, nama, status, row[3] || "-", row[4] || "-", row[5] || "-"]);
-                            }
-                        }
-                        cleanedData.unshift(["Timestamp", "Nama", "Status", "Lat", "Lng", "Foto"]);
-
-                        dataLaporanGlobal = cleanedData;
-                        ekstrakKaryawanDariLog();
-                        await saveDataToCloudFirebase();
-
-                        updateDropdownKaryawan();
-                        renderJadwalKaryawan();
-                        renderMatrixOff();
-                        renderTabelAdminLog();
-                        showModal("Sukses", "Berkas backup berhasil diproses.");
-                    }
-                } catch (err) {
-                    showModal("Gagal Membaca Berkas", err.message);
-                }
-            };
-            reader.readAsArrayBuffer(file);
         }
 
         function updateDropdownKaryawan() {
