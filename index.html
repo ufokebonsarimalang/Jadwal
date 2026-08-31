@@ -671,7 +671,26 @@
             table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
         }
 
-        window.toggleMatrixStatus = async function(nama, dateStr) {
+      window.toggleMatrixStatus = async function(nama, dateStr) {
+            // dateStr berformat "YYYY-MM-DD"
+            let targetDate = new Date(dateStr);
+            let today = new Date();
+            // Reset jam agar perbandingan tanggal akurat
+            today.setHours(0, 0, 0, 0);
+            targetDate.setHours(0, 0, 0, 0);
+
+            // Jika tanggal yang diklik sudah lewat dari hari ini, wajib masukkan PIN admin
+            if (targetDate < today) {
+                // Kita buat fungsi verifikasi khusus untuk matrix atau menggunakan modal PIN yang sudah ada
+                let pinInput = prompt(`🔒 Tanggal ${dateStr} sudah lewat!\nMasukkan PIN Admin untuk mengubah status OFF/PS:`);
+                if (pinInput !== "1234") { // Sesuaikan PIN admin ("1234")
+                    if (pinInput !== null) {
+                        showModal("Akses Ditolak", "PIN yang Anda masukkan salah.");
+                    }
+                    return; // Batalkan perubahan jika PIN salah atau dibatalkan
+                }
+            }
+
             let key = `${nama}_${dateStr}`;
             let current = jadwalOffManual[key];
 
