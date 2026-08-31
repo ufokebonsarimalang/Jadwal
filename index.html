@@ -32,14 +32,22 @@
     <div class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute bottom-10 right-10 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-    <!-- SIDEBAR NAVIGASI -->
+  <!-- SIDEBAR NAVIGASI -->
     <aside class="w-full md:w-72 h-auto md:h-screen sticky top-0 bg-white dark:bg-slate-900/90 backdrop-blur-2xl border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 flex flex-row md:flex-col justify-between p-4 md:p-6 shrink-0 z-30 items-center md:items-stretch shadow-xl">
-        <div class="flex items-center gap-3.5">
-            <div class="p-2.5 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 text-white rounded-2xl shadow-lg shadow-indigo-500/30 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <div class="flex flex-col gap-3">
+            <div class="flex items-center gap-3.5">
+                <div class="p-2.5 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 text-white rounded-2xl shadow-lg shadow-indigo-500/30 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 md:w-6 md:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <div class="hidden sm:block">
+                    <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight whitespace-nowrap">Ufo Malang Kebonsari</h1>
+                </div>
             </div>
-            <div class="hidden sm:block">
-                <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight whitespace-nowrap">Ufo Malang Kebonsari</h1>
+
+            <!-- LOGO DI BAWAH JUDUL -->
+            <div class="hidden sm:flex items-center px-1">
+                <!-- Ganti "logo.png" sesuai dengan nama file logo yang Anda upload ke GitHub -->
+                <img src="logo.png" alt="Logo Ufo Malang" class="h-9 w-auto object-contain rounded-lg">
             </div>
         </div>
 
