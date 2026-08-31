@@ -167,20 +167,7 @@
                     </button>
                 </div>
 
-                <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/40 p-6 rounded-3xl shadow-xl space-y-4">
-                    <div class="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
-                        <div class="p-3 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-2xl text-xl">⚡</div>
-                        <div>
-                            <h2 class="text-lg font-black text-slate-900 dark:text-white">Cloud Endpoint & API Server Integration</h2>
-                            <p class="text-xs text-slate-600 dark:text-slate-300">Konfigurasi endpoint API backend untuk sinkronisasi data presensi secara real-time.</p>
-                        </div>
-                    </div>
-                    <div class="flex flex-col sm:flex-row items-center gap-3">
-                        <input type="text" id="inputGasUrl" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white"/>
-                        <button onclick="simpanGasUrl()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow">Simpan Konfigurasi</button>
-                        <button onclick="tarikDataDariServer()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl text-xs shadow">Fetch Data Sekarang</button>
-                    </div>
-                </div>
+                <!-- (Kotak Input URL GAS sudah dihapus karena kini sudah otomatis tertanam di dalam kode) -->
 
                 <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
                     <h2 class="text-sm font-black text-slate-900 dark:text-white">📂 Offline Backup: Import Data (.xlsx / .csv)</h2>
@@ -253,7 +240,7 @@
         </section>
     </main>
 
-    <!-- MODAL CUSTOM PIN VERIFIKASI (BERSESUAIAN TEMA) -->
+    <!-- MODAL CUSTOM PIN VERIFIKASI -->
     <div id="pinModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-900 border border-indigo-500/30 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl text-center relative overflow-hidden">
             <div class="text-4xl">🔑</div>
@@ -308,11 +295,9 @@
         let dataLaporanGlobal = [];
         let cachedDates = null;
         let jadwalOffManual = {}; 
-        let gasWebhookUrl = localStorage.getItem('gas_webhook_url') || "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
+        let gasWebhookUrl = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
 
         document.addEventListener("DOMContentLoaded", () => {
-            let inputUrl = document.getElementById('inputGasUrl');
-            if(inputUrl) inputUrl.value = gasWebhookUrl;
             loadDataFromServer();
         });
 
@@ -350,7 +335,6 @@
         }
         window.closeModal = closeModal;
 
-        // BUKA DAN TUTUP MODAL PIN CUSTOM
         window.bukaPinModal = function() {
             const modal = document.getElementById('pinModal');
             const input = document.getElementById('inputPinKeamanan');
@@ -366,7 +350,6 @@
             if (modal) modal.classList.add('hidden');
         }
 
-        // VERIFIKASI PIN ADMIN KUSTOM
         window.verifikasiPinAdmin = function() {
             const input = document.getElementById('inputPinKeamanan');
             const err = document.getElementById('pinErrorMessage');
@@ -387,7 +370,6 @@
             }
         }
 
-        // FUNGSI UNTUK MENGUNCI KEMBALI PANEL ADMIN
         window.kunciMenuAdminSensitif = function() {
             let kotakGembok = document.getElementById('kotakTombolAdmin');
             let panelAdmin = document.getElementById('panelAdminSensitif');
@@ -422,15 +404,6 @@
                 renderListKaryawanAdmin();
                 renderTabelRekap();
                 renderTabelAdminLog();
-            }
-        }
-
-        window.simpanGasUrl = function() {
-            let inputUrl = document.getElementById('inputGasUrl');
-            if(inputUrl) {
-                gasWebhookUrl = inputUrl.value.trim();
-                localStorage.setItem('gas_webhook_url', gasWebhookUrl);
-                showModal("Sukses", "Endpoint API Server berhasil disimpan!");
             }
         }
 
@@ -561,15 +534,6 @@
                 console.error(err);
                 if(cloudStatusText) cloudStatusText.innerText = "Koneksi Gagal";
             }
-        }
-
-        window.tarikDataDariServer = async function() {
-            if(!gasWebhookUrl) {
-                showModal("Peringatan", "Endpoint API Server belum dikonfigurasi!");
-                return;
-            }
-            await window.loadDataFromServer();
-            showModal("Sinkronisasi Berhasil", "Data presensi terbaru berhasil ditarik dari server.");
         }
 
         async function saveDataToCloudFirebase() {
@@ -849,7 +813,6 @@
                     jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`; 
                     countPs++;
 
-                    // LOGIKA PERBAIKAN: Hanya hitung MASUK jika sudah ada jam absen In/Out
                     if (dataAbsen.checkIn !== "-" || dataAbsen.checkOut !== "-") {
                         countMasuk++;
                     }
@@ -877,7 +840,7 @@
                         }
                         badgeClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40";
                         statusLabel = "PROSES";
-                        countMasuk++; // Dianggap masuk karena sedang proses kerja
+                        countMasuk++; 
                     } else {
                         badgeClass = "bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20";
                         statusLabel = "-";
@@ -932,7 +895,6 @@
                         countOffTotal++; if (item.isWeekend) countOffWeekend++;
                     } else if (manualStatus === "PS") {
                         countPs++;
-                        // HANYA hitung ke rekap masuk jika ada bukti jam absennya
                         if (absen.checkIn !== "-" || absen.checkOut !== "-") {
                             countMasuk++;
                         }
