@@ -664,8 +664,7 @@
                 daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
             }
         }
-
-        function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
+function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
             let checkIn = "-";
             let checkOut = "-";
 
@@ -706,8 +705,19 @@
                     }
 
                     if (matched) {
+                        // Ambil langsung teks jam dan menit (HH:mm) dari string rawWaktu tanpa konversi zona waktu
+                        // Contoh: "01/09/2026 08:03:52" akan langsung menangkap "08:03"
                         let timeMatch = rawWaktu.match(/(\d{2}):(\d{2})/);
-                        let timePart = timeMatch ? `${timeMatch[1]}:${timeMatch[2]}` : "";
+                        
+                        // Jika formatnya pakai spasi tunggal atau format jam pendek, cari angka setelah spasi/T
+                        if (!timeMatch && rawWaktu.includes(' ')) {
+                            let partsWaktu = rawWaktu.split(' ');
+                            if (partsWaktu.length > 1) {
+                                timeMatch = partsWaktu[1].match(/(\d{1,2}):(\d{2})/);
+                            }
+                        }
+
+                        let timePart = timeMatch ? `${String(timeMatch[1]).padStart(2, '0')}:${timeMatch[2]}` : "";
 
                         if (timePart) {
                             if (kolomStatus.includes("in") || kolomStatus.includes("masuk")) {
@@ -721,7 +731,6 @@
             }
             return { checkIn, checkOut };
         }
-
         window.renderMatrixOff = function() {
             const table = document.getElementById('tabelMatrixOff');
             if(!table) return;
