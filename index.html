@@ -50,7 +50,7 @@
         </div>
     </header>
 
-    <!-- MENU DROPDOWN MOBILE (MUNCUL SAAT HAMBURGER DIKLIK) -->
+    <!-- MENU DROPDOWN MOBILE -->
     <div id="mobileMenuDropdown" class="hidden md:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 space-y-3 z-30 shadow-xl">
         <div class="flex justify-center pb-2 border-b border-slate-200 dark:border-slate-800">
             <img src="logo.png" alt="Logo Ufo Malang" class="h-20 w-auto object-contain">
@@ -62,7 +62,7 @@
         </div>
     </div>
 
-    <!-- SIDEBAR NAVIGASI (KHUSUS DESKTOP / PC) -->
+    <!-- SIDEBAR NAVIGASI (DESKTOP) -->
     <aside class="hidden md:flex md:w-72 h-screen sticky top-0 bg-white dark:bg-slate-900/90 backdrop-blur-2xl border-r border-slate-200 dark:border-slate-800 flex-col justify-between p-6 shrink-0 z-30 shadow-xl">
         <div class="flex flex-col gap-6">
             <div class="flex items-center gap-3.5">
@@ -74,7 +74,6 @@
                 </div>
             </div>
 
-            <!-- LOGO UKURAN BESAR DI DESKTOP SIDEBAR -->
             <div class="flex items-center justify-center pt-1 pb-2">
                 <img src="logo.png" alt="Logo Ufo Malang" class="w-full max-w-[220px] h-36 object-contain">
             </div>
@@ -188,7 +187,6 @@
             </div>
 
             <div id="panelAdminSensitif" class="hidden space-y-6">
-                <!-- Baris Akses Admin Aktif & Tombol Kunci Kembali -->
                 <div class="flex justify-between items-center bg-indigo-500/10 border border-indigo-500/30 p-4 rounded-2xl">
                     <div class="flex items-center gap-2 text-xs font-bold text-indigo-600 dark:text-indigo-400">
                         <span class="relative flex h-2 w-2">
@@ -286,27 +284,6 @@
         </div>
     </div>
 
-    <!-- MODAL PIN KHUSUS JADWAL LAPANGAN (TANGGAL LAMPAU) -->
-    <div id="matrixPinModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-900 border border-indigo-500/30 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl text-center relative overflow-hidden">
-            <div class="text-4xl">🔒</div>
-            <h3 class="text-lg font-black text-slate-900 dark:text-white">Konfirmasi Tanggal Lampau</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Tanggal yang dipilih sudah lewat. Masukkan PIN Admin untuk mengubah status.</p>
-            
-            <div class="space-y-2">
-                <input type="password" id="inputMatrixPin" placeholder="••••" maxlength="10" 
-                    onkeydown="if(event.key === 'Enter') verifikasiMatrixPin()"
-                    class="w-full px-4 py-3 text-center text-lg font-bold tracking-widest bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"/>
-                <p id="matrixPinErr" class="text-[11px] font-bold text-rose-500 hidden">PIN Salah! Silakan coba lagi.</p>
-            </div>
-
-            <div class="flex gap-2 pt-2">
-                <button onclick="tutupMatrixPinModal()" class="flex-1 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold py-2.5 rounded-xl text-xs hover:bg-slate-300 dark:hover:bg-slate-700 transition-all">Batal</button>
-                <button onclick="verifikasiMatrixPin()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg shadow-indigo-600/30 transition-all">Proses</button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL NOTIFIKASI STANDARD -->
     <div id="customModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl text-center">
@@ -341,7 +318,6 @@
         let dataLaporanGlobal = [];
         let cachedDates = null;
         let jadwalOffManual = {}; 
-        let pendingMatrixData = null;
         let gasWebhookUrl = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -430,40 +406,6 @@
                 if(input) { input.value = ""; input.focus(); }
             }
         }
-
-        function bukaMatrixPinModal() {
-            const modal = document.getElementById('matrixPinModal');
-            const input = document.getElementById('inputMatrixPin');
-            const err = document.getElementById('matrixPinErr');
-            if (input) input.value = "";
-            if (err) err.classList.add('hidden');
-            if (modal) modal.classList.remove('hidden');
-            setTimeout(() => { if(input) input.focus(); }, 100);
-        }
-
-        window.tutupMatrixPinModal = function() {
-            const modal = document.getElementById('matrixPinModal');
-            if (modal) modal.classList.add('hidden');
-            pendingMatrixData = null;
-        }
-
-       window.verifikasiMatrixPin = function() {
-    const input = document.getElementById('inputMatrixPin');
-    const err = document.getElementById('matrixPinErr');
-    const pinVal = input ? input.value.trim() : "";
-
-    if (pinVal === "1234") {
-        tutupMatrixPinModal();
-        if (pendingMatrixData) {
-            // PANGGIL FUNGSI INI AGAR STATUSNYA BERUBAH SETELAH PIN BENAR
-            eksekusiUbahStatusMatrix(pendingMatrixData.nama, pendingMatrixData.dateStr);
-            pendingMatrixData = null;
-        }
-    } else {
-        if(err) err.classList.remove('hidden');
-        if(input) { input.value = ""; input.focus(); }
-    }
-}
 
         window.kunciMenuAdminSensitif = function() {
             let kotakGembok = document.getElementById('kotakTombolAdmin');
@@ -665,7 +607,8 @@
                 daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
             }
         }
-function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
+
+        function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
             let checkIn = "-";
             let checkOut = "-";
 
@@ -706,8 +649,6 @@ function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
                     }
 
                     if (matched) {
-                        // AMBIL LANGSUNG JAM & MENIT DARI TEKS MENTAH TANPA KONVERSI WAKTU
-                        // Contoh: "01-09-2026 8:03:52" akan langsung memotong bagian "8:03" atau "08:03"
                         let timeMatch = rawWaktu.match(/(\d{1,2}):(\d{2})/);
                         
                         if (timeMatch) {
@@ -726,6 +667,7 @@ function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
             }
             return { checkIn, checkOut };
         }
+
         window.renderMatrixOff = function() {
             const table = document.getElementById('tabelMatrixOff');
             if(!table) return;
@@ -781,22 +723,8 @@ function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
             table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
         }
 
+        // FUNGSI TOGGLE LANGSUNG TANPA VALIDASI TANGGAL LAMPAU
         window.toggleMatrixStatus = function(nama, dateStr) {
-            let targetDate = new Date(dateStr);
-            let today = new Date();
-            today.setHours(0, 0, 0, 0);
-            targetDate.setHours(0, 0, 0, 0);
-
-            if (targetDate < today) {
-                pendingMatrixData = { nama, dateStr };
-                bukaMatrixPinModal();
-                return;
-            }
-
-            eksekusiUbahStatusMatrix(nama, dateStr);
-        }
-
-        function eksekusiUbahStatusMatrix(nama, dateStr) {
             let key = `${nama}_${dateStr}`;
             let current = jadwalOffManual[key];
 
