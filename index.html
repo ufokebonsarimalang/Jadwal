@@ -723,6 +723,7 @@
             table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
         }
 
+        // FUNGSI TOGGLE LANGSUNG TANPA VALIDASI TANGGAL LAMPAU
         window.toggleMatrixStatus = function(nama, dateStr) {
             let key = `${nama}_${dateStr}`;
             let current = jadwalOffManual[key];
@@ -928,8 +929,7 @@
             let limit = 200;
             let count = 0;
 
-            // PERBAIKAN: Dibaca dari bawah (data terbaru) ke atas agar tanggal 5 ke atas muncul duluan
-            for (let i = dataLaporanGlobal.length - 1; i >= 1 && count < limit; i--) {
+            for (let i = 1; i < dataLaporanGlobal.length && count < limit; i++) {
                 let row = dataLaporanGlobal[i];
                 if (!row || row.length < 3) continue;
                 let waktu = row[0] || "-";
