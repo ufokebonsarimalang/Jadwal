@@ -230,36 +230,6 @@
                     </table>
                 </div>
             </div>
-
-            <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-4 md:p-6 rounded-3xl space-y-4 shadow-xl">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
-                    <div>
-                        <h2 class="text-base md:text-lg font-black text-slate-900 dark:text-white">Log Aktivitas & Verifikasi Foto</h2>
-                        <p class="text-xs text-slate-600 dark:text-slate-300">Riwayat lengkap timestamp, koordinat geolokasi, dan swafoto.</p>
-                    </div>
-                    <div class="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
-                        <select id="filterNamaAdmin" onchange="renderTabelAdminLog()" class="w-full md:w-auto px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
-                            <option value="SEMUA">-- Semua Karyawan --</option>
-                        </select>
-                        <button onclick="downloadCSV()" class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow">📥 Export CSV</button>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto max-h-96">
-                    <table class="w-full text-left text-xs text-slate-800 dark:text-slate-200 border-collapse">
-                        <thead class="bg-slate-100 dark:bg-slate-950 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200 dark:border-slate-800 sticky top-0">
-                            <tr>
-                                <th class="py-3 px-4">Timestamp</th>
-                                <th class="py-3 px-4">Karyawan</th>
-                                <th class="py-3 px-4 text-center">Status</th>
-                                <th class="py-3 px-4">Geolokasi (GPS)</th>
-                                <th class="py-3 px-4 text-center">Lampiran Foto</th>
-                            </tr>
-                        </thead>
-                        <tbody id="isiTabelAdminLog" class="divide-y divide-slate-200 dark:divide-slate-800/60"></tbody>
-                    </table>
-                </div>
-            </div>
         </section>
     </main>
 
@@ -440,7 +410,6 @@
             } else if (tabName === 'admin') {
                 renderListKaryawanAdmin();
                 renderTabelRekap();
-                renderTabelAdminLog();
             }
         }
 
@@ -723,7 +692,6 @@
             table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
         }
 
-        // FUNGSI TOGGLE LANGSUNG TANPA VALIDASI TANGGAL LAMPAU
         window.toggleMatrixStatus = function(nama, dateStr) {
             let key = `${nama}_${dateStr}`;
             let current = jadwalOffManual[key];
@@ -752,16 +720,11 @@
 
         function updateDropdownKaryawan() {
             let selectKaryawanEl = document.getElementById('selectKaryawan');
-            let filterAdminEl = document.getElementById('filterNamaAdmin');
 
             let optionsHtml = "";
             daftarKaryawan.forEach(nama => { optionsHtml += `<option value="${nama}">${nama}</option>`; });
             
             if(selectKaryawanEl) selectKaryawanEl.innerHTML = optionsHtml;
-            if(filterAdminEl) {
-                filterAdminEl.innerHTML = '<option value="SEMUA">-- Semua Karyawan --</option>';
-                daftarKaryawan.forEach(nama => { filterAdminEl.innerHTML += `<option value="${nama}">${nama}</option>`; });
-            }
         }
 
         window.renderJadwalKaryawan = function() {
@@ -914,51 +877,6 @@
             if(tbody) tbody.innerHTML = html;
         }
 
-        window.renderTabelAdminLog = function() {
-            const tbody = document.getElementById('isiTabelAdminLog');
-            let filterEl = document.getElementById('filterNamaAdmin');
-            const filterNama = filterEl?.value || "SEMUA";
-            if(!tbody) return;
-
-            if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) {
-                tbody.innerHTML = "<tr><td colspan='5' class='text-center py-6 text-slate-500'>Tidak ada log aktivitas.</td></tr>";
-                return;
-            }
-
-            let html = "";
-            let limit = 200;
-            let count = 0;
-
-            for (let i = 1; i < dataLaporanGlobal.length && count < limit; i++) {
-                let row = dataLaporanGlobal[i];
-                if (!row || row.length < 3) continue;
-                let waktu = row[0] || "-";
-                let nama = String(row[1] || "").trim().toUpperCase();
-                let status = String(row[2] || "").trim();
-                let lat = row[3];
-                let lng = row[4];
-                let fotoUrl = row[5];
-
-                if (filterNama === "SEMUA" || nama === filterNama.toUpperCase()) {
-                    let badgeClass = status.toLowerCase().includes('in') ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/30 font-extrabold' : 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-emerald-500/30 font-extrabold';
-                    let koordinat = (lat && lng && lat !== "-") ? `${lat}, ${lng}` : '-';
-                    let fotoLink = (fotoUrl && fotoUrl !== '-') ? `<a href="${fotoUrl}" target="_blank" class="px-2.5 py-1 bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 rounded-lg font-bold border border-indigo-500/20">Lihat Foto</a>` : '<span class="text-slate-400">Tanpa Foto</span>';
-
-                    html += `
-                        <tr class="hover:bg-slate-100 dark:hover:bg-slate-900/40">
-                            <td class="py-3 px-4 whitespace-nowrap font-medium text-slate-900 dark:text-slate-100">${waktu}</td>
-                            <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">${nama}</td>
-                            <td class="py-3 px-4 text-center"><span class="px-2.5 py-1 rounded-lg text-[10px] border ${badgeClass}">${status}</span></td>
-                            <td class="py-3 px-4 font-mono text-slate-700 dark:text-slate-300">${koordinat}</td>
-                            <td class="py-3 px-4 text-center">${fotoLink}</td>
-                        </tr>
-                    `;
-                    count++;
-                }
-            }
-            tbody.innerHTML = html;
-        }
-
         window.tambahKaryawanBaru = async function() {
             let input = document.getElementById('inputNamaBaru');
             if(!input) return;
@@ -1013,35 +931,6 @@
                 `;
             }
             container.innerHTML = html;
-        }
-
-        window.downloadCSV = function() {
-            if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) { alert("Data kosong."); return; }
-            let csvContent = "\uFEFF";
-            let barisData = [["Timestamp", "Karyawan", "Status", "Latitude", "Longitude", "URL Foto"]];
-
-            for (let i = 1; i < dataLaporanGlobal.length; i++) {
-                let row = dataLaporanGlobal[i];
-                let waktu = String(row[0] || "").trim();
-                let nama = String(row[1] || "").trim();
-                let status = String(row[2] || "").trim();
-                let lat = row[3] && row[3] !== "-" ? row[3] : "";
-                let lng = row[4] && row[4] !== "-" ? row[4] : "";
-                let foto = row[5] && row[5] !== "-" ? row[5] : "-";
-                barisData.push([waktu, nama, status, lat, lng, foto]);
-            }
-
-            barisData.forEach(function(rowArray) {
-                let row = rowArray.map(val => `"${String(val).replace(/"/g, '""')}"`);
-                csvContent += row.join(";") + "\r\n";
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `Absensi_Export_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
     </script>
 </body>
