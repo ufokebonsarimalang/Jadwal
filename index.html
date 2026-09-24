@@ -559,24 +559,24 @@
             }
         }
 
-        function ekstrakKaryawanDariLog() {
-            let detected = new Set(daftarKaryawan);
-            for (let i = 1; i < dataLaporanGlobal.length; i++) {
-                let row = dataLaporanGlobal[i];
-                if (row && row[1]) {
-                    let nama = String(row[1]).trim().toUpperCase();
-                    if (nama && nama.length < 30 && !nama.includes('<')) {
-                        detected.add(nama);
-                    }
-                }
-            }
-            if (detected.size > 0) {
-                daftarKaryawan = Array.from(detected).sort();
-            } else if (daftarKaryawan.length === 0) {
-                daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
+       function ekstrakKaryawanDariLog() {
+    let detected = new Set(daftarKaryawan);
+    for (let i = 1; i < dataLaporanGlobal.length; i++) {
+        let row = dataLaporanGlobal[i];
+        if (row && row[1]) {
+            let nama = String(row[1]).trim().toUpperCase();
+            // PERBAIKAN DI SINI: Tambahkan pengecualian untuk kata "OFF" atau "PS"
+            if (nama && nama.length < 30 && !nama.includes('<') && nama !== "OFF" && nama !== "PS") {
+                detected.add(nama);
             }
         }
-
+    }
+    if (detected.size > 0) {
+        daftarKaryawan = Array.from(detected).sort();
+    } else if (daftarKaryawan.length === 0) {
+        daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
+    }
+}
         function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
             let checkIn = "-";
             let checkOut = "-";
