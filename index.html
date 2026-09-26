@@ -117,6 +117,25 @@
     <!-- KONTEN UTAMA -->
     <main class="flex-1 p-4 md:p-10 overflow-y-auto z-10 text-slate-900 dark:text-slate-100">
 
+        <!-- KONTROL GLOBAL PILIH PERIODE (CUT-OFF) -->
+        <div class="max-w-6xl mx-auto mb-6 app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-4 rounded-2xl shadow-lg flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">📅</span>
+                <div>
+                    <h3 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">Mode Periode Aktif</h3>
+                    <p id="infoPeriodeAktifText" class="text-xs font-black text-indigo-600 dark:text-indigo-400">Otomatis (26 - 25)</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <select id="selectPilihanPeriode" onchange="gantiPeriodeCutOff()" class="w-full sm:w-auto px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
+                    <option value="OTOMATIS">-- Periode Berjalan (Otomatis) --</option>
+                    <option value="2026-08">26 Agustus 2026 - 25 September 2026</option>
+                    <option value="2026-07">26 Juli 2026 - 25 Agustus 2026</option>
+                    <option value="2026-06">26 Juni 2026 - 25 Juli 2026</option>
+                </select>
+            </div>
+        </div>
+
         <!-- HALAMAN 1: JADWAL LAPANGAN -->
         <section id="tabLapangan" class="space-y-6 max-w-6xl mx-auto">
             <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-4 md:p-6 rounded-3xl shadow-xl space-y-4">
@@ -413,19 +432,40 @@
             }
         }
 
+        window.gantiPeriodeCutOff = function() {
+            cachedDates = null; // Reset cache agar mereset rentang tanggal
+            renderMatrixOff();
+            renderJadwalKaryawan();
+            renderTabelRekap();
+        }
+
         function getDynamicCutOffDates() {
             if (cachedDates) return cachedDates;
-            let now = new Date();
-            let year = now.getFullYear();
-            let month = now.getMonth();
+
+            let selectPeriodeEl = document.getElementById('selectPilihanPeriode');
+            let pilihanVal = selectPeriodeEl ? selectPeriodeEl.value : "OTOMATIS";
+            let infoTextDisp = document.getElementById('infoPeriodeAktifText');
 
             let startDate, endDate;
-            if (now.getDate() >= 26) {
-                startDate = new Date(year, month, 26);
-                endDate = new Date(year, month + 1, 25);
+
+            if (pilihanVal !== "OTOMATIS") {
+                let parts = pilihanVal.split("-");
+                let y = parseInt(parts[0]);
+                let m = parseInt(parts[1]) - 1; 
+                startDate = new Date(y, m, 26);
+                endDate = new Date(y, m + 1, 25);
             } else {
-                startDate = new Date(year, month - 1, 26);
-                endDate = new Date(year, month, 25);
+                let now = new Date();
+                let year = now.getFullYear();
+                let month = now.getMonth();
+
+                if (now.getDate() >= 26) {
+                    startDate = new Date(year, month, 26);
+                    endDate = new Date(year, month + 1, 25);
+                } else {
+                    startDate = new Date(year, month - 1, 26);
+                    endDate = new Date(year, month, 25);
+                }
             }
 
             let dates = [];
@@ -453,6 +493,8 @@
             let endFormatted = endDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
             let infoText = `${startFormatted} - ${endFormatted}`;
             
+            if(infoTextDisp) infoTextDisp.innerText = pilihanVal === "OTOMATIS" ? `Otomatis (${infoText})` : `Kustom (${infoText})`;
+
             let el2 = document.getElementById('labelCutOffHeader');
             let el3 = document.getElementById('labelKalenderTitle');
             let el4 = document.getElementById('labelRekapTitle');
@@ -559,24 +601,24 @@
             }
         }
 
-       function ekstrakKaryawanDariLog() {
-    let detected = new Set(daftarKaryawan);
-    for (let i = 1; i < dataLaporanGlobal.length; i++) {
-        let row = dataLaporanGlobal[i];
-        if (row && row[1]) {
-            let nama = String(row[1]).trim().toUpperCase();
-            // PERBAIKAN DI SINI: Tambahkan pengecualian untuk kata "OFF" atau "PS"
-            if (nama && nama.length < 30 && !nama.includes('<') && nama !== "OFF" && nama !== "PS") {
-                detected.add(nama);
+        function ekstrakKaryawanDariLog() {
+            let detected = new Set(daftarKaryawan);
+            for (let i = 1; i < dataLaporanGlobal.length; i++) {
+                let row = dataLaporanGlobal[i];
+                if (row && row[1]) {
+                    let nama = String(row[1]).trim().toUpperCase();
+                    if (nama && nama.length < 30 && !nama.includes('<') && nama !== "OFF" && nama !== "PS") {
+                        detected.add(nama);
+                    }
+                }
+            }
+            if (detected.size > 0) {
+                daftarKaryawan = Array.from(detected).sort();
+            } else if (daftarKaryawan.length === 0) {
+                daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
             }
         }
-    }
-    if (detected.size > 0) {
-        daftarKaryawan = Array.from(detected).sort();
-    } else if (daftarKaryawan.length === 0) {
-        daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
-    }
-}
+
         function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
             let checkIn = "-";
             let checkOut = "-";
