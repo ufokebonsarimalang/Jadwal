@@ -270,7 +270,8 @@
         let cachedDates = null;
         let jadwalOffManual = {}; 
         let gasWebhookUrl = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
-        let daftarPeriodeDariServer = []; // ✅ daftar sheet valid dari GAS
+let daftarPeriodeDariServer = []; // ✅ daftar sheet valid dari GAS
+let namaSheetAktifDibaca = "";     // ✅ TAMBAHKAN INI
 
         document.addEventListener("DOMContentLoaded", async () => {
             await loadDaftarPeriodeDariServer();
