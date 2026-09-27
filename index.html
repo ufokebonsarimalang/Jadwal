@@ -123,7 +123,7 @@
                 <span class="text-xl">📅</span>
                 <div>
                     <h3 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">Mode Periode Aktif</h3>
-                    <p id="infoPeriodeAktifText" class="text-xs font-black text-indigo-600 dark:text-indigo-400">Otomatis (26 - 25)</p>
+                    <p id="infoPeriodeAktifText" class="text-xs font-black text-indigo-600 dark:text-indigo-400">Memuat...</p>
                 </div>
             </div>
             <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -310,14 +310,15 @@
             loadDataFromServer();
         });
 
-        // ===== FUNGSI BARU: Isi dropdown periode otomatis 12 bulan ke belakang =====
+        // ===== Auto isi dropdown periode (12 bulan ke belakang) =====
         function isiDropdownPeriode() {
             const select = document.getElementById('selectPilihanPeriode');
             if (!select) return;
 
-            let html = '<option value="OTOMATIS">-- Periode Berjalan (Otomatis) --</option>';
-            
+            let html = '';
             let now = new Date();
+            let defaultVal = '';
+
             for (let i = 0; i < 12; i++) {
                 let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
                 let y = d.getFullYear();
@@ -331,26 +332,20 @@
                           + ' - ' 
                           + end.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
 
+                if (i === 0) {
+                    defaultVal = val;
+                    label = "⭐ " + label + " (Aktif)";
+                }
+
                 html += `<option value="${val}">${label}</option>`;
             }
             select.innerHTML = html;
+            select.value = defaultVal;
         }
 
-        // ===== FUNGSI BARU: Hitung kode periode (YYYY-MM) dari mode terpilih =====
         function getKodePeriodeAktif() {
             let selectEl = document.getElementById('selectPilihanPeriode');
-            let val = selectEl ? selectEl.value : "OTOMATIS";
-
-            if (val !== "OTOMATIS") return val;
-
-            let now = new Date();
-            let y = now.getFullYear();
-            let m = now.getMonth();
-            if (now.getDate() >= 26) {
-                m = m + 1;
-                if (m > 11) { m = 0; y++; }
-            }
-            return y + "-" + String(m + 1).padStart(2, '0');
+            return selectEl ? selectEl.value : "";
         }
 
         window.toggleMobileMenu = function() {
@@ -472,60 +467,50 @@
             }
         }
 
-        // ===== DIUBAH: gantiPeriodeCutOff sekarang reload data dari server =====
         window.gantiPeriodeCutOff = function() {
             cachedDates = null;
             renderMatrixOff();
             renderJadwalKaryawan();
             renderTabelRekap();
-            loadDataFromServer();  // ✅ ambil ulang data sesuai periode yang dipilih
+            loadDataFromServer();
         }
 
         function getDynamicCutOffDates() {
             if (cachedDates) return cachedDates;
 
-            let selectPeriodeEl = document.getElementById('selectPilihanPeriode');
-            let pilihanVal = selectPeriodeEl ? selectPeriodeEl.value : "OTOMATIS";
+            let pilihanVal = getKodePeriodeAktif();
             let infoTextDisp = document.getElementById('infoPeriodeAktifText');
 
-            let startDate, endDate;
-
-            if (pilihanVal !== "OTOMATIS") {
-                let parts = pilihanVal.split("-");
-                let y = parseInt(parts[0]);
-                let m = parseInt(parts[1]) - 1; 
-                startDate = new Date(y, m, 26);
-                endDate = new Date(y, m + 1, 25);
-            } else {
+            if (!pilihanVal) {
                 let now = new Date();
-                let year = now.getFullYear();
-                let month = now.getMonth();
-
-                if (now.getDate() >= 26) {
-                    startDate = new Date(year, month, 26);
-                    endDate = new Date(year, month + 1, 25);
-                } else {
-                    startDate = new Date(year, month - 1, 26);
-                    endDate = new Date(year, month, 25);
-                }
+                let y = now.getFullYear();
+                let m = now.getMonth();
+                pilihanVal = y + "-" + String(m + 1).padStart(2, '0');
             }
+
+            let parts = pilihanVal.split("-");
+            let y = parseInt(parts[0]);
+            let m = parseInt(parts[1]) - 1;
+
+            let startDate = new Date(y, m, 26);
+            let endDate = new Date(y, m + 1, 25);
 
             let dates = [];
             let curr = new Date(startDate);
             while (curr <= endDate) {
-                let y = curr.getFullYear();
-                let m = String(curr.getMonth() + 1).padStart(2, '0');
-                let d = String(curr.getDate()).padStart(2, '0');
+                let yy = curr.getFullYear();
+                let mm = String(curr.getMonth() + 1).padStart(2, '0');
+                let dd = String(curr.getDate()).padStart(2, '0');
                 
-                let isoStr = `${y}-${m}-${d}`;
-                let idStr1 = `${d}-${m}-${y}`;
-                let idStr2 = `${d}/${m}/${y}`;
-                let idStr3 = `${y}/${m}/${d}`;
+                let isoStr = `${yy}-${mm}-${dd}`;
+                let idStr1 = `${dd}-${mm}-${yy}`;
+                let idStr2 = `${dd}/${mm}/${yy}`;
+                let idStr3 = `${yy}/${mm}/${dd}`;
 
                 dates.push({
                     dateStr: isoStr,
                     possibleKeys: [isoStr, idStr1, idStr2, idStr3],
-                    label: `${curr.toLocaleDateString('id-ID', { weekday: 'short' })}, ${d} ${curr.toLocaleDateString('id-ID', { month: 'long' })}`,
+                    label: `${curr.toLocaleDateString('id-ID', { weekday: 'short' })}, ${dd} ${curr.toLocaleDateString('id-ID', { month: 'long' })}`,
                     isWeekend: (curr.getDay() === 0 || curr.getDay() === 6)
                 });
                 curr.setDate(curr.getDate() + 1);
@@ -535,7 +520,7 @@
             let endFormatted = endDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
             let infoText = `${startFormatted} - ${endFormatted}`;
             
-            if(infoTextDisp) infoTextDisp.innerText = pilihanVal === "OTOMATIS" ? `Otomatis (${infoText})` : `Kustom (${infoText})`;
+            if(infoTextDisp) infoTextDisp.innerText = infoText;
 
             let el2 = document.getElementById('labelCutOffHeader');
             let el3 = document.getElementById('labelKalenderTitle');
@@ -560,7 +545,6 @@
                 try {
                     if(cloudStatusText) cloudStatusText.innerText = "Mengambil data dari Server...";
 
-                    // ✅ KIRIM PERIODE AKTIF KE GAS
                     let periodeKirim = getKodePeriodeAktif();
 
                     let response = await fetch(gasWebhookUrl, {
