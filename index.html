@@ -128,10 +128,6 @@
             </div>
             <div class="flex items-center gap-2 w-full sm:w-auto">
                 <select id="selectPilihanPeriode" onchange="gantiPeriodeCutOff()" class="w-full sm:w-auto px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
-                    <option value="OTOMATIS">-- Periode Berjalan (Otomatis) --</option>
-                    <option value="2026-08">26 Agustus 2026 - 25 September 2026</option>
-                    <option value="2026-07">26 Juli 2026 - 25 Agustus 2026</option>
-                    <option value="2026-06">26 Juni 2026 - 25 Juli 2026</option>
                 </select>
             </div>
         </div>
@@ -310,8 +306,52 @@
         let gasWebhookUrl = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
 
         document.addEventListener("DOMContentLoaded", () => {
+            isiDropdownPeriode();
             loadDataFromServer();
         });
+
+        // ===== FUNGSI BARU: Isi dropdown periode otomatis 12 bulan ke belakang =====
+        function isiDropdownPeriode() {
+            const select = document.getElementById('selectPilihanPeriode');
+            if (!select) return;
+
+            let html = '<option value="OTOMATIS">-- Periode Berjalan (Otomatis) --</option>';
+            
+            let now = new Date();
+            for (let i = 0; i < 12; i++) {
+                let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                let y = d.getFullYear();
+                let m = d.getMonth();
+
+                let start = new Date(y, m, 26);
+                let end = new Date(y, m + 1, 25);
+
+                let val = y + "-" + String(m + 1).padStart(2, '0');
+                let label = start.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) 
+                          + ' - ' 
+                          + end.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+
+                html += `<option value="${val}">${label}</option>`;
+            }
+            select.innerHTML = html;
+        }
+
+        // ===== FUNGSI BARU: Hitung kode periode (YYYY-MM) dari mode terpilih =====
+        function getKodePeriodeAktif() {
+            let selectEl = document.getElementById('selectPilihanPeriode');
+            let val = selectEl ? selectEl.value : "OTOMATIS";
+
+            if (val !== "OTOMATIS") return val;
+
+            let now = new Date();
+            let y = now.getFullYear();
+            let m = now.getMonth();
+            if (now.getDate() >= 26) {
+                m = m + 1;
+                if (m > 11) { m = 0; y++; }
+            }
+            return y + "-" + String(m + 1).padStart(2, '0');
+        }
 
         window.toggleMobileMenu = function() {
             const menu = document.getElementById('mobileMenuDropdown');
@@ -432,11 +472,13 @@
             }
         }
 
+        // ===== DIUBAH: gantiPeriodeCutOff sekarang reload data dari server =====
         window.gantiPeriodeCutOff = function() {
-            cachedDates = null; // Reset cache agar mereset rentang tanggal
+            cachedDates = null;
             renderMatrixOff();
             renderJadwalKaryawan();
             renderTabelRekap();
+            loadDataFromServer();  // ✅ ambil ulang data sesuai periode yang dipilih
         }
 
         function getDynamicCutOffDates() {
@@ -517,10 +559,17 @@
             if (gasWebhookUrl) {
                 try {
                     if(cloudStatusText) cloudStatusText.innerText = "Mengambil data dari Server...";
+
+                    // ✅ KIRIM PERIODE AKTIF KE GAS
+                    let periodeKirim = getKodePeriodeAktif();
+
                     let response = await fetch(gasWebhookUrl, {
                         method: "POST",
                         headers: { "Content-Type": "text/plain;charset=utf-8" },
-                        body: JSON.stringify({ aksi: "get_laporan_admin" })
+                        body: JSON.stringify({ 
+                            aksi: "get_laporan_admin",
+                            periode: periodeKirim
+                        })
                     });
                     let result = await response.json();
                     if (result && Array.isArray(result.data) && result.data.length > 0) {
@@ -880,7 +929,7 @@
                     let item = dates[i];
                     let manualStatus = "";
                     for(let altKey of item.possibleKeys) {
-                        if (jadwalOffManual[`${nama}_${altKey}`]) manualStatus = jadwalOffManual[`${nama}_${altKey}`];
+                        if(jadwalOffManual[`${nama}_${altKey}`]) manualStatus = jadwalOffManual[`${nama}_${altKey}`];
                     }
 
                     let absen = cariDataAbsenDariLog(nama, item.possibleKeys);
