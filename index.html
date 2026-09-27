@@ -4,14 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ufo Malang Kebonsari</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class' }
     </script>
-    <!-- SheetJS (XLSX) untuk export data -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <!-- Google Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -20,19 +17,14 @@
         .dark ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
         .light ::-webkit-scrollbar-track { background: #f1f5f9; }
         .light ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
-        .app-card {
-            backdrop-filter: blur(20px);
-            transition: background-color 0.2s ease, border-color 0.2s ease;
-        }
+        .app-card { backdrop-filter: blur(20px); transition: background-color 0.2s ease, border-color 0.2s ease; }
     </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex flex-col md:flex-row selection:bg-indigo-500 selection:text-white relative overflow-x-hidden">
 
-    <!-- Background Ambient Glow -->
     <div class="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute bottom-10 right-10 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-    <!-- HEADER KHUSUS HP (MOBILE TOP BAR) -->
     <header class="md:hidden flex items-center justify-between bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 sticky top-0 z-40 shadow-md">
         <div class="flex items-center gap-2.5">
             <div class="p-2 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 text-white rounded-xl shadow-md">
@@ -41,16 +33,13 @@
             <h1 class="font-black text-slate-900 dark:text-white text-sm tracking-tight">Ufo Malang Kebonsari</h1>
         </div>
         <div class="flex items-center gap-2">
-            <button onclick="toggleTheme()" class="p-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-yellow-400 rounded-xl text-xs shadow">
-                <span id="themeIconMobile">☀️</span>
-            </button>
+            <button onclick="toggleTheme()" class="p-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-yellow-400 rounded-xl text-xs shadow"><span id="themeIconMobile">☀️</span></button>
             <button onclick="toggleMobileMenu()" class="p-2.5 bg-indigo-600 text-white rounded-xl shadow-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
         </div>
     </header>
 
-    <!-- MENU DROPDOWN MOBILE -->
     <div id="mobileMenuDropdown" class="hidden md:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-4 space-y-3 z-30 shadow-xl">
         <div class="flex justify-center pb-2 border-b border-slate-200 dark:border-slate-800">
             <img src="logo.png" alt="Logo Ufo Malang" class="h-20 w-auto object-contain">
@@ -62,47 +51,36 @@
         </div>
     </div>
 
-    <!-- SIDEBAR NAVIGASI (DESKTOP) -->
     <aside class="hidden md:flex md:w-72 h-screen sticky top-0 bg-white dark:bg-slate-900/90 backdrop-blur-2xl border-r border-slate-200 dark:border-slate-800 flex-col justify-between p-6 shrink-0 z-30 shadow-xl">
         <div class="flex flex-col gap-6">
             <div class="flex items-center gap-3.5">
                 <div class="p-2.5 bg-gradient-to-tr from-indigo-600 via-indigo-500 to-violet-500 text-white rounded-2xl shadow-lg shadow-indigo-500/30 shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                 </div>
-                <div>
-                    <h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight whitespace-nowrap">Ufo Malang Kebonsari</h1>
-                </div>
+                <div><h1 class="font-black text-slate-900 dark:text-white text-base tracking-tight whitespace-nowrap">Ufo Malang Kebonsari</h1></div>
             </div>
-
             <div class="flex items-center justify-center pt-1 pb-2">
                 <img src="logo.png" alt="Logo Ufo Malang" class="w-full max-w-[220px] h-36 object-contain">
             </div>
-
             <nav class="flex flex-col gap-2">
-                <button onclick="switchTab('lapangan')" id="btnLapangan" 
-                    class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-sm transition-all duration-200 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30">
+                <button onclick="switchTab('lapangan')" id="btnLapangan" class="flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-sm transition-all duration-200 bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
                     <span>Jadwal Lapangan</span>
                 </button>
-                <button onclick="switchTab('jadwal')" id="btnJadwal" 
-                    class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+                <button onclick="switchTab('jadwal')" id="btnJadwal" class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <span>Monitoring Absen</span>
                 </button>
-                <button onclick="switchTab('admin')" id="btnAdmin" 
-                    class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
+                <button onclick="switchTab('admin')" id="btnAdmin" class="flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-sm transition-all duration-200 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/></svg>
                     <span>Konfigurasi</span>
                 </button>
             </nav>
         </div>
-
         <div class="flex flex-col gap-3 pt-6 border-t border-slate-200 dark:border-slate-800 text-xs">
             <div class="flex items-center justify-between bg-slate-100 dark:bg-slate-950 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
                 <span class="text-slate-700 dark:text-slate-300 font-semibold px-2">Interface Theme</span>
-                <button onclick="toggleTheme()" class="p-2 bg-white dark:bg-slate-800 text-slate-800 dark:text-yellow-400 rounded-lg shadow transition-all hover:scale-105">
-                    <span id="themeIcon">☀️ Light</span>
-                </button>
+                <button onclick="toggleTheme()" class="p-2 bg-white dark:bg-slate-800 text-slate-800 dark:text-yellow-400 rounded-lg shadow transition-all hover:scale-105"><span id="themeIcon">☀️ Light</span></button>
             </div>
             <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400 px-1">
                 <span class="relative flex h-2.5 w-2.5">
@@ -114,10 +92,7 @@
         </div>
     </aside>
 
-    <!-- KONTEN UTAMA -->
     <main class="flex-1 p-4 md:p-10 overflow-y-auto z-10 text-slate-900 dark:text-slate-100">
-
-        <!-- KONTROL GLOBAL PILIH PERIODE (CUT-OFF) -->
         <div class="max-w-6xl mx-auto mb-6 app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-4 rounded-2xl shadow-lg flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-2">
                 <span class="text-xl">📅</span>
@@ -128,11 +103,11 @@
             </div>
             <div class="flex items-center gap-2 w-full sm:w-auto">
                 <select id="selectPilihanPeriode" onchange="gantiPeriodeCutOff()" class="w-full sm:w-auto px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white">
+                    <option value="">-- Memuat periode... --</option>
                 </select>
             </div>
         </div>
 
-        <!-- HALAMAN 1: JADWAL LAPANGAN -->
         <section id="tabLapangan" class="space-y-6 max-w-6xl mx-auto">
             <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-4 md:p-6 rounded-3xl shadow-xl space-y-4">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
@@ -148,7 +123,6 @@
             </div>
         </section>
 
-        <!-- HALAMAN 2: MONITORING KEHADIRAN -->
         <section id="tabJadwal" class="hidden space-y-6 max-w-5xl mx-auto">
             <div class="app-card bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 p-4 md:p-6 rounded-3xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
                 <div>
@@ -191,7 +165,6 @@
             </div>
         </section>
 
-        <!-- HALAMAN 3: PANEL ADMIN -->
         <section id="tabAdmin" class="hidden space-y-6 max-w-6xl mx-auto">
             <div id="kotakTombolAdmin" class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-6 md:p-8 rounded-3xl shadow-xl text-center space-y-4">
                 <div class="text-4xl">🔐</div>
@@ -248,20 +221,15 @@
         </section>
     </main>
 
-    <!-- MODAL CUSTOM PIN VERIFIKASI UTAMA -->
     <div id="pinModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-900 border border-indigo-500/30 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl text-center relative overflow-hidden">
             <div class="text-4xl">🔑</div>
             <h3 class="text-lg font-black text-slate-900 dark:text-white">Otentikasi Administrator</h3>
             <p class="text-xs text-slate-500 dark:text-slate-400">Masukkan PIN Keamanan untuk membuka akses panel konfigurasi sensitif.</p>
-            
             <div class="space-y-2">
-                <input type="password" id="inputPinKeamanan" placeholder="••••" maxlength="10" 
-                    onkeydown="if(event.key === 'Enter') verifikasiPinAdmin()"
-                    class="w-full px-4 py-3 text-center text-lg font-bold tracking-widest bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"/>
+                <input type="password" id="inputPinKeamanan" placeholder="••••" maxlength="10" onkeydown="if(event.key === 'Enter') verifikasiPinAdmin()" class="w-full px-4 py-3 text-center text-lg font-bold tracking-widest bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"/>
                 <p id="pinErrorMessage" class="text-[11px] font-bold text-rose-500 hidden">PIN Salah! Silakan coba lagi.</p>
             </div>
-
             <div class="flex gap-2 pt-2">
                 <button onclick="tutupPinModal()" class="flex-1 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold py-2.5 rounded-xl text-xs hover:bg-slate-300 dark:hover:bg-slate-700 transition-all">Batal</button>
                 <button onclick="verifikasiPinAdmin()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs shadow-lg shadow-indigo-600/30 transition-all">Masuk</button>
@@ -269,7 +237,6 @@
         </div>
     </div>
 
-    <!-- MODAL NOTIFIKASI STANDARD -->
     <div id="customModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl text-center">
             <div id="modalIcon" class="text-3xl">🛡️</div>
@@ -281,7 +248,6 @@
         </div>
     </div>
 
-    <!-- SCRIPT UTAMA -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -304,43 +270,87 @@
         let cachedDates = null;
         let jadwalOffManual = {}; 
         let gasWebhookUrl = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
+        let daftarPeriodeDariServer = []; // ✅ daftar sheet valid dari GAS
 
-        document.addEventListener("DOMContentLoaded", () => {
-            isiDropdownPeriode();
-            loadDataFromServer();
+        document.addEventListener("DOMContentLoaded", async () => {
+            await loadDaftarPeriodeDariServer();
+            await loadDataFromServer();
         });
 
-        // ===== Auto isi dropdown periode (12 bulan ke belakang) =====
+        // ===== Ambil daftar sheet valid dari GAS, isi dropdown =====
+        async function loadDaftarPeriodeDariServer() {
+            try {
+                let response = await fetch(gasWebhookUrl, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({ aksi: "get_daftar_periode" })
+                });
+                let result = await response.json();
+                if (result && Array.isArray(result.periode) && result.periode.length > 0) {
+                    daftarPeriodeDariServer = result.periode;
+                }
+            } catch (err) {
+                console.warn("Gagal ambil daftar periode dari server:", err);
+            }
+            isiDropdownPeriode();
+        }
+
+        // ===== Isi dropdown dari daftar periode server =====
         function isiDropdownPeriode() {
             const select = document.getElementById('selectPilihanPeriode');
             if (!select) return;
 
             let html = '';
-            let now = new Date();
             let defaultVal = '';
+            let now = new Date();
 
-            for (let i = 0; i < 12; i++) {
-                let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                let y = d.getFullYear();
-                let m = d.getMonth();
-
-                let start = new Date(y, m, 26);
-                let end = new Date(y, m + 1, 25);
-
-                let val = y + "-" + String(m + 1).padStart(2, '0');
-                let label = start.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) 
-                          + ' - ' 
-                          + end.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
-
-                if (i === 0) {
-                    defaultVal = val;
-                    label = "⭐ " + label + " (Aktif)";
-                }
-
-                html += `<option value="${val}">${label}</option>`;
+            // Tentukan periode aktif saat ini (26 bln ini - 25 bln depan, atau 26 bln lalu - 25 bln ini)
+            let yAktif = now.getFullYear();
+            let mAktif = now.getMonth();
+            let valAktif;
+            if (now.getDate() >= 26) {
+                valAktif = yAktif + "-" + String(mAktif + 1).padStart(2, '0');
+            } else {
+                let mPrev = mAktif - 1;
+                let yPrev = yAktif;
+                if (mPrev < 0) { mPrev = 11; yPrev = yAktif - 1; }
+                valAktif = yPrev + "-" + String(mPrev + 1).padStart(2, '0');
             }
+
+            if (daftarPeriodeDariServer.length === 0) {
+                // Fallback: generate 12 bulan (untuk pertama kali / server error)
+                for (let i = 0; i < 12; i++) {
+                    let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    let y = d.getFullYear();
+                    let m = d.getMonth();
+                    let start = new Date(y, m, 26);
+                    let end = new Date(y, m + 1, 25);
+                    let val = y + "-" + String(m + 1).padStart(2, '0');
+                    let label = start.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })
+                              + ' - '
+                              + end.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+                    if (val === valAktif) { defaultVal = val; label = "⭐ " + label + " (Aktif)"; }
+                    html += `<option value="${val}">${label}</option>`;
+                }
+            } else {
+                // Dari server: hanya tampilkan periode yang sheetnya ada
+                daftarPeriodeDariServer.forEach(p => {
+                    let val = p.kode;      // misal "2026-09"
+                    let label = p.label;   // misal "26 September - 25 Oktober 2026"
+                    if (val === valAktif) {
+                        defaultVal = val;
+                        label = "⭐ " + label + " (Aktif)";
+                    }
+                    html += `<option value="${val}">${label}</option>`;
+                });
+                // Kalau periode aktif tidak ada di daftar, pilih yang pertama
+                if (!defaultVal && daftarPeriodeDariServer.length > 0) {
+                    defaultVal = daftarPeriodeDariServer[0].kode;
+                }
+            }
+
             select.innerHTML = html;
-            select.value = defaultVal;
+            if (defaultVal) select.value = defaultVal;
         }
 
         function getKodePeriodeAktif() {
@@ -350,9 +360,7 @@
 
         window.toggleMobileMenu = function() {
             const menu = document.getElementById('mobileMenuDropdown');
-            if (menu) {
-                menu.classList.toggle('hidden');
-            }
+            if (menu) menu.classList.toggle('hidden');
         }
 
         function toggleTheme() {
@@ -482,10 +490,8 @@
             let infoTextDisp = document.getElementById('infoPeriodeAktifText');
 
             if (!pilihanVal) {
-                let now = new Date();
-                let y = now.getFullYear();
-                let m = now.getMonth();
-                pilihanVal = y + "-" + String(m + 1).padStart(2, '0');
+                cachedDates = [];
+                return [];
             }
 
             let parts = pilihanVal.split("-");
@@ -546,6 +552,10 @@
                     if(cloudStatusText) cloudStatusText.innerText = "Mengambil data dari Server...";
 
                     let periodeKirim = getKodePeriodeAktif();
+                    if (!periodeKirim) {
+                        if(cloudStatusText) cloudStatusText.innerText = "Tidak ada periode dipilih";
+                        return;
+                    }
 
                     let response = await fetch(gasWebhookUrl, {
                         method: "POST",
@@ -558,6 +568,7 @@
                     let result = await response.json();
                     if (result && Array.isArray(result.data) && result.data.length > 0) {
                         dataLaporanGlobal = result.data;
+                        namaSheetAktifDibaca = result.namaSheet || "";
                         ekstrakKaryawanDariLog();
                         
                         await saveDataToCloudFirebase();
@@ -566,6 +577,12 @@
                         if(cloudPing) cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
                         if(cloudDot) cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500";
                         
+                        updateDropdownKaryawan();
+                        renderJadwalKaryawan();
+                        renderMatrixOff();
+                    } else {
+                        // Data kosong dari server
+                        dataLaporanGlobal = [];
                         updateDropdownKaryawan();
                         renderJadwalKaryawan();
                         renderMatrixOff();
@@ -674,17 +691,13 @@
                     let matched = false;
 
                     for (let pKey of possibleKeys) { 
-                        if (rawWaktu.includes(pKey)) {
-                            matched = true;
-                            break;
-                        }
+                        if (rawWaktu.includes(pKey)) { matched = true; break; }
                         
                         let parts = pKey.split('-'); 
                         if (parts.length === 3) {
                             let yyyy = parts[0];
                             let mm = parts[1];
                             let dd = parts[2];
-                            
                             if (rawWaktu.includes(`${dd}-${mm}-${yyyy}`) || rawWaktu.includes(`${dd}/${mm}/${yyyy}`)) {
                                 matched = true;
                                 break;
