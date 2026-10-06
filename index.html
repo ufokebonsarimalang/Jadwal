@@ -268,16 +268,16 @@
         let daftarKaryawan = [];
         let dataLaporanGlobal = [];
         let cachedDates = null;
-       let jadwalOffManual = {}; 
-let gasWebhookUrl = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
-let daftarPeriodeDariServer = [];
-let namaSheetAktifDibaca = "";
+        let jadwalOffManual = {}; 
+        let gasWebhookUrl = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
+        let daftarPeriodeDariServer = [];
+        let namaSheetAktifDibaca = "";
+
         document.addEventListener("DOMContentLoaded", async () => {
             await loadDaftarPeriodeDariServer();
             await loadDataFromServer();
         });
 
-        // ===== Ambil daftar sheet valid dari GAS, isi dropdown =====
         async function loadDaftarPeriodeDariServer() {
             try {
                 let response = await fetch(gasWebhookUrl, {
@@ -285,7 +285,8 @@ let namaSheetAktifDibaca = "";
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify({ aksi: "get_daftar_periode" })
                 });
-                let result = await response.json();
+                let textResult = await response.text();
+                let result = JSON.parse(textResult);
                 if (result && Array.isArray(result.periode) && result.periode.length > 0) {
                     daftarPeriodeDariServer = result.periode;
                 }
@@ -295,7 +296,6 @@ let namaSheetAktifDibaca = "";
             isiDropdownPeriode();
         }
 
-        // ===== Isi dropdown dari daftar periode server =====
         function isiDropdownPeriode() {
             const select = document.getElementById('selectPilihanPeriode');
             if (!select) return;
@@ -304,7 +304,6 @@ let namaSheetAktifDibaca = "";
             let defaultVal = '';
             let now = new Date();
 
-            // Tentukan periode aktif saat ini (26 bln ini - 25 bln depan, atau 26 bln lalu - 25 bln ini)
             let yAktif = now.getFullYear();
             let mAktif = now.getMonth();
             let valAktif;
@@ -318,7 +317,6 @@ let namaSheetAktifDibaca = "";
             }
 
             if (daftarPeriodeDariServer.length === 0) {
-                // Fallback: generate 12 bulan (untuk pertama kali / server error)
                 for (let i = 0; i < 12; i++) {
                     let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
                     let y = d.getFullYear();
@@ -333,17 +331,15 @@ let namaSheetAktifDibaca = "";
                     html += `<option value="${val}">${label}</option>`;
                 }
             } else {
-                // Dari server: hanya tampilkan periode yang sheetnya ada
                 daftarPeriodeDariServer.forEach(p => {
-                    let val = p.kode;      // misal "2026-09"
-                    let label = p.label;   // misal "26 September - 25 Oktober 2026"
+                    let val = p.kode; 
+                    let label = p.label;   
                     if (val === valAktif) {
                         defaultVal = val;
                         label = "⭐ " + label + " (Aktif)";
                     }
                     html += `<option value="${val}">${label}</option>`;
                 });
-                // Kalau periode aktif tidak ada di daftar, pilih yang pertama
                 if (!defaultVal && daftarPeriodeDariServer.length > 0) {
                     defaultVal = daftarPeriodeDariServer[0].kode;
                 }
@@ -565,7 +561,16 @@ let namaSheetAktifDibaca = "";
                             periode: periodeKirim
                         })
                     });
-                    let result = await response.json();
+                    
+                    let textResult = await response.text();
+                    let result;
+                    try {
+                        result = JSON.parse(textResult);
+                    } catch (parseErr) {
+                        console.warn("Respons server bukan JSON valid:", textResult);
+                        return;
+                    }
+
                     if (result && Array.isArray(result.data) && result.data.length > 0) {
                         dataLaporanGlobal = result.data;
                         namaSheetAktifDibaca = result.namaSheet || "";
@@ -581,14 +586,13 @@ let namaSheetAktifDibaca = "";
                         renderJadwalKaryawan();
                         renderMatrixOff();
                     } else {
-                        // Data kosong dari server
                         dataLaporanGlobal = [];
                         updateDropdownKaryawan();
                         renderJadwalKaryawan();
                         renderMatrixOff();
                     }
                 } catch (gasErr) {
-                    console.warn("API Server fetch warning, falling back to cache:", gasErr);
+                    console.warn("API Server fetch warning:", gasErr);
                 }
             }
         }
@@ -707,7 +711,6 @@ let namaSheetAktifDibaca = "";
 
                     if (matched) {
                         let timeMatch = rawWaktu.match(/(\d{1,2}):(\d{2})/);
-                        
                         if (timeMatch) {
                             let jam = String(timeMatch[1]).padStart(2, '0');
                             let menit = timeMatch[2];
@@ -795,7 +798,6 @@ let namaSheetAktifDibaca = "";
             renderMatrixOff();
             renderJadwalKaryawan();
             renderTabelRekap();
-
             saveDataToCloudFirebase();
         }
 
@@ -808,10 +810,8 @@ let namaSheetAktifDibaca = "";
 
         function updateDropdownKaryawan() {
             let selectKaryawanEl = document.getElementById('selectKaryawan');
-
             let optionsHtml = "";
             daftarKaryawan.forEach(nama => { optionsHtml += `<option value="${nama}">${nama}</option>`; });
-            
             if(selectKaryawanEl) selectKaryawanEl.innerHTML = optionsHtml;
         }
 
@@ -835,7 +835,6 @@ let namaSheetAktifDibaca = "";
                 }
 
                 let dataAbsen = cariDataAbsenDariLog(karyawan, item.possibleKeys);
-
                 let badgeClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
                 let statusLabel = "FULL";
                 let jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
@@ -851,7 +850,6 @@ let namaSheetAktifDibaca = "";
                     statusLabel = "PS"; 
                     jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`; 
                     countPs++;
-
                     if (dataAbsen.checkIn !== "-" || dataAbsen.checkOut !== "-") {
                         countMasuk++;
                     }
@@ -869,7 +867,6 @@ let namaSheetAktifDibaca = "";
                         if (jamOut < 19) {
                             badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
                             statusLabel = "PS"; 
-                            jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
                             countPs++;
                         }
                     } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
@@ -935,20 +932,13 @@ let namaSheetAktifDibaca = "";
                         countOffTotal++; if (item.isWeekend) countOffWeekend++;
                     } else if (manualStatus === "PS") {
                         countPs++;
-                        if (absen.checkIn !== "-" || absen.checkOut !== "-") {
-                            countMasuk++;
-                        }
+                        if (absen.checkIn !== "-" || absen.checkOut !== "-") { countMasuk++; }
                     } else if (absen.checkIn !== "-" && absen.checkOut !== "-") {
                         countMasuk++;
                         let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
-                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-                            countTerlambat++;
-                        }
-
-                        if (absen.checkOut !== "-") {
-                            let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
-                            if (jamOut < 19) countPs++;
-                        }
+                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) { countTerlambat++; }
+                        let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
+                        if (jamOut < 19) countPs++;
                     }
                 }
 
@@ -983,7 +973,6 @@ let namaSheetAktifDibaca = "";
         window.hapusKaryawan = async function(nama) {
             if (!confirm(`Hapus Karyawan "${nama}" dari direktori?`)) return;
             daftarKaryawan = daftarKaryawan.filter(n => n !== nama);
-
             await saveDataToCloudFirebase();
             updateDropdownKaryawan();
             renderListKaryawanAdmin();
