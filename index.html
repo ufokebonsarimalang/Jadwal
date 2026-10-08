@@ -278,24 +278,46 @@
             await loadDataFromServer();
         });
 
-        async function loadDaftarPeriodeDariServer() {
-            try {
-                let response = await fetch(gasWebhookUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({ aksi: "get_daftar_periode" })
-                });
-                let textResult = await response.text();
-                let result = JSON.parse(textResult);
-                if (result && Array.isArray(result.periode) && result.periode.length > 0) {
-                    daftarPeriodeDariServer = result.periode;
-                }
-            } catch (err) {
-                console.warn("Gagal ambil daftar periode dari server:", err);
-            }
-            isiDropdownPeriode();
+      async function loadDaftarPeriodeDariServer() {
+    try {
+        const formData = new URLSearchParams();
+        formData.append("aksi", "get_daftar_periode");
+
+        let response = await fetch(gasWebhookUrl, {
+            method: "POST",
+            body: formData
+        });
+
+        if (!response.ok) {
+            console.warn("HTTP Error:", response.status);
+            return;
         }
 
+        let textResult = await response.text();
+        let trimmed = textResult.trim();
+
+        if (trimmed.startsWith("<") || trimmed.startsWith("<!DOCTYPE")) {
+            console.warn("Server balikin HTML, bukan JSON.");
+            return;
+        }
+
+        let result;
+        try {
+            result = JSON.parse(trimmed);
+        } catch (e) {
+            console.warn("JSON tidak valid:", trimmed.slice(0, 200));
+            return;
+        }
+
+        if (result && Array.isArray(result.periode) && result.periode.length > 0) {
+            daftarPeriodeDariServer = result.periode;
+            console.log("✅ Periode dimuat:", daftarPeriodeDariServer.length, "item");
+        }
+    } catch (err) {
+        console.warn("Gagal ambil daftar periode dari server:", err);
+    }
+    isiDropdownPeriode();
+}
         function isiDropdownPeriode() {
             const select = document.getElementById('selectPilihanPeriode');
             if (!select) return;
@@ -553,14 +575,14 @@
                         return;
                     }
 
-                    let response = await fetch(gasWebhookUrl, {
-                        method: "POST",
-                        headers: { "Content-Type": "text/plain;charset=utf-8" },
-                        body: JSON.stringify({ 
-                            aksi: "get_laporan_admin",
-                            periode: periodeKirim
-                        })
-                    });
+                    const formData = new URLSearchParams();
+formData.append("aksi", "get_laporan_admin");
+formData.append("periode", periodeKirim);
+
+let response = await fetch(gasWebhookUrl, {
+    method: "POST",
+    body: formData
+});
                     
                     let textResult = await response.text();
                     let result;
@@ -980,19 +1002,24 @@
             renderJadwalKaryawan();
         }
 
-        window.resetServerDatabase = async function() {
-            if (!confirm("Konfirmasi purge cache dan reset database?")) return;
-            daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
-            dataLaporanGlobal = [];
-            jadwalOffManual = {};
+      window.resetServerDatabase = async function() {
+    // Konfirmasi ganda supaya aman
+    let konfirmasi1 = confirm("⚠️ PERINGATAN!\n\nReset hanya akan menghapus cache laporan & daftar karyawan di Firebase.\nJadwal OFF/PS manual Anda TIDAK akan dihapus.\n\nLanjutkan?");
+    if (!konfirmasi1) return;
 
-            await saveDataToCloudFirebase();
-            updateDropdownKaryawan();
-            renderListKaryawanAdmin();
-            renderMatrixOff();
-            renderJadwalKaryawan();
-            showModal("Reset Selesai", "Cache server berhasil dibersihkan.");
-        }
+    // Hapus hanya laporan & karyawan, JANGAN sentuh jadwalOffManual
+    daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
+    dataLaporanGlobal = [];
+    // jadwalOffManual = {};  ← INI DIHAPUS, jangan reset jadwal manual!
+
+    await saveDataToCloudFirebase();
+    updateDropdownKaryawan();
+    renderListKaryawanAdmin();
+    renderMatrixOff();
+    renderJadwalKaryawan();
+    renderTabelRekap();
+    showModal("Reset Selesai", "Cache laporan & daftar karyawan berhasil direset.\nJadwal manual OFF/PS tetap aman.");
+}
 
         function renderListKaryawanAdmin() {
             const container = document.getElementById('listKaryawanAdmin');
