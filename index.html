@@ -248,890 +248,794 @@
         </div>
     </div>
 
-   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyAzDlIWFWrpHyf2xgLYMifLcGmBqc10EW0",
-        authDomain: "masterharga.firebaseapp.com",
-        projectId: "masterharga",
-        storageBucket: "masterharga.firebasestorage.app",
-        messagingSenderId: "761584806568",
-        appId: "1:761584806568:web:c6672e8fc0c695f15eb09d",
-        measurementId: "G-N660XBC2L4"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyAzDlIWFWrpHyf2xgLYMifLcGmBqc10EW0",
+            authDomain: "masterharga.firebaseapp.com",
+            projectId: "masterharga",
+            storageBucket: "masterharga.firebasestorage.app",
+            messagingSenderId: "761584806568",
+            appId: "1:761584806568:web:c6672e8fc0c695f15eb09d",
+            measurementId: "G-N660XBC2L4"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-    // ============ GLOBAL STATE ============
-    let daftarKaryawan = [];
-    let dataLaporanGlobal = [];
-    let cachedDates = null;
-    let jadwalOffManual = {};        // Dari klik user / cloud
-    let jadwalOffDariSheet = {};     // ✨ BARU: Auto-detect dari sheet
-    let isCloudDataLoaded = false;   // ✨ BARU: Guard flag
-    let saveTimeout = null;          // ✨ BARU: Debounce
+        let daftarKaryawan = [];
+        let dataLaporanGlobal = [];
+        let cachedDates = null;
+        let jadwalOffManual = {}; 
+        let gasWebhookUrl = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
+        let daftarPeriodeDariServer = [];
+        let namaSheetAktifDibaca = "";
 
-    let gasWebhookUrl = "https://script.google.com/macros/s/AKfycbyzWGgEbgvoYjjrIUddHxb-QXKy0QyoHXrozQJ2951XSKK4F13-d2VvW25MEs0cfKqpnA/exec";
-    let daftarPeriodeDariServer = [];
-    let namaSheetAktifDibaca = "";
-
-    document.addEventListener("DOMContentLoaded", async () => {
-        // ✅ URUTAN BENAR: Load cloud DULU, baru GAS
-        await loadCloudFirebaseData();
-        await loadDaftarPeriodeDariServer();
-        await loadDataFromServer();
-    });
-
-    // ============ DEBOUNCED SAVE ============
-    function debouncedSave() {
-        if (saveTimeout) clearTimeout(saveTimeout);
-        saveTimeout = setTimeout(async () => {
-            await saveDataToCloudFirebase();
-        }, 800);
-    }
-
-    // ============ DETEKSI OFF/PS DARI SHEET ============
-    function deteksiOffDariSheet() {
-        // Reset hasil deteksi
-        jadwalOffDariSheet = {};
-        if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) return;
-
-        for (let i = 1; i < dataLaporanGlobal.length; i++) {
-            let row = dataLaporanGlobal[i];
-            if (!row || row.length < 3) continue;
-
-            let rawWaktu = String(row[0] || "").trim();
-            let kolomNama = String(row[1] || "").trim().toUpperCase();
-            let kolomStatus = String(row[2] || "").trim().toUpperCase();
-
-            if (!kolomNama || !rawWaktu) continue;
-
-            // Cek apakah status di sheet mengandung OFF / PS / LIBUR
-            let isOff = kolomStatus.includes("OFF") || kolomStatus.includes("LIBUR") || kolomStatus === "L";
-            let isPs = kolomStatus.includes("PS") || kolomStatus.includes("PULANG SORE");
-
-            if (!isOff && !isPs) continue;
-
-            // Ambil tanggal dari rawWaktu (support berbagai format)
-            let tanggalKey = ekstrakTglKey(rawWaktu);
-            if (!tanggalKey) continue;
-
-            let statusValue = isOff ? "OFF" : "PS";
-            jadwalOffDariSheet[`${kolomNama}_${tanggalKey}`] = statusValue;
-        }
-
-        console.log("✅ OFF/PS dari sheet:", Object.keys(jadwalOffDariSheet).length, "entri");
-    }
-
-    function ekstrakTglKey(rawWaktu) {
-        // Coba berbagai format: 2024-01-15, 15-01-2024, 15/01/2024, 2024/01/15
-        let match1 = rawWaktu.match(/(\d{4})-(\d{2})-(\d{2})/);
-        if (match1) return `${match1[1]}-${match1[2]}-${match1[3]}`;
-
-        let match2 = rawWaktu.match(/(\d{2})[-/](\d{2})[-/](\d{4})/);
-        if (match2) return `${match2[3]}-${match2[2]}-${match2[1]}`;
-
-        return null;
-    }
-
-    // ============ AMBIL STATUS GABUNGAN (Manual > Sheet) ============
-    function getStatusOff(nama, possibleKeys) {
-        // 1. Cek MANUAL dulu (prioritas tertinggi)
-        for (let k of possibleKeys) {
-            if (jadwalOffManual[`${nama}_${k}`]) {
-                return { status: jadwalOffManual[`${nama}_${k}`], sumber: "manual" };
-            }
-        }
-        // 2. Cek dari SHEET
-        for (let k of possibleKeys) {
-            if (jadwalOffDariSheet[`${nama}_${k}`]) {
-                return { status: jadwalOffDariSheet[`${nama}_${k}`], sumber: "sheet" };
-            }
-        }
-        return { status: "", sumber: "" };
-    }
-
-    // ============ LOAD DAFTAR PERIODE ============
-    async function loadDaftarPeriodeDariServer() {
-        try {
-            const formData = new URLSearchParams();
-            formData.append("aksi", "get_daftar_periode");
-
-            let response = await fetch(gasWebhookUrl, {
-                method: "POST",
-                body: formData
-            });
-
-            if (!response.ok) return;
-
-            let textResult = await response.text();
-            let trimmed = textResult.trim();
-
-            if (trimmed.startsWith("<") || trimmed.startsWith("<!DOCTYPE")) return;
-
-            let result;
-            try { result = JSON.parse(trimmed); } catch (e) { return; }
-
-            if (result && Array.isArray(result.periode) && result.periode.length > 0) {
-                daftarPeriodeDariServer = result.periode;
-                console.log("✅ Periode dimuat:", daftarPeriodeDariServer.length);
-            }
-        } catch (err) {
-            console.warn("Gagal ambil daftar periode:", err);
-        }
-        isiDropdownPeriode();
-    }
-
-    function isiDropdownPeriode() {
-        const select = document.getElementById('selectPilihanPeriode');
-        if (!select) return;
-
-        let html = '';
-        let defaultVal = '';
-        let now = new Date();
-        let yAktif = now.getFullYear();
-        let mAktif = now.getMonth();
-        let valAktif;
-
-        if (now.getDate() >= 26) {
-            valAktif = yAktif + "-" + String(mAktif + 1).padStart(2, '0');
-        } else {
-            let mPrev = mAktif - 1;
-            let yPrev = yAktif;
-            if (mPrev < 0) { mPrev = 11; yPrev = yAktif - 1; }
-            valAktif = yPrev + "-" + String(mPrev + 1).padStart(2, '0');
-        }
-
-        if (daftarPeriodeDariServer.length === 0) {
-            for (let i = 0; i < 12; i++) {
-                let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-                let y = d.getFullYear();
-                let m = d.getMonth();
-                let start = new Date(y, m, 26);
-                let end = new Date(y, m + 1, 25);
-                let val = y + "-" + String(m + 1).padStart(2, '0');
-                let label = start.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })
-                          + ' - '
-                          + end.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
-                if (val === valAktif) { defaultVal = val; label = "⭐ " + label + " (Aktif)"; }
-                html += `<option value="${val}">${label}</option>`;
-            }
-        } else {
-            daftarPeriodeDariServer.forEach(p => {
-                let val = p.kode;
-                let label = p.label;
-                if (val === valAktif) {
-                    defaultVal = val;
-                    label = "⭐ " + label + " (Aktif)";
-                }
-                html += `<option value="${val}">${label}</option>`;
-            });
-            if (!defaultVal && daftarPeriodeDariServer.length > 0) {
-                defaultVal = daftarPeriodeDariServer[0].kode;
-            }
-        }
-
-        select.innerHTML = html;
-        if (defaultVal) select.value = defaultVal;
-    }
-
-    function getKodePeriodeAktif() {
-        let selectEl = document.getElementById('selectPilihanPeriode');
-        return selectEl ? selectEl.value : "";
-    }
-
-    // ============ UI HELPERS ============
-    window.toggleMobileMenu = function() {
-        const menu = document.getElementById('mobileMenuDropdown');
-        if (menu) menu.classList.toggle('hidden');
-    }
-
-    function toggleTheme() {
-        const root = document.getElementById('htmlRoot');
-        const icon = document.getElementById('themeIcon');
-        const iconMob = document.getElementById('themeIconMobile');
-        if (root.classList.contains('dark')) {
-            root.classList.remove('dark'); root.classList.add('light');
-            localStorage.setItem('theme', 'light');
-            if(icon) icon.innerText = "🌙 Dark";
-            if(iconMob) iconMob.innerText = "🌙";
-        } else {
-            root.classList.remove('light'); root.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-            if(icon) icon.innerText = "☀️ Light";
-            if(iconMob) iconMob.innerText = "☀️";
-        }
-    }
-    window.toggleTheme = toggleTheme;
-
-    (function() {
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.getElementById('htmlRoot').className = savedTheme;
-        const iconMob = document.getElementById('themeIconMobile');
-        if(iconMob) iconMob.innerText = savedTheme === 'dark' ? '☀️' : '🌙';
-    })();
-
-    function showModal(title, message) {
-        const modal = document.getElementById('customModal');
-        let mTitle = document.getElementById('modalTitle');
-        let mMsg = document.getElementById('modalMessage');
-        if(mTitle) mTitle.innerText = title;
-        if(mMsg) mMsg.innerText = message;
-        if(modal) modal.classList.remove('hidden');
-    }
-    window.showModal = showModal;
-
-    function closeModal() {
-        let modal = document.getElementById('customModal');
-        if(modal) modal.classList.add('hidden');
-    }
-    window.closeModal = closeModal;
-
-    // ============ PIN ADMIN ============
-    window.bukaPinModal = function() {
-        const modal = document.getElementById('pinModal');
-        const input = document.getElementById('inputPinKeamanan');
-        const err = document.getElementById('pinErrorMessage');
-        if (input) input.value = "";
-        if (err) err.classList.add('hidden');
-        if (modal) modal.classList.remove('hidden');
-        setTimeout(() => { if(input) input.focus(); }, 100);
-    }
-
-    window.tutupPinModal = function() {
-        const modal = document.getElementById('pinModal');
-        if (modal) modal.classList.add('hidden');
-    }
-
-    window.verifikasiPinAdmin = function() {
-        const input = document.getElementById('inputPinKeamanan');
-        const err = document.getElementById('pinErrorMessage');
-        const pinVal = input ? input.value.trim() : "";
-
-        if (pinVal === "1234") {
-            tutupPinModal();
-            let kotakGembok = document.getElementById('kotakTombolAdmin');
-            let panelAdmin = document.getElementById('panelAdminSensitif');
-            if(kotakGembok) kotakGembok.classList.add('hidden');
-            if(panelAdmin) {
-                panelAdmin.classList.remove('hidden');
-                showModal("Akses Diterima", "Menu konfigurasi admin berhasil dibuka.");
-            }
-        } else {
-            if(err) err.classList.remove('hidden');
-            if(input) { input.value = ""; input.focus(); }
-        }
-    }
-
-    window.kunciMenuAdminSensitif = function() {
-        let kotakGembok = document.getElementById('kotakTombolAdmin');
-        let panelAdmin = document.getElementById('panelAdminSensitif');
-        if(panelAdmin) panelAdmin.classList.add('hidden');
-        if(kotakGembok) kotakGembok.classList.remove('hidden');
-        showModal("Admin Dikunci", "Panel konfigurasi terproteksi telah berhasil dikunci kembali.");
-    }
-
-    // ============ TAB SWITCH ============
-    window.switchTab = function(tabName) {
-        const tabs = ['tabLapangan', 'tabJadwal', 'tabAdmin'];
-        const btns = ['btnLapangan', 'btnJadwal', 'btnAdmin'];
-
-        tabs.forEach((t, i) => {
-            const el = document.getElementById(t);
-            const btn = document.getElementById(btns[i]);
-            if (el) {
-                if (t === 'tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)) {
-                    el.classList.remove('hidden');
-                    if(btn) btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-sm bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30";
-                } else {
-                    el.classList.add('hidden');
-                    if(btn) btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60";
-                }
-            }
+        document.addEventListener("DOMContentLoaded", async () => {
+            await loadDaftarPeriodeDariServer();
+            await loadDataFromServer();
         });
 
-        if (tabName === 'lapangan') {
-            renderMatrixOff();
-        } else if (tabName === 'jadwal') {
-            renderJadwalKaryawan();
-        } else if (tabName === 'admin') {
-            renderListKaryawanAdmin();
-            renderTabelRekap();
-        }
-    }
+      async function loadDaftarPeriodeDariServer() {
+    try {
+        const formData = new URLSearchParams();
+        formData.append("aksi", "get_daftar_periode");
 
-    // ============ GANTI PERIODE ============
-    window.gantiPeriodeCutOff = function() {
-        cachedDates = null;
-        renderMatrixOff();
-        renderJadwalKaryawan();
-        renderTabelRekap();
-        loadDataFromServer(); // Fetch ulang dari GAS (tanpa save cloud otomatis)
-    }
+        let response = await fetch(gasWebhookUrl, {
+            method: "POST",
+            body: formData
+        });
 
-    // ============ CUT-OFF DATES ============
-    function getDynamicCutOffDates() {
-        if (cachedDates) return cachedDates;
-
-        let pilihanVal = getKodePeriodeAktif();
-        let infoTextDisp = document.getElementById('infoPeriodeAktifText');
-
-        if (!pilihanVal) { cachedDates = []; return []; }
-
-        let parts = pilihanVal.split("-");
-        let y = parseInt(parts[0]);
-        let m = parseInt(parts[1]) - 1;
-
-        let startDate = new Date(y, m, 26);
-        let endDate = new Date(y, m + 1, 25);
-
-        let dates = [];
-        let curr = new Date(startDate);
-        while (curr <= endDate) {
-            let yy = curr.getFullYear();
-            let mm = String(curr.getMonth() + 1).padStart(2, '0');
-            let dd = String(curr.getDate()).padStart(2, '0');
-
-            let isoStr = `${yy}-${mm}-${dd}`;
-            let idStr1 = `${dd}-${mm}-${yy}`;
-            let idStr2 = `${dd}/${mm}/${yy}`;
-            let idStr3 = `${yy}/${mm}/${dd}`;
-
-            dates.push({
-                dateStr: isoStr,
-                possibleKeys: [isoStr, idStr1, idStr2, idStr3],
-                label: `${curr.toLocaleDateString('id-ID', { weekday: 'short' })}, ${dd} ${curr.toLocaleDateString('id-ID', { month: 'long' })}`,
-                isWeekend: (curr.getDay() === 0 || curr.getDay() === 6)
-            });
-            curr.setDate(curr.getDate() + 1);
+        if (!response.ok) {
+            console.warn("HTTP Error:", response.status);
+            return;
         }
 
-        let startFormatted = startDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-        let endFormatted = endDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-        let infoText = `${startFormatted} - ${endFormatted}`;
+        let textResult = await response.text();
+        let trimmed = textResult.trim();
 
-        if(infoTextDisp) infoTextDisp.innerText = infoText;
+        if (trimmed.startsWith("<") || trimmed.startsWith("<!DOCTYPE")) {
+            console.warn("Server balikin HTML, bukan JSON.");
+            return;
+        }
 
-        let el2 = document.getElementById('labelCutOffHeader');
-        let el3 = document.getElementById('labelKalenderTitle');
-        let el4 = document.getElementById('labelRekapTitle');
+        let result;
+        try {
+            result = JSON.parse(trimmed);
+        } catch (e) {
+            console.warn("JSON tidak valid:", trimmed.slice(0, 200));
+            return;
+        }
 
-        if(el2) el2.innerText = `Periode Aktif: ${infoText}`;
-        if(el3) el3.innerText = `Kalender Jadwal (${infoText})`;
-        if(el4) el4.innerText = `Rekapitulasi Statistik (${infoText})`;
-
-        cachedDates = dates;
-        return dates;
+        if (result && Array.isArray(result.periode) && result.periode.length > 0) {
+            daftarPeriodeDariServer = result.periode;
+            console.log("✅ Periode dimuat:", daftarPeriodeDariServer.length, "item");
+        }
+    } catch (err) {
+        console.warn("Gagal ambil daftar periode dari server:", err);
     }
+    isiDropdownPeriode();
+}
+        function isiDropdownPeriode() {
+            const select = document.getElementById('selectPilihanPeriode');
+            if (!select) return;
 
-    // ============ LOAD DATA ============
-    async function loadDataFromServer() {
-        const cloudStatusText = document.getElementById('cloudStatusText');
-        const cloudPing = document.getElementById('cloudPing');
-        const cloudDot = document.getElementById('cloudDot');
+            let html = '';
+            let defaultVal = '';
+            let now = new Date();
 
-        if (gasWebhookUrl) {
-            try {
-                if(cloudStatusText) cloudStatusText.innerText = "Mengambil data dari Server...";
+            let yAktif = now.getFullYear();
+            let mAktif = now.getMonth();
+            let valAktif;
+            if (now.getDate() >= 26) {
+                valAktif = yAktif + "-" + String(mAktif + 1).padStart(2, '0');
+            } else {
+                let mPrev = mAktif - 1;
+                let yPrev = yAktif;
+                if (mPrev < 0) { mPrev = 11; yPrev = yAktif - 1; }
+                valAktif = yPrev + "-" + String(mPrev + 1).padStart(2, '0');
+            }
 
-                let periodeKirim = getKodePeriodeAktif();
-                if (!periodeKirim) {
-                    if(cloudStatusText) cloudStatusText.innerText = "Tidak ada periode dipilih";
-                    return;
+            if (daftarPeriodeDariServer.length === 0) {
+                for (let i = 0; i < 12; i++) {
+                    let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    let y = d.getFullYear();
+                    let m = d.getMonth();
+                    let start = new Date(y, m, 26);
+                    let end = new Date(y, m + 1, 25);
+                    let val = y + "-" + String(m + 1).padStart(2, '0');
+                    let label = start.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' })
+                              + ' - '
+                              + end.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+                    if (val === valAktif) { defaultVal = val; label = "⭐ " + label + " (Aktif)"; }
+                    html += `<option value="${val}">${label}</option>`;
                 }
-
-                const formData = new URLSearchParams();
-                formData.append("aksi", "get_laporan_admin");
-                formData.append("periode", periodeKirim);
-
-                let response = await fetch(gasWebhookUrl, {
-                    method: "POST",
-                    body: formData
+            } else {
+                daftarPeriodeDariServer.forEach(p => {
+                    let val = p.kode; 
+                    let label = p.label;   
+                    if (val === valAktif) {
+                        defaultVal = val;
+                        label = "⭐ " + label + " (Aktif)";
+                    }
+                    html += `<option value="${val}">${label}</option>`;
                 });
-
-                let textResult = await response.text();
-                let result;
-                try {
-                    result = JSON.parse(textResult);
-                } catch (parseErr) {
-                    console.warn("Respons server bukan JSON valid:", textResult);
-                    return;
-                }
-
-                if (result && Array.isArray(result.data) && result.data.length > 0) {
-                    dataLaporanGlobal = result.data;
-                    namaSheetAktifDibaca = result.namaSheet || "";
-                    ekstrakKaryawanDariLog();
-                    deteksiOffDariSheet();  // ✨ BARU: auto-detect OFF dari sheet
-
-                    // ✅ JANGAN save otomatis di sini, cukup update UI
-                    if(cloudStatusText) cloudStatusText.innerText = "Server Synced ✓";
-                    if(cloudPing) cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
-                    if(cloudDot) cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500";
-
-                    updateDropdownKaryawan();
-                    renderJadwalKaryawan();
-                    renderMatrixOff();
-                    renderTabelRekap();  // ✨ Update rekap juga
-                } else {
-                    dataLaporanGlobal = [];
-                    jadwalOffDariSheet = {};
-                    updateDropdownKaryawan();
-                    renderJadwalKaryawan();
-                    renderMatrixOff();
-                }
-            } catch (gasErr) {
-                console.warn("API Server fetch warning:", gasErr);
-                if(cloudStatusText) cloudStatusText.innerText = "Gagal fetch server";
-            }
-        }
-    }
-
-    async function loadCloudFirebaseData() {
-        const cloudStatusText = document.getElementById('cloudStatusText');
-        const cloudPing = document.getElementById('cloudPing');
-        const cloudDot = document.getElementById('cloudDot');
-        try {
-            if(cloudStatusText) cloudStatusText.innerText = "Memuat Cache Server...";
-            const docRef = doc(db, "nexabsent_data", "main_database");
-            const docSnap = await getDoc(docRef);
-
-            if (docSnap.exists()) {
-                let cloudData = docSnap.data();
-                if (cloudData.karyawan && Array.isArray(cloudData.karyawan)) {
-                    daftarKaryawan = cloudData.karyawan
-                        .map(n => String(n).trim().toUpperCase())
-                        .filter(n => n.length > 0 && n.length < 30 && !n.includes('<'));
-                }
-                if ((!dataLaporanGlobal || dataLaporanGlobal.length === 0) && cloudData.laporan && Array.isArray(cloudData.laporan)) {
-                    dataLaporanGlobal = cloudData.laporan.map(rowStr => rowStr.split("|||"));
-                }
-                if (cloudData.jadwalOffManual) {
-                    jadwalOffManual = cloudData.jadwalOffManual;
+                if (!defaultVal && daftarPeriodeDariServer.length > 0) {
+                    defaultVal = daftarPeriodeDariServer[0].kode;
                 }
             }
 
-            if (daftarKaryawan.length === 0 && dataLaporanGlobal.length > 0) {
-                ekstrakKaryawanDariLog();
-            }
-
-            // ✨ Set flag AFTER semua data ke-load
-            isCloudDataLoaded = true;
-
-            if(cloudStatusText) cloudStatusText.innerText = "Connected (Cache)";
-            if(cloudPing) cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
-            if(cloudDot) cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500";
-
-            updateDropdownKaryawan();
-            renderJadwalKaryawan();
-            renderMatrixOff();
-        } catch (err) {
-            console.error(err);
-            if(cloudStatusText) cloudStatusText.innerText = "Koneksi Gagal";
-            isCloudDataLoaded = true; // tetap set agar tidak blocking
-        }
-    }
-
-    // ============ SAVE WITH MERGE (ANTI-HILANG) ============
-    async function saveDataToCloudFirebase() {
-        // ✅ GUARD: Jangan save kalau cloud belum selesai load
-        if (!isCloudDataLoaded) {
-            console.warn("⛔ Skip save: cloud data belum selesai dimuat");
-            return false;
+            select.innerHTML = html;
+            if (defaultVal) select.value = defaultVal;
         }
 
-        try {
-            const docRef = doc(db, "nexabsent_data", "main_database");
+        function getKodePeriodeAktif() {
+            let selectEl = document.getElementById('selectPilihanPeriode');
+            return selectEl ? selectEl.value : "";
+        }
 
-            // ✅ MERGE dengan data existing di cloud
-            const snap = await getDoc(docRef);
-            let existingJadwal = {};
-            let existingKaryawan = [];
-            if (snap.exists()) {
-                const d = snap.data();
-                if (d.jadwalOffManual) existingJadwal = d.jadwalOffManual;
-                if (d.karyawan) existingKaryawan = d.karyawan;
+        window.toggleMobileMenu = function() {
+            const menu = document.getElementById('mobileMenuDropdown');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        function toggleTheme() {
+            const root = document.getElementById('htmlRoot');
+            const icon = document.getElementById('themeIcon');
+            const iconMob = document.getElementById('themeIconMobile');
+            if (root.classList.contains('dark')) {
+                root.classList.remove('dark'); root.classList.add('light');
+                localStorage.setItem('theme', 'light'); 
+                if(icon) icon.innerText = "🌙 Dark";
+                if(iconMob) iconMob.innerText = "🌙";
+            } else {
+                root.classList.remove('light'); root.classList.add('dark');
+                localStorage.setItem('theme', 'dark'); 
+                if(icon) icon.innerText = "☀️ Light";
+                if(iconMob) iconMob.innerText = "☀️";
             }
+        }
+        window.toggleTheme = toggleTheme;
 
-            // Merge jadwal: lokal menang, tapi cloud yang tidak ada di lokal tetap ada
-            let mergedJadwal = { ...existingJadwal, ...jadwalOffManual };
-            jadwalOffManual = mergedJadwal;
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.getElementById('htmlRoot').className = savedTheme;
+            const iconMob = document.getElementById('themeIconMobile');
+            if(iconMob) iconMob.innerText = savedTheme === 'dark' ? '☀️' : '🌙';
+        })();
 
-            // Merge karyawan: gabung unique
-            let mergedKaryawan = Array.from(new Set([...existingKaryawan, ...daftarKaryawan]))
-                                      .map(n => String(n).trim().toUpperCase())
-                                      .filter(n => n.length > 0 && n.length < 30);
+        function showModal(title, message) {
+            const modal = document.getElementById('customModal');
+            let mTitle = document.getElementById('modalTitle');
+            let mMsg = document.getElementById('modalMessage');
+            if(mTitle) mTitle.innerText = title;
+            if(mMsg) mMsg.innerText = message;
+            if(modal) modal.classList.remove('hidden');
+        }
+        window.showModal = showModal;
 
-            let laporanFlattened = dataLaporanGlobal.map(row => row.join("|||"));
+        function closeModal() { 
+            let modal = document.getElementById('customModal');
+            if(modal) modal.classList.add('hidden'); 
+        }
+        window.closeModal = closeModal;
 
-            await setDoc(docRef, {
-                karyawan: mergedKaryawan,
-                laporan: laporanFlattened,
-                jadwalOffManual: mergedJadwal,
-                updatedAt: new Date().toISOString()
+        window.bukaPinModal = function() {
+            const modal = document.getElementById('pinModal');
+            const input = document.getElementById('inputPinKeamanan');
+            const err = document.getElementById('pinErrorMessage');
+            if (input) input.value = "";
+            if (err) err.classList.add('hidden');
+            if (modal) modal.classList.remove('hidden');
+            setTimeout(() => { if(input) input.focus(); }, 100);
+        }
+
+        window.tutupPinModal = function() {
+            const modal = document.getElementById('pinModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        window.verifikasiPinAdmin = function() {
+            const input = document.getElementById('inputPinKeamanan');
+            const err = document.getElementById('pinErrorMessage');
+            const pinVal = input ? input.value.trim() : "";
+
+            if (pinVal === "1234") {
+                tutupPinModal();
+                let kotakGembok = document.getElementById('kotakTombolAdmin');
+                let panelAdmin = document.getElementById('panelAdminSensitif');
+                if(kotakGembok) kotakGembok.classList.add('hidden');
+                if(panelAdmin) {
+                    panelAdmin.classList.remove('hidden');
+                    showModal("Akses Diterima", "Menu konfigurasi admin berhasil dibuka.");
+                }
+            } else {
+                if(err) err.classList.remove('hidden');
+                if(input) { input.value = ""; input.focus(); }
+            }
+        }
+
+        window.kunciMenuAdminSensitif = function() {
+            let kotakGembok = document.getElementById('kotakTombolAdmin');
+            let panelAdmin = document.getElementById('panelAdminSensitif');
+            if(panelAdmin) panelAdmin.classList.add('hidden');
+            if(kotakGembok) kotakGembok.classList.remove('hidden');
+            showModal("Admin Dikunci", "Panel konfigurasi terproteksi telah berhasil dikunci kembali.");
+        }
+
+        window.switchTab = function(tabName) {
+            const tabs = ['tabLapangan', 'tabJadwal', 'tabAdmin'];
+            const btns = ['btnLapangan', 'btnJadwal', 'btnAdmin'];
+
+            tabs.forEach((t, i) => {
+                const el = document.getElementById(t);
+                const btn = document.getElementById(btns[i]);
+                if (el) {
+                    if (t === 'tab' + tabName.charAt(0).toUpperCase() + tabName.slice(1)) {
+                        el.classList.remove('hidden');
+                        if(btn) btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-sm bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-lg shadow-indigo-600/30";
+                    } else {
+                        el.classList.add('hidden');
+                        if(btn) btn.className = "flex items-center gap-3 px-4 py-3 rounded-2xl font-medium text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60";
+                    }
+                }
             });
 
-            console.log("✅ Save OK. Manual OFF/PS total:", Object.keys(mergedJadwal).length);
-            return true;
-        } catch (err) {
-            console.error("Save error:", err);
-            return false;
+            if (tabName === 'lapangan') {
+                renderMatrixOff();
+            } else if (tabName === 'jadwal') {
+                renderJadwalKaryawan();
+            } else if (tabName === 'admin') {
+                renderListKaryawanAdmin();
+                renderTabelRekap();
+            }
         }
-    }
 
-    function ekstrakKaryawanDariLog() {
-        let detected = new Set(daftarKaryawan);
-        for (let i = 1; i < dataLaporanGlobal.length; i++) {
-            let row = dataLaporanGlobal[i];
-            if (row && row[1]) {
-                let nama = String(row[1]).trim().toUpperCase();
-                if (nama && nama.length < 30 && !nama.includes('<') && nama !== "OFF" && nama !== "PS") {
-                    detected.add(nama);
+        window.gantiPeriodeCutOff = function() {
+            cachedDates = null;
+            renderMatrixOff();
+            renderJadwalKaryawan();
+            renderTabelRekap();
+            loadDataFromServer();
+        }
+
+        function getDynamicCutOffDates() {
+            if (cachedDates) return cachedDates;
+
+            let pilihanVal = getKodePeriodeAktif();
+            let infoTextDisp = document.getElementById('infoPeriodeAktifText');
+
+            if (!pilihanVal) {
+                cachedDates = [];
+                return [];
+            }
+
+            let parts = pilihanVal.split("-");
+            let y = parseInt(parts[0]);
+            let m = parseInt(parts[1]) - 1;
+
+            let startDate = new Date(y, m, 26);
+            let endDate = new Date(y, m + 1, 25);
+
+            let dates = [];
+            let curr = new Date(startDate);
+            while (curr <= endDate) {
+                let yy = curr.getFullYear();
+                let mm = String(curr.getMonth() + 1).padStart(2, '0');
+                let dd = String(curr.getDate()).padStart(2, '0');
+                
+                let isoStr = `${yy}-${mm}-${dd}`;
+                let idStr1 = `${dd}-${mm}-${yy}`;
+                let idStr2 = `${dd}/${mm}/${yy}`;
+                let idStr3 = `${yy}/${mm}/${dd}`;
+
+                dates.push({
+                    dateStr: isoStr,
+                    possibleKeys: [isoStr, idStr1, idStr2, idStr3],
+                    label: `${curr.toLocaleDateString('id-ID', { weekday: 'short' })}, ${dd} ${curr.toLocaleDateString('id-ID', { month: 'long' })}`,
+                    isWeekend: (curr.getDay() === 0 || curr.getDay() === 6)
+                });
+                curr.setDate(curr.getDate() + 1);
+            }
+
+            let startFormatted = startDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            let endFormatted = endDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            let infoText = `${startFormatted} - ${endFormatted}`;
+            
+            if(infoTextDisp) infoTextDisp.innerText = infoText;
+
+            let el2 = document.getElementById('labelCutOffHeader');
+            let el3 = document.getElementById('labelKalenderTitle');
+            let el4 = document.getElementById('labelRekapTitle');
+
+            if(el2) el2.innerText = `Periode Aktif: ${infoText}`;
+            if(el3) el3.innerText = `Kalender Jadwal (${infoText})`;
+            if(el4) el4.innerText = `Rekapitulasi Statistik (${infoText})`;
+
+            cachedDates = dates;
+            return dates;
+        }
+
+        async function loadDataFromServer() {
+            const cloudStatusText = document.getElementById('cloudStatusText');
+            const cloudPing = document.getElementById('cloudPing');
+            const cloudDot = document.getElementById('cloudDot');
+
+            await loadCloudFirebaseData();
+
+            if (gasWebhookUrl) {
+                try {
+                    if(cloudStatusText) cloudStatusText.innerText = "Mengambil data dari Server...";
+
+                    let periodeKirim = getKodePeriodeAktif();
+                    if (!periodeKirim) {
+                        if(cloudStatusText) cloudStatusText.innerText = "Tidak ada periode dipilih";
+                        return;
+                    }
+
+                    const formData = new URLSearchParams();
+formData.append("aksi", "get_laporan_admin");
+formData.append("periode", periodeKirim);
+
+let response = await fetch(gasWebhookUrl, {
+    method: "POST",
+    body: formData
+});
+                    
+                    let textResult = await response.text();
+                    let result;
+                    try {
+                        result = JSON.parse(textResult);
+                    } catch (parseErr) {
+                        console.warn("Respons server bukan JSON valid:", textResult);
+                        return;
+                    }
+
+                    if (result && Array.isArray(result.data) && result.data.length > 0) {
+                        dataLaporanGlobal = result.data;
+                        namaSheetAktifDibaca = result.namaSheet || "";
+                        ekstrakKaryawanDariLog();
+                        
+                        await saveDataToCloudFirebase();
+
+                        if(cloudStatusText) cloudStatusText.innerText = "Server Synced ✓";
+                        if(cloudPing) cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
+                        if(cloudDot) cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500";
+                        
+                        updateDropdownKaryawan();
+                        renderJadwalKaryawan();
+                        renderMatrixOff();
+                    } else {
+                        dataLaporanGlobal = [];
+                        updateDropdownKaryawan();
+                        renderJadwalKaryawan();
+                        renderMatrixOff();
+                    }
+                } catch (gasErr) {
+                    console.warn("API Server fetch warning:", gasErr);
                 }
             }
         }
-        if (detected.size > 0) {
-            daftarKaryawan = Array.from(detected).sort();
-        } else if (daftarKaryawan.length === 0) {
-            daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
+
+        async function loadCloudFirebaseData() {
+            const cloudStatusText = document.getElementById('cloudStatusText');
+            const cloudPing = document.getElementById('cloudPing');
+            const cloudDot = document.getElementById('cloudDot');
+            try {
+                if(cloudStatusText) cloudStatusText.innerText = "Memuat Cache Server...";
+                const docRef = doc(db, "nexabsent_data", "main_database");
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    let cloudData = docSnap.data();
+                    if (cloudData.karyawan && Array.isArray(cloudData.karyawan)) {
+                        daftarKaryawan = cloudData.karyawan
+                            .map(n => String(n).trim().toUpperCase())
+                            .filter(n => n.length > 0 && n.length < 30 && !n.includes('<'));
+                    }
+                    if ((!dataLaporanGlobal || dataLaporanGlobal.length === 0) && cloudData.laporan && Array.isArray(cloudData.laporan)) {
+                        dataLaporanGlobal = cloudData.laporan.map(rowStr => rowStr.split("|||"));
+                    }
+                    if (cloudData.jadwalOffManual) {
+                        jadwalOffManual = cloudData.jadwalOffManual;
+                    }
+                }
+
+                if (daftarKaryawan.length === 0 && dataLaporanGlobal.length > 0) {
+                    ekstrakKaryawanDariLog();
+                }
+
+                if(cloudStatusText) cloudStatusText.innerText = "Connected (Cache)";
+                if(cloudPing) cloudPing.className = "absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
+                if(cloudDot) cloudDot.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500";
+
+                updateDropdownKaryawan();
+                renderJadwalKaryawan();
+                renderMatrixOff();
+            } catch (err) {
+                console.error(err);
+                if(cloudStatusText) cloudStatusText.innerText = "Koneksi Gagal";
+            }
         }
-    }
 
-    function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
-        let checkIn = "-";
-        let checkOut = "-";
+        async function saveDataToCloudFirebase() {
+            try {
+                const docRef = doc(db, "nexabsent_data", "main_database");
+                let laporanFlattened = dataLaporanGlobal.map(row => row.join("|||"));
+                await setDoc(docRef, {
+                    karyawan: daftarKaryawan,
+                    laporan: laporanFlattened,
+                    jadwalOffManual: jadwalOffManual,
+                    updatedAt: new Date().toISOString()
+                });
+                return true;
+            } catch (err) {
+                console.error(err);
+                return false;
+            }
+        }
 
-        if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) {
+        function ekstrakKaryawanDariLog() {
+            let detected = new Set(daftarKaryawan);
+            for (let i = 1; i < dataLaporanGlobal.length; i++) {
+                let row = dataLaporanGlobal[i];
+                if (row && row[1]) {
+                    let nama = String(row[1]).trim().toUpperCase();
+                    if (nama && nama.length < 30 && !nama.includes('<') && nama !== "OFF" && nama !== "PS") {
+                        detected.add(nama);
+                    }
+                }
+            }
+            if (detected.size > 0) {
+                daftarKaryawan = Array.from(detected).sort();
+            } else if (daftarKaryawan.length === 0) {
+                daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
+            }
+        }
+
+        function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
+            let checkIn = "-";
+            let checkOut = "-";
+
+            if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) {
+                return { checkIn, checkOut };
+            }
+
+            let targetNamaClean = String(karyawanTarget || "").trim().toLowerCase();
+
+            for (let i = 1; i < dataLaporanGlobal.length; i++) {
+                let row = dataLaporanGlobal[i];
+                if (!row || row.length < 3) continue;
+
+                let rawWaktu = String(row[0] || "").trim(); 
+                let kolomNama = String(row[1] || "").trim().toLowerCase(); 
+                let kolomStatus = String(row[2] || "").trim().toLowerCase(); 
+
+                if (kolomNama === targetNamaClean && rawWaktu) {
+                    let matched = false;
+
+                    for (let pKey of possibleKeys) { 
+                        if (rawWaktu.includes(pKey)) { matched = true; break; }
+                        
+                        let parts = pKey.split('-'); 
+                        if (parts.length === 3) {
+                            let yyyy = parts[0];
+                            let mm = parts[1];
+                            let dd = parts[2];
+                            if (rawWaktu.includes(`${dd}-${mm}-${yyyy}`) || rawWaktu.includes(`${dd}/${mm}/${yyyy}`)) {
+                                matched = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (matched) {
+                        let timeMatch = rawWaktu.match(/(\d{1,2}):(\d{2})/);
+                        if (timeMatch) {
+                            let jam = String(timeMatch[1]).padStart(2, '0');
+                            let menit = timeMatch[2];
+                            let timePart = `${jam}:${menit}`;
+
+                            if (kolomStatus.includes("in") || kolomStatus.includes("masuk")) {
+                                checkIn = timePart;
+                            } else if (kolomStatus.includes("out") || kolomStatus.includes("pulang") || kolomStatus.includes("keluar")) {
+                                checkOut = timePart;
+                            }
+                        }
+                    }
+                }
+            }
             return { checkIn, checkOut };
         }
 
-        let targetNamaClean = String(karyawanTarget || "").trim().toLowerCase();
+        window.renderMatrixOff = function() {
+            const table = document.getElementById('tabelMatrixOff');
+            if(!table) return;
+            const dates = getDynamicCutOffDates();
 
-        for (let i = 1; i < dataLaporanGlobal.length; i++) {
-            let row = dataLaporanGlobal[i];
-            if (!row || row.length < 3) continue;
-
-            let rawWaktu = String(row[0] || "").trim();
-            let kolomNama = String(row[1] || "").trim().toLowerCase();
-            let kolomStatus = String(row[2] || "").trim().toLowerCase();
-
-            if (kolomNama === targetNamaClean && rawWaktu) {
-                let matched = false;
-                for (let pKey of possibleKeys) {
-                    if (rawWaktu.includes(pKey)) { matched = true; break; }
-                    let parts = pKey.split('-');
-                    if (parts.length === 3) {
-                        let yyyy = parts[0], mm = parts[1], dd = parts[2];
-                        if (rawWaktu.includes(`${dd}-${mm}-${yyyy}`) || rawWaktu.includes(`${dd}/${mm}/${yyyy}`)) {
-                            matched = true; break;
-                        }
-                    }
-                }
-
-                if (matched) {
-                    let timeMatch = rawWaktu.match(/(\d{1,2}):(\d{2})/);
-                    if (timeMatch) {
-                        let jam = String(timeMatch[1]).padStart(2, '0');
-                        let menit = timeMatch[2];
-                        let timePart = `${jam}:${menit}`;
-
-                        if (kolomStatus.includes("in") || kolomStatus.includes("masuk")) {
-                            checkIn = timePart;
-                        } else if (kolomStatus.includes("out") || kolomStatus.includes("pulang") || kolomStatus.includes("keluar")) {
-                            checkOut = timePart;
-                        }
-                    }
-                }
-            }
-        }
-        return { checkIn, checkOut };
-    }
-
-    // ============ RENDER MATRIX OFF ============
-    window.renderMatrixOff = function() {
-        const table = document.getElementById('tabelMatrixOff');
-        if(!table) return;
-        const dates = getDynamicCutOffDates();
-
-        let headerHtml = `<thead class="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 uppercase font-bold text-[11px] sticky top-0 border-b border-slate-300 dark:border-slate-800">
-            <tr>
-                <th class="py-2.5 px-3 text-left">Tanggal</th>`;
-        daftarKaryawan.forEach(nama => {
-            headerHtml += `<th class="py-2.5 px-2 text-center">${nama}</th>`;
-        });
-        headerHtml += `</tr></thead><tbody class="divide-y divide-slate-200 dark:divide-slate-800/60">`;
-
-        let bodyHtml = "";
-        dates.forEach(item => {
-            bodyHtml += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
-                <td class="py-2.5 px-3 text-left font-bold text-slate-900 dark:text-white whitespace-nowrap">${item.label}</td>`;
-
+            let headerHtml = `<thead class="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 uppercase font-bold text-[11px] sticky top-0 border-b border-slate-300 dark:border-slate-800">
+                <tr>
+                    <th class="py-2.5 px-3 text-left">Tanggal</th>`;
             daftarKaryawan.forEach(nama => {
-                let statusInfo = getStatusOff(nama, item.possibleKeys);
-                let absenData = cariDataAbsenDariLog(nama, item.possibleKeys);
-                let cellClass = "text-slate-400 dark:text-slate-600";
-                let label = "-";
-
-                if (statusInfo.status === "OFF") {
-                    cellClass = "bg-rose-500/20 text-rose-800 dark:text-rose-300 font-extrabold border border-rose-500/40";
-                    label = "OFF";
-                    // ✨ Tanda kecil kalau dari sheet (bukan manual)
-                    if (statusInfo.sumber === "sheet") {
-                        label = "OFF📄"; // dari sheet
-                    }
-                } else if (statusInfo.status === "PS") {
-                    cellClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 font-extrabold border border-orange-500/40";
-                    label = "PS";
-                    if (statusInfo.sumber === "sheet") {
-                        label = "PS📄";
-                    }
-                } else if (absenData.checkIn !== "-" && absenData.checkOut !== "-") {
-                    cellClass = "bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/40";
-                    label = "HADIR";
-                } else if (absenData.checkIn !== "-" && absenData.checkOut === "-") {
-                    cellClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 font-bold border border-blue-500/40";
-                    label = "PROSES";
-                }
-
-                bodyHtml += `<td class="py-2 px-2 text-center">
-                    <button onclick="toggleMatrixStatus('${nama}', '${item.dateStr}')" class="w-16 h-8 rounded-lg text-[10px] font-bold transition-all ${cellClass}" title="Klik untuk ubah status (Manual: OFF→PS→Kosong)">${label}</button>
-                </td>`;
+                headerHtml += `<th class="py-2.5 px-2 text-center">${nama}</th>`;
             });
-            bodyHtml += `</tr>`;
-        });
+            headerHtml += `</tr></thead><tbody class="divide-y divide-slate-200 dark:divide-slate-800/60">`;
 
-        table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
-    }
+            let bodyHtml = "";
+            dates.forEach(item => {
+                bodyHtml += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+                    <td class="py-2.5 px-3 text-left font-bold text-slate-900 dark:text-white whitespace-nowrap">${item.label}</td>`;
+                
+                daftarKaryawan.forEach(nama => {
+                    let manualStatus = "";
+                    for(let kKey of item.possibleKeys) {
+                        if(jadwalOffManual[`${nama}_${kKey}`]) {
+                            manualStatus = jadwalOffManual[`${nama}_${kKey}`];
+                            break;
+                        }
+                    }
 
-    // ============ TOGGLE STATUS (MANUAL OVERRIDE) ============
-    window.toggleMatrixStatus = function(nama, dateStr) {
-        let key = `${nama}_${dateStr}`;
-        let current = jadwalOffManual[key];
+                    let absenData = cariDataAbsenDariLog(nama, item.possibleKeys);
+                    let cellClass = "text-slate-400 dark:text-slate-600";
+                    let label = "-";
 
-        if (!current) {
-            jadwalOffManual[key] = "OFF";
-        } else if (current === "OFF") {
-            jadwalOffManual[key] = "PS";
-        } else {
-            delete jadwalOffManual[key];
+                    if (manualStatus === "OFF") {
+                        cellClass = "bg-rose-500/20 text-rose-800 dark:text-rose-300 font-extrabold border border-rose-500/40";
+                        label = "OFF";
+                    } else if (manualStatus === "PS") {
+                        cellClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 font-extrabold border border-orange-500/40";
+                        label = "PS";
+                    } else if (absenData.checkIn !== "-" && absenData.checkOut !== "-") {
+                        cellClass = "bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/40";
+                        label = "HADIR";
+                    } else if (absenData.checkIn !== "-" && absenData.checkOut === "-") {
+                        cellClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 font-bold border border-blue-500/40";
+                        label = "PROSES";
+                    }
+
+                    bodyHtml += `<td class="py-2 px-2 text-center">
+                        <button onclick="toggleMatrixStatus('${nama}', '${item.dateStr}')" class="w-16 h-8 rounded-lg text-[10px] font-bold transition-all ${cellClass}" title="Klik untuk ubah status">${label}</button>
+                    </td>`;
+                });
+                bodyHtml += `</tr>`;
+            });
+
+            table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
         }
 
-        renderMatrixOff();
-        renderJadwalKaryawan();
-        renderTabelRekap();
-        debouncedSave();  // ✅ Debounce
-    }
+        window.toggleMatrixStatus = function(nama, dateStr) {
+            let key = `${nama}_${dateStr}`;
+            let current = jadwalOffManual[key];
 
-    // ============ SIMPAN MANUAL (TOMBOL) ============
-    window.simpanJadwalOffManual = async function() {
-        // Force save (langsung)
-        if (saveTimeout) clearTimeout(saveTimeout);
-        const ok = await saveDataToCloudFirebase();
-        if (ok) {
-            showModal("Sukses", "Jadwal OFF/PS manual berhasil disimpan ke Cloud Firebase!");
-        } else {
-            showModal("Gagal", "Gagal menyimpan. Coba lagi.");
-        }
-        renderJadwalKaryawan();
-        renderTabelRekap();
-    }
-
-    function updateDropdownKaryawan() {
-        let selectKaryawanEl = document.getElementById('selectKaryawan');
-        let optionsHtml = "";
-        daftarKaryawan.forEach(nama => { optionsHtml += `<option value="${nama}">${nama}</option>`; });
-        if(selectKaryawanEl) selectKaryawanEl.innerHTML = optionsHtml;
-    }
-
-    // ============ RENDER JADWAL KARYAWAN ============
-    window.renderJadwalKaryawan = function() {
-        let selectEl = document.getElementById('selectKaryawan');
-        const karyawan = (selectEl?.value || daftarKaryawan[0] || "").toUpperCase();
-        const container = document.getElementById('gridJadwal');
-        const dates = getDynamicCutOffDates();
-
-        let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
-        let html = "";
-
-        for (let i = 0; i < dates.length; i++) {
-            let item = dates[i];
-            let statusInfo = getStatusOff(karyawan, item.possibleKeys);
-
-            let dataAbsen = cariDataAbsenDariLog(karyawan, item.possibleKeys);
-            let badgeClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
-            let statusLabel = "FULL";
-            let jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
-
-            if (statusInfo.status === "OFF") {
-                badgeClass = "bg-red-500/20 text-red-800 dark:text-red-300 border-red-500/40";
-                statusLabel = statusInfo.sumber === "sheet" ? "OFF 📄" : "OFF";
-                jamTampil = "LIBUR";
-                countOffTotal++;
-                if (item.isWeekend) countOffWeekend++;
-            } else if (statusInfo.status === "PS") {
-                badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
-                statusLabel = statusInfo.sumber === "sheet" ? "PS 📄" : "PS";
-                jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
-                countPs++;
-                if (dataAbsen.checkIn !== "-" || dataAbsen.checkOut !== "-") countMasuk++;
+            if (!current) {
+                jadwalOffManual[key] = "OFF";
+            } else if (current === "OFF") {
+                jadwalOffManual[key] = "PS";
             } else {
-                if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
-                    countMasuk++;
-                    let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
-                    if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-                        countTerlambat++;
-                        badgeClass = "bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40";
-                        statusLabel = "TERLAMBAT";
-                    }
-                    let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
-                    if (jamOut < 19) {
-                        badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
-                        statusLabel = "PS";
-                        countPs++;
-                    }
-                } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
-                    let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
-                    if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) countTerlambat++;
-                    badgeClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40";
-                    statusLabel = "PROSES";
-                } else {
-                    badgeClass = "bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20";
-                    statusLabel = "-";
-                    jamTampil = `<span class="text-slate-400">-</span>`;
-                }
+                delete jadwalOffManual[key];
             }
 
-            html += `
-                <div class="bg-slate-50 dark:bg-slate-950/80 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col justify-between space-y-3">
-                    <div class="space-y-1">
-                        <span class="block text-[11px] font-bold text-slate-700 dark:text-slate-300">${item.label}</span>
-                        <div>
-                            <span class="inline-block text-[10px] px-2 py-0.5 rounded-lg border font-black tracking-wider ${badgeClass}">${statusLabel}</span>
-                        </div>
-                    </div>
-                    <div class="text-[11px] text-slate-900 dark:text-white pt-1 border-t border-slate-200/60 dark:border-slate-800/60">${jamTampil}</div>
-                </div>
-            `;
+            renderMatrixOff();
+            renderJadwalKaryawan();
+            renderTabelRekap();
+            saveDataToCloudFirebase();
         }
 
-        if (container) container.innerHTML = html;
-        let elMasuk = document.getElementById('statMasuk');
-        let elOff = document.getElementById('statOff');
-        let elOffSub = document.getElementById('statOffSub');
-        let elPs = document.getElementById('statPs');
-        let elTerlambat = document.getElementById('statTerlambat');
+        window.simpanJadwalOffManual = async function() {
+            await saveDataToCloudFirebase();
+            showModal("Sukses", "Jadwal OFF/PS manual berhasil disimpan ke Cloud Firebase!");
+            renderJadwalKaryawan();
+            renderTabelRekap();
+        }
 
-        if(elMasuk) elMasuk.innerText = `${countMasuk} Hari`;
-        if(elOff) elOff.innerText = `${countOffTotal} Hari`;
-        if(elOffSub) elOffSub.innerText = `(Sab/Min: ${countOffWeekend})`;
-        if(elPs) elPs.innerText = `${countPs} Hari`;
-        if(elTerlambat) elTerlambat.innerText = `${countTerlambat} Hari`;
-    }
+        function updateDropdownKaryawan() {
+            let selectKaryawanEl = document.getElementById('selectKaryawan');
+            let optionsHtml = "";
+            daftarKaryawan.forEach(nama => { optionsHtml += `<option value="${nama}">${nama}</option>`; });
+            if(selectKaryawanEl) selectKaryawanEl.innerHTML = optionsHtml;
+        }
 
-    // ============ RENDER TABEL REKAP ============
-    function renderTabelRekap() {
-        const tbody = document.getElementById('tabelRekapBody');
-        const dates = getDynamicCutOffDates();
-        let html = "";
+        window.renderJadwalKaryawan = function() {
+            let selectEl = document.getElementById('selectKaryawan');
+            const karyawan = (selectEl?.value || daftarKaryawan[0] || "").toUpperCase();
+            const container = document.getElementById('gridJadwal');
+            const dates = getDynamicCutOffDates();
 
-        for (let j = 0; j < daftarKaryawan.length; j++) {
-            let nama = daftarKaryawan[j];
             let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
+            let html = "";
 
             for (let i = 0; i < dates.length; i++) {
                 let item = dates[i];
-                let statusInfo = getStatusOff(nama, item.possibleKeys);
-                let absen = cariDataAbsenDariLog(nama, item.possibleKeys);
+                let manualStatus = "";
 
-                if (statusInfo.status === "OFF") {
+                for(let altKey of item.possibleKeys) {
+                    if (jadwalOffManual[`${karyawan}_${altKey}`]) {
+                        manualStatus = jadwalOffManual[`${karyawan}_${altKey}`];
+                    }
+                }
+
+                let dataAbsen = cariDataAbsenDariLog(karyawan, item.possibleKeys);
+                let badgeClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
+                let statusLabel = "FULL";
+                let jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
+
+                if (manualStatus === "OFF") {
+                    badgeClass = "bg-red-500/20 text-red-800 dark:text-red-300 border-red-500/40";
+                    statusLabel = "OFF"; 
+                    jamTampil = "LIBUR"; 
                     countOffTotal++;
                     if (item.isWeekend) countOffWeekend++;
-                } else if (statusInfo.status === "PS") {
+                } else if (manualStatus === "PS") {
+                    badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
+                    statusLabel = "PS"; 
+                    jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`; 
                     countPs++;
-                    if (absen.checkIn !== "-" || absen.checkOut !== "-") countMasuk++;
-                } else if (absen.checkIn !== "-" && absen.checkOut !== "-") {
-                    countMasuk++;
-                    let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
-                    if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) countTerlambat++;
-                    let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
-                    if (jamOut < 19) countPs++;
+                    if (dataAbsen.checkIn !== "-" || dataAbsen.checkOut !== "-") {
+                        countMasuk++;
+                    }
+                } else {
+                    if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
+                        countMasuk++;
+                        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
+                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
+                            countTerlambat++;
+                            badgeClass = "bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40";
+                            statusLabel = "TERLAMBAT";
+                        }
+
+                        let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
+                        if (jamOut < 19) {
+                            badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
+                            statusLabel = "PS"; 
+                            countPs++;
+                        }
+                    } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
+                        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
+                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
+                            countTerlambat++;
+                        }
+                        badgeClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40";
+                        statusLabel = "PROSES";
+                    } else {
+                        badgeClass = "bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20";
+                        statusLabel = "-";
+                        jamTampil = `<span class="text-slate-400">-</span>`;
+                    }
                 }
+
+                html += `
+                    <div class="bg-slate-50 dark:bg-slate-950/80 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col justify-between space-y-3">
+                        <div class="space-y-1">
+                            <span class="block text-[11px] font-bold text-slate-700 dark:text-slate-300">${item.label}</span>
+                            <div>
+                                <span class="inline-block text-[10px] px-2 py-0.5 rounded-lg border font-black tracking-wider ${badgeClass}">${statusLabel}</span>
+                            </div>
+                        </div>
+                        <div class="text-[11px] text-slate-900 dark:text-white pt-1 border-t border-slate-200/60 dark:border-slate-800/60">${jamTampil}</div>
+                    </div>
+                `;
             }
 
-            html += `
-                <tr class="hover:bg-slate-100 dark:hover:bg-slate-900/50">
-                    <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">👤 ${nama}</td>
-                    <td class="py-3 px-4 text-center font-extrabold text-emerald-700 dark:text-emerald-400">${countMasuk} Hari</td>
-                    <td class="py-3 px-4 text-center font-extrabold text-red-700 dark:text-red-400">${countOffTotal} Hari <span class="text-[10px] font-normal text-slate-500 dark:text-slate-400">(Sab/Min: ${countOffWeekend})</span></td>
-                    <td class="py-3 px-4 text-center font-extrabold text-orange-700 dark:text-orange-400">${countPs} Hari</td>
-                    <td class="py-3 px-4 text-center font-extrabold text-amber-700 dark:text-amber-400">${countTerlambat} Hari</td>
-                </tr>
-            `;
+            if (container) container.innerHTML = html;
+            let elMasuk = document.getElementById('statMasuk');
+            let elOff = document.getElementById('statOff');
+            let elOffSub = document.getElementById('statOffSub');
+            let elPs = document.getElementById('statPs');
+            let elTerlambat = document.getElementById('statTerlambat');
+
+            if(elMasuk) elMasuk.innerText = `${countMasuk} Hari`;
+            if(elOff) elOff.innerText = `${countOffTotal} Hari`;
+            if(elOffSub) elOffSub.innerText = `(Sab/Min: ${countOffWeekend})`;
+            if(elPs) elPs.innerText = `${countPs} Hari`;
+            if(elTerlambat) elTerlambat.innerText = `${countTerlambat} Hari`;
         }
-        if(tbody) tbody.innerHTML = html;
-    }
 
-    // ============ ADMIN FUNCTIONS ============
-    window.tambahKaryawanBaru = async function() {
-        let input = document.getElementById('inputNamaBaru');
-        if(!input) return;
-        const namaBaru = input.value.trim().toUpperCase();
-        if (!namaBaru) { showModal("Peringatan", "Masukkan nama karyawan!"); return; }
-        if (!daftarKaryawan.includes(namaBaru)) daftarKaryawan.push(namaBaru);
-        input.value = "";
+        function renderTabelRekap() {
+            const tbody = document.getElementById('tabelRekapBody');
+            const dates = getDynamicCutOffDates();
+            let html = "";
 
-        await saveDataToCloudFirebase();
-        updateDropdownKaryawan();
-        renderListKaryawanAdmin();
-        renderMatrixOff();
-        showModal("Sukses", `Karyawan "${namaBaru}" ditambahkan.`);
-    }
+            for (let j = 0; j < daftarKaryawan.length; j++) {
+                let nama = daftarKaryawan[j];
+                let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
+                
+                for (let i = 0; i < dates.length; i++) {
+                    let item = dates[i];
+                    let manualStatus = "";
+                    for(let altKey of item.possibleKeys) {
+                        if(jadwalOffManual[`${nama}_${altKey}`]) manualStatus = jadwalOffManual[`${nama}_${altKey}`];
+                    }
 
-    window.hapusKaryawan = async function(nama) {
-        if (!confirm(`Hapus Karyawan "${nama}" dari direktori?`)) return;
-        daftarKaryawan = daftarKaryawan.filter(n => n !== nama);
-        await saveDataToCloudFirebase();
-        updateDropdownKaryawan();
-        renderListKaryawanAdmin();
-        renderMatrixOff();
-        renderJadwalKaryawan();
-    }
+                    let absen = cariDataAbsenDariLog(nama, item.possibleKeys);
 
-    window.resetServerDatabase = async function() {
-        let konfirmasi1 = confirm("⚠️ PERINGATAN!\n\nReset hanya akan menghapus cache laporan & daftar karyawan di Firebase.\nJadwal OFF/PS manual Anda TIDAK akan dihapus.\n\nLanjutkan?");
-        if (!konfirmasi1) return;
+                    if (manualStatus === "OFF") {
+                        countOffTotal++; if (item.isWeekend) countOffWeekend++;
+                    } else if (manualStatus === "PS") {
+                        countPs++;
+                        if (absen.checkIn !== "-" || absen.checkOut !== "-") { countMasuk++; }
+                    } else if (absen.checkIn !== "-" && absen.checkOut !== "-") {
+                        countMasuk++;
+                        let [jamIn, menitIn] = absen.checkIn.split(":").map(Number);
+                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) { countTerlambat++; }
+                        let jamOut = parseInt(absen.checkOut.split(":")[0]) || 0;
+                        if (jamOut < 19) countPs++;
+                    }
+                }
 
-        daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
-        dataLaporanGlobal = [];
-        // jadwalOffManual JANGAN di-reset!
-
-        await saveDataToCloudFirebase();
-        updateDropdownKaryawan();
-        renderListKaryawanAdmin();
-        renderMatrixOff();
-        renderJadwalKaryawan();
-        renderTabelRekap();
-        showModal("Reset Selesai", "Cache laporan & daftar karyawan berhasil direset.\nJadwal manual OFF/PS tetap aman.");
-    }
-
-    function renderListKaryawanAdmin() {
-        const container = document.getElementById('listKaryawanAdmin');
-        if(!container) return;
-        let html = "";
-        for (let j = 0; j < daftarKaryawan.length; j++) {
-            let nama = daftarKaryawan[j];
-            html += `
-                <div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-900 dark:text-white shadow-sm flex items-center gap-2">
-                    <span>👤 ${nama}</span>
-                    <button onclick="hapusKaryawan('${nama}')" class="text-rose-500 hover:text-rose-700 font-black px-1.5 py-0.5 rounded-md bg-rose-500/10 hover:bg-rose-500/20 transition-all">✕</button>
-                </div>
-            `;
+                html += `
+                    <tr class="hover:bg-slate-100 dark:hover:bg-slate-900/50">
+                        <td class="py-3 px-4 font-bold text-slate-900 dark:text-white">👤 ${nama}</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-emerald-700 dark:text-emerald-400">${countMasuk} Hari</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-red-700 dark:text-red-400">${countOffTotal} Hari <span class="text-[10px] font-normal text-slate-500 dark:text-slate-400">(Sab/Min: ${countOffWeekend})</span></td>
+                        <td class="py-3 px-4 text-center font-extrabold text-orange-700 dark:text-orange-400">${countPs} Hari</td>
+                        <td class="py-3 px-4 text-center font-extrabold text-amber-700 dark:text-amber-400">${countTerlambat} Hari</td>
+                    </tr>
+                `;
+            }
+            if(tbody) tbody.innerHTML = html;
         }
-        container.innerHTML = html;
-    }
-</script>
+
+        window.tambahKaryawanBaru = async function() {
+            let input = document.getElementById('inputNamaBaru');
+            if(!input) return;
+            const namaBaru = input.value.trim().toUpperCase();
+            if (!namaBaru) { showModal("Peringatan", "Masukkan nama karyawan!"); return; }
+            if (!daftarKaryawan.includes(namaBaru)) daftarKaryawan.push(namaBaru);
+            input.value = ""; 
+
+            await saveDataToCloudFirebase();
+            updateDropdownKaryawan(); 
+            renderListKaryawanAdmin();
+            renderMatrixOff();
+            showModal("Sukses", `Karyawan "${namaBaru}" ditambahkan.`);
+        }
+
+        window.hapusKaryawan = async function(nama) {
+            if (!confirm(`Hapus Karyawan "${nama}" dari direktori?`)) return;
+            daftarKaryawan = daftarKaryawan.filter(n => n !== nama);
+            await saveDataToCloudFirebase();
+            updateDropdownKaryawan();
+            renderListKaryawanAdmin();
+            renderMatrixOff();
+            renderJadwalKaryawan();
+        }
+
+      window.resetServerDatabase = async function() {
+    // Konfirmasi ganda supaya aman
+    let konfirmasi1 = confirm("⚠️ PERINGATAN!\n\nReset hanya akan menghapus cache laporan & daftar karyawan di Firebase.\nJadwal OFF/PS manual Anda TIDAK akan dihapus.\n\nLanjutkan?");
+    if (!konfirmasi1) return;
+
+    // Hapus hanya laporan & karyawan, JANGAN sentuh jadwalOffManual
+    daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
+    dataLaporanGlobal = [];
+    // jadwalOffManual = {};  ← INI DIHAPUS, jangan reset jadwal manual!
+
+    await saveDataToCloudFirebase();
+    updateDropdownKaryawan();
+    renderListKaryawanAdmin();
+    renderMatrixOff();
+    renderJadwalKaryawan();
+    renderTabelRekap();
+    showModal("Reset Selesai", "Cache laporan & daftar karyawan berhasil direset.\nJadwal manual OFF/PS tetap aman.");
+}
+
+        function renderListKaryawanAdmin() {
+            const container = document.getElementById('listKaryawanAdmin');
+            if(!container) return;
+            let html = "";
+            for (let j = 0; j < daftarKaryawan.length; j++) {
+                let nama = daftarKaryawan[j];
+                html += `
+                    <div class="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-900 dark:text-white shadow-sm flex items-center gap-2">
+                        <span>👤 ${nama}</span>
+                        <button onclick="hapusKaryawan('${nama}')" class="text-rose-500 hover:text-rose-700 font-black px-1.5 py-0.5 rounded-md bg-rose-500/10 hover:bg-rose-500/20 transition-all">✕</button>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+    </script>
 </body>
 </html>
