@@ -563,7 +563,7 @@
             const cloudPing = document.getElementById('cloudPing');
             const cloudDot = document.getElementById('cloudDot');
 
-            await loadCloudFirebaseData();
+            
 
             if (gasWebhookUrl) {
                 try {
@@ -660,22 +660,39 @@ let response = await fetch(gasWebhookUrl, {
             }
         }
 
-        async function saveDataToCloudFirebase() {
-            try {
-                const docRef = doc(db, "nexabsent_data", "main_database");
-                let laporanFlattened = dataLaporanGlobal.map(row => row.join("|||"));
-                await setDoc(docRef, {
-                    karyawan: daftarKaryawan,
-                    laporan: laporanFlattened,
-                    jadwalOffManual: jadwalOffManual,
-                    updatedAt: new Date().toISOString()
-                });
-                return true;
-            } catch (err) {
-                console.error(err);
-                return false;
-            }
+       async function saveDataToCloudFirebase() {
+    try {
+        const docRef = doc(db, "nexabsent_data", "main_database");
+        
+        // ✅ AMBIL data cloud dulu, lalu MERGE (bukan overwrite)
+        const snap = await getDoc(docRef);
+        let existingJadwal = {};
+        if (snap.exists() && snap.data().jadwalOffManual) {
+            existingJadwal = snap.data().jadwalOffManual;
         }
+        
+        // Merge: yang ada di memory menang, tapi yang cuma ada di cloud tetap dipertahankan
+        let mergedJadwal = { ...existingJadwal, ...jadwalOffManual };
+        
+        let laporanFlattened = dataLaporanGlobal.map(row => row.join("|||"));
+        
+        await setDoc(docRef, {
+            karyawan: daftarKaryawan,
+            laporan: laporanFlattened,
+            jadwalOffManual: mergedJadwal,
+            updatedAt: new Date().toISOString()
+        });
+        
+        // Sinkronkan balik ke memory
+        jadwalOffManual = mergedJadwal;
+        
+        console.log("✅ Save OK. Total jadwal manual:", Object.keys(mergedJadwal).length);
+        return true;
+    } catch (err) {
+        console.error("Save error:", err);
+        return false;
+    }
+}
 
         function ekstrakKaryawanDariLog() {
             let detected = new Set(daftarKaryawan);
