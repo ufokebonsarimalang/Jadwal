@@ -149,10 +149,20 @@
             <div class="app-card bg-white dark:bg-slate-900/80 border border-indigo-500/30 p-4 md:p-6 rounded-3xl shadow-xl space-y-4">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
                     <div>
-                        <h2 class="text-lg md:text-xl font-black text-slate-900 dark:text-white">Jadwal Lapangan & Tukar OFF / PS</h2>
+                        <h2 class="text-lg md:text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+    Jadwal Lapangan & Tukar OFF / PS
+</h2>
                         <p class="text-xs text-slate-600 dark:text-slate-300">Pengaturan jadwal libur dari web. Klik kotak untuk mengubah status (<span class="text-rose-500 font-bold">OFF</span> ➔ <span class="text-orange-500 font-bold">PS</span> ➔ Kosong).</p>
                     </div>
-                    <button onclick="simpanJadwalOffManual()" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-lg transition-all">💾 Simpan Manual ke Cloud</button>
+                   <button onclick="simpanJadwalOffManual()" class="w-full md:w-auto bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-lg shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 hover:-translate-y-0.5">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+    </svg>
+    Simpan Manual ke Cloud
+</button>
                 </div>
                 <div class="overflow-x-auto max-h-[600px]">
                     <table id="tabelMatrixOff" class="w-full text-center text-xs border-collapse"></table>
