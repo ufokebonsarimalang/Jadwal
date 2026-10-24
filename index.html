@@ -664,24 +664,23 @@ let response = await fetch(gasWebhookUrl, {
     try {
         const docRef = doc(db, "nexabsent_data", "main_database");
         
-        // HAPUS BAGIAN MERGE. Langsung simpan apa yang ada di memori.
         let laporanFlattened = dataLaporanGlobal.map(row => row.join("|||"));
         
+        // Simpan murni apa yang ada di memori (tanpa merge)
         await setDoc(docRef, {
             karyawan: daftarKaryawan,
             laporan: laporanFlattened,
-            jadwalOffManual: jadwalOffManual, // Langsung simpan object yang sudah diupdate
+            jadwalOffManual: jadwalOffManual, // Data OFF/PS manual Anda aman di sini
             updatedAt: new Date().toISOString()
         });
         
-        console.log("✅ Save OK. Total jadwal manual:", Object.keys(jadwalOffManual).length);
+        console.log("✅ Tersimpan! Total jadwal manual:", Object.keys(jadwalOffManual).length);
         return true;
     } catch (err) {
         console.error("Save error:", err);
         return false;
     }
 }
-
         function ekstrakKaryawanDariLog() {
             let detected = new Set(daftarKaryawan);
             for (let i = 1; i < dataLaporanGlobal.length; i++) {
@@ -755,61 +754,64 @@ let response = await fetch(gasWebhookUrl, {
             return { checkIn, checkOut };
         }
 
-        window.renderMatrixOff = function() {
-            const table = document.getElementById('tabelMatrixOff');
-            if(!table) return;
-            const dates = getDynamicCutOffDates();
+       window.renderMatrixOff = function() {
+    const table = document.getElementById('tabelMatrixOff');
+    if(!table) return;
+    const dates = getDynamicCutOffDates();
 
-            let headerHtml = `<thead class="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 uppercase font-bold text-[11px] sticky top-0 border-b border-slate-300 dark:border-slate-800">
-                <tr>
-                    <th class="py-2.5 px-3 text-left">Tanggal</th>`;
-            daftarKaryawan.forEach(nama => {
-                headerHtml += `<th class="py-2.5 px-2 text-center">${nama}</th>`;
-            });
-            headerHtml += `</tr></thead><tbody class="divide-y divide-slate-200 dark:divide-slate-800/60">`;
+    let headerHtml = `<thead class="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 uppercase font-bold text-[11px] sticky top-0 border-b border-slate-300 dark:border-slate-800">
+        <tr>
+            <th class="py-2.5 px-3 text-left">Tanggal</th>`;
+    daftarKaryawan.forEach(nama => {
+        headerHtml += `<th class="py-2.5 px-2 text-center">${nama}</th>`;
+    });
+    headerHtml += `</tr></thead><tbody class="divide-y divide-slate-200 dark:divide-slate-800/60">`;
 
-            let bodyHtml = "";
-            dates.forEach(item => {
-                bodyHtml += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
-                    <td class="py-2.5 px-3 text-left font-bold text-slate-900 dark:text-white whitespace-nowrap">${item.label}</td>`;
-                
-                daftarKaryawan.forEach(nama => {
-                    let manualStatus = "";
-                    for(let kKey of item.possibleKeys) {
-                        if(jadwalOffManual[`${nama}_${kKey}`]) {
-                            manualStatus = jadwalOffManual[`${nama}_${kKey}`];
-                            break;
-                        }
-                    }
+    let bodyHtml = "";
+    dates.forEach(item => {
+        bodyHtml += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+            <td class="py-2.5 px-3 text-left font-bold text-slate-900 dark:text-white whitespace-nowrap">${item.label}</td>`;
+        
+        daftarKaryawan.forEach(nama => {
+            let manualStatus = "";
+            // Cek data manual
+            for(let kKey of item.possibleKeys) {
+                if(jadwalOffManual[`${nama}_${kKey}`]) {
+                    manualStatus = jadwalOffManual[`${nama}_${kKey}`];
+                    break;
+                }
+            }
 
-                    let absenData = cariDataAbsenDariLog(nama, item.possibleKeys);
-                    let cellClass = "text-slate-400 dark:text-slate-600";
-                    let label = "-";
+            let absenData = cariDataAbsenDariLog(nama, item.possibleKeys);
+            let cellClass = "text-slate-400 dark:text-slate-600";
+            let label = "-";
 
-                    if (manualStatus === "OFF") {
-                        cellClass = "bg-rose-500/20 text-rose-800 dark:text-rose-300 font-extrabold border border-rose-500/40";
-                        label = "OFF";
-                    } else if (manualStatus === "PS") {
-                        cellClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 font-extrabold border border-orange-500/40";
-                        label = "PS";
-                    } else if (absenData.checkIn !== "-" && absenData.checkOut !== "-") {
-                        cellClass = "bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/40";
-                        label = "HADIR";
-                    } else if (absenData.checkIn !== "-" && absenData.checkOut === "-") {
-                        cellClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 font-bold border border-blue-500/40";
-                        label = "PROSES";
-                    }
+            // PRIORITAS 1: JIKA ADMIN SET OFF ATAU PS MANUAL
+            if (manualStatus === "OFF") {
+                cellClass = "bg-rose-500/20 text-rose-800 dark:text-rose-300 font-extrabold border border-rose-500/40";
+                label = "OFF";
+            } else if (manualStatus === "PS") {
+                cellClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 font-extrabold border border-orange-500/40";
+                label = "PS";
+            } 
+            // PRIORITAS 2: JIKA TIDAK ADA MANUAL, BARU CEK MESIN ABSEN
+            else if (absenData.checkIn !== "-" && absenData.checkOut !== "-") {
+                cellClass = "bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/40";
+                label = "HADIR";
+            } else if (absenData.checkIn !== "-" && absenData.checkOut === "-") {
+                cellClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 font-bold border border-blue-500/40";
+                label = "PROSES";
+            }
 
-                    bodyHtml += `<td class="py-2 px-2 text-center">
-                        <button onclick="toggleMatrixStatus('${nama}', '${item.dateStr}')" class="w-16 h-8 rounded-lg text-[10px] font-bold transition-all ${cellClass}" title="Klik untuk ubah status">${label}</button>
-                    </td>`;
-                });
-                bodyHtml += `</tr>`;
-            });
+            bodyHtml += `<td class="py-2 px-2 text-center">
+                <button onclick="toggleMatrixStatus('${nama}', '${item.dateStr}')" class="w-16 h-8 rounded-lg text-[10px] font-bold transition-all ${cellClass}" title="Klik untuk ubah status">${label}</button>
+            </td>`;
+        });
+        bodyHtml += `</tr>`;
+    });
 
-            table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
-        }
-
+    table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
+}
         window.toggleMatrixStatus = function(nama, dateStr) {
             let key = `${nama}_${dateStr}`;
             let current = jadwalOffManual[key];
