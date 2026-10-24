@@ -563,8 +563,6 @@
             const cloudPing = document.getElementById('cloudPing');
             const cloudDot = document.getElementById('cloudDot');
 
-            
-
             if (gasWebhookUrl) {
                 try {
                     if(cloudStatusText) cloudStatusText.innerText = "Mengambil data dari Server...";
@@ -576,13 +574,13 @@
                     }
 
                     const formData = new URLSearchParams();
-formData.append("aksi", "get_laporan_admin");
-formData.append("periode", periodeKirim);
+                    formData.append("aksi", "get_laporan_admin");
+                    formData.append("periode", periodeKirim);
 
-let response = await fetch(gasWebhookUrl, {
-    method: "POST",
-    body: formData
-});
+                    let response = await fetch(gasWebhookUrl, {
+                        method: "POST",
+                        body: formData
+                    });
                     
                     let textResult = await response.text();
                     let result;
@@ -597,6 +595,13 @@ let response = await fetch(gasWebhookUrl, {
                         dataLaporanGlobal = result.data;
                         namaSheetAktifDibaca = result.namaSheet || "";
                         ekstrakKaryawanDariLog();
+                        
+                        // PENTING: Load data manual lama dulu sebelum simpan
+                        const docRef = doc(db, "nexabsent_data", "main_database");
+                        const docSnap = await getDoc(docRef);
+                        if (docSnap.exists() && docSnap.data().jadwalOffManual) {
+                            jadwalOffManual = docSnap.data().jadwalOffManual;
+                        }
                         
                         await saveDataToCloudFirebase();
 
@@ -660,27 +665,27 @@ let response = await fetch(gasWebhookUrl, {
             }
         }
 
-      async function saveDataToCloudFirebase() {
-    try {
-        const docRef = doc(db, "nexabsent_data", "main_database");
-        
-        let laporanFlattened = dataLaporanGlobal.map(row => row.join("|||"));
-        
-        // Simpan murni apa yang ada di memori (tanpa merge)
-        await setDoc(docRef, {
-            karyawan: daftarKaryawan,
-            laporan: laporanFlattened,
-            jadwalOffManual: jadwalOffManual, // Data OFF/PS manual Anda aman di sini
-            updatedAt: new Date().toISOString()
-        });
-        
-        console.log("✅ Tersimpan! Total jadwal manual:", Object.keys(jadwalOffManual).length);
-        return true;
-    } catch (err) {
-        console.error("Save error:", err);
-        return false;
-    }
-}
+        async function saveDataToCloudFirebase() {
+            try {
+                const docRef = doc(db, "nexabsent_data", "main_database");
+                
+                let laporanFlattened = dataLaporanGlobal.map(row => row.join("|||"));
+                
+                await setDoc(docRef, {
+                    karyawan: daftarKaryawan,
+                    laporan: laporanFlattened,
+                    jadwalOffManual: jadwalOffManual, 
+                    updatedAt: new Date().toISOString()
+                });
+                
+                console.log("✅ Tersimpan! Total jadwal manual:", Object.keys(jadwalOffManual).length);
+                return true;
+            } catch (err) {
+                console.error("Save error:", err);
+                return false;
+            }
+        }
+
         function ekstrakKaryawanDariLog() {
             let detected = new Set(daftarKaryawan);
             for (let i = 1; i < dataLaporanGlobal.length; i++) {
@@ -702,9 +707,10 @@ let response = await fetch(gasWebhookUrl, {
         function cariDataAbsenDariLog(karyawanTarget, possibleKeys) {
             let checkIn = "-";
             let checkOut = "-";
+            let statusExcel = ""; // Menangkap status OFF dari Excel
 
             if (!dataLaporanGlobal || dataLaporanGlobal.length <= 1) {
-                return { checkIn, checkOut };
+                return { checkIn, checkOut, statusExcel };
             }
 
             let targetNamaClean = String(karyawanTarget || "").trim().toLowerCase();
@@ -736,6 +742,11 @@ let response = await fetch(gasWebhookUrl, {
                     }
 
                     if (matched) {
+                        // Baca tulisan OFF dari Excel
+                        if (kolomStatus.includes("off") || kolomStatus.includes("libur")) {
+                            statusExcel = "OFF";
+                        }
+
                         let timeMatch = rawWaktu.match(/(\d{1,2}):(\d{2})/);
                         if (timeMatch) {
                             let jam = String(timeMatch[1]).padStart(2, '0');
@@ -751,67 +762,79 @@ let response = await fetch(gasWebhookUrl, {
                     }
                 }
             }
-            return { checkIn, checkOut };
+            return { checkIn, checkOut, statusExcel };
         }
 
-       window.renderMatrixOff = function() {
-    const table = document.getElementById('tabelMatrixOff');
-    if(!table) return;
-    const dates = getDynamicCutOffDates();
+        window.renderMatrixOff = function() {
+            const table = document.getElementById('tabelMatrixOff');
+            if(!table) return;
+            const dates = getDynamicCutOffDates();
 
-    let headerHtml = `<thead class="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 uppercase font-bold text-[11px] sticky top-0 border-b border-slate-300 dark:border-slate-800">
-        <tr>
-            <th class="py-2.5 px-3 text-left">Tanggal</th>`;
-    daftarKaryawan.forEach(nama => {
-        headerHtml += `<th class="py-2.5 px-2 text-center">${nama}</th>`;
-    });
-    headerHtml += `</tr></thead><tbody class="divide-y divide-slate-200 dark:divide-slate-800/60">`;
+            let headerHtml = `<thead class="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 uppercase font-bold text-[11px] sticky top-0 border-b border-slate-300 dark:border-slate-800">
+                <tr>
+                    <th class="py-2.5 px-3 text-left">Tanggal</th>`;
+            daftarKaryawan.forEach(nama => {
+                headerHtml += `<th class="py-2.5 px-2 text-center">${nama}</th>`;
+            });
+            headerHtml += `</tr></thead><tbody class="divide-y divide-slate-200 dark:divide-slate-800/60">`;
 
-    let bodyHtml = "";
-    dates.forEach(item => {
-        bodyHtml += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
-            <td class="py-2.5 px-3 text-left font-bold text-slate-900 dark:text-white whitespace-nowrap">${item.label}</td>`;
-        
-        daftarKaryawan.forEach(nama => {
-            let manualStatus = "";
-            // Cek data manual
-            for(let kKey of item.possibleKeys) {
-                if(jadwalOffManual[`${nama}_${kKey}`]) {
-                    manualStatus = jadwalOffManual[`${nama}_${kKey}`];
-                    break;
-                }
-            }
+            let bodyHtml = "";
+            dates.forEach(item => {
+                bodyHtml += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-900/40">
+                    <td class="py-2.5 px-3 text-left font-bold text-slate-900 dark:text-white whitespace-nowrap">${item.label}</td>`;
+                
+                daftarKaryawan.forEach(nama => {
+                    let manualStatus = "";
+                    for(let kKey of item.possibleKeys) {
+                        if(jadwalOffManual[`${nama}_${kKey}`]) {
+                            manualStatus = jadwalOffManual[`${nama}_${kKey}`];
+                            break;
+                        }
+                    }
 
-            let absenData = cariDataAbsenDariLog(nama, item.possibleKeys);
-            let cellClass = "text-slate-400 dark:text-slate-600";
-            let label = "-";
+                    let absenData = cariDataAbsenDariLog(nama, item.possibleKeys);
+                    let cellClass = "text-slate-400 dark:text-slate-600";
+                    let label = "-";
 
-            // PRIORITAS 1: JIKA ADMIN SET OFF ATAU PS MANUAL
-            if (manualStatus === "OFF") {
-                cellClass = "bg-rose-500/20 text-rose-800 dark:text-rose-300 font-extrabold border border-rose-500/40";
-                label = "OFF";
-            } else if (manualStatus === "PS") {
-                cellClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 font-extrabold border border-orange-500/40";
-                label = "PS";
-            } 
-            // PRIORITAS 2: JIKA TIDAK ADA MANUAL, BARU CEK MESIN ABSEN
-            else if (absenData.checkIn !== "-" && absenData.checkOut !== "-") {
-                cellClass = "bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/40";
-                label = "HADIR";
-            } else if (absenData.checkIn !== "-" && absenData.checkOut === "-") {
-                cellClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 font-bold border border-blue-500/40";
-                label = "PROSES";
-            }
+                    // PRIORITAS 1: MANUAL DARI WEB
+                    if (manualStatus === "OFF") {
+                        cellClass = "bg-rose-500/20 text-rose-800 dark:text-rose-300 font-extrabold border border-rose-500/40";
+                        label = "OFF";
+                    } else if (manualStatus === "PS") {
+                        cellClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 font-extrabold border border-orange-500/40";
+                        label = "PS";
+                    } 
+                    // PRIORITAS 2: BACA DARI EXCEL
+                    else if (absenData.statusExcel === "OFF") {
+                        cellClass = "bg-rose-500/20 text-rose-800 dark:text-rose-300 font-extrabold border border-rose-500/40";
+                        label = "OFF";
+                    } 
+                    // PRIORITAS 3: JAM DARI EXCEL
+                    else if (absenData.checkIn !== "-" && absenData.checkOut !== "-") {
+                        let jamOut = parseInt(absenData.checkOut.split(":")[0]) || 0;
+                        // Jika pulang sebelum jam 19:00, anggap PS
+                        if (jamOut < 19) {
+                            cellClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 font-extrabold border border-orange-500/40";
+                            label = "PS";
+                        } else {
+                            cellClass = "bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/40";
+                            label = "HADIR";
+                        }
+                    } else if (absenData.checkIn !== "-" && absenData.checkOut === "-") {
+                        cellClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 font-bold border border-blue-500/40";
+                        label = "PROSES";
+                    }
 
-            bodyHtml += `<td class="py-2 px-2 text-center">
-                <button onclick="toggleMatrixStatus('${nama}', '${item.dateStr}')" class="w-16 h-8 rounded-lg text-[10px] font-bold transition-all ${cellClass}" title="Klik untuk ubah status">${label}</button>
-            </td>`;
-        });
-        bodyHtml += `</tr>`;
-    });
+                    bodyHtml += `<td class="py-2 px-2 text-center">
+                        <button onclick="toggleMatrixStatus('${nama}', '${item.dateStr}')" class="w-16 h-8 rounded-lg text-[10px] font-bold transition-all ${cellClass}" title="Klik untuk ubah status">${label}</button>
+                    </td>`;
+                });
+                bodyHtml += `</tr>`;
+            });
 
-    table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
-}
+            table.innerHTML = headerHtml + bodyHtml + `</tbody>`;
+        }
+
         window.toggleMatrixStatus = function(nama, dateStr) {
             let key = `${nama}_${dateStr}`;
             let current = jadwalOffManual[key];
@@ -855,71 +878,68 @@ let response = await fetch(gasWebhookUrl, {
 
             for (let i = 0; i < dates.length; i++) {
                 let item = dates[i];
-               // ... (kode sebelumnya)
+                let manualStatus = "";
 
-let manualStatus = "";
-for(let altKey of item.possibleKeys) {
-    if (jadwalOffManual[`${karyawan}_${altKey}`]) {
-        manualStatus = jadwalOffManual[`${karyawan}_${altKey}`];
-    }
-}
+                for(let altKey of item.possibleKeys) {
+                    if (jadwalOffManual[`${karyawan}_${altKey}`]) {
+                        manualStatus = jadwalOffManual[`${karyawan}_${altKey}`];
+                    }
+                }
 
-let dataAbsen = cariDataAbsenDariLog(karyawan, item.possibleKeys);
-let badgeClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
-let statusLabel = "FULL";
-let jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
+                let dataAbsen = cariDataAbsenDariLog(karyawan, item.possibleKeys);
+                let badgeClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
+                let statusLabel = "FULL";
+                let jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
 
-// 1. PRIORITAS UTAMA: Cek manual "OFF" (Libur)
-if (manualStatus === "OFF") {
-    badgeClass = "bg-red-500/20 text-red-800 dark:text-red-300 border-red-500/40";
-    statusLabel = "OFF"; 
-    jamTampil = "LIBUR"; 
-    countOffTotal++;
-    if (item.isWeekend) countOffWeekend++;
-} 
-// 2. JIKA BUKAN OFF, CEK APAKAH ADA DATA ABSEN
-else if (dataAbsen.checkIn !== "-" || dataAbsen.checkOut !== "-") {
-    
-    // Jika ada jam masuk DAN jam pulang
-    if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
-        countMasuk++;
-        
-        // Cek Terlambat (Masuk > 08:10)
-        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
-        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-            countTerlambat++;
-            badgeClass = "bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40";
-            statusLabel = "TERLAMBAT";
-        }
+                // 1. PRIORITAS UTAMA: Cek manual "OFF" (Libur)
+                if (manualStatus === "OFF") {
+                    badgeClass = "bg-red-500/20 text-red-800 dark:text-red-300 border-red-500/40";
+                    statusLabel = "OFF"; 
+                    jamTampil = "LIBUR"; 
+                    countOffTotal++;
+                    if (item.isWeekend) countOffWeekend++;
+                } 
+                // 2. JIKA BUKAN OFF, CEK APAKAH ADA DATA ABSEN
+                else if (dataAbsen.checkIn !== "-" || dataAbsen.checkOut !== "-") {
+                    
+                    // Jika ada jam masuk DAN jam pulang
+                    if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
+                        countMasuk++;
+                        
+                        // Cek Terlambat (Masuk > 08:10)
+                        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
+                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
+                            countTerlambat++;
+                            badgeClass = "bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40";
+                            statusLabel = "TERLAMBAT";
+                        }
 
-        // Cek PS (Pulang antara jam 17:00 sampai 18:59)
-        let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
-        if (jamOut >= 17 && jamOut < 19) { 
-            badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
-            statusLabel = "PS"; 
-            countPs++;
-        }
-        // Jika jamOut >= 19, maka otomatis tetap FULL (badgeClass default)
-        
-    } 
-    // Jika baru masuk tapi belum pulang
-    else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
-        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
-        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-            countTerlambat++;
-        }
-        badgeClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40";
-        statusLabel = "PROSES";
-    }
-} 
-// 3. JIKA TIDAK ADA ABSEN SAMA SEKALI
-else {
-    badgeClass = "bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20";
-    statusLabel = "-";
-    jamTampil = `<span class="text-slate-400">-</span>`;
-}
-
-// ... (lanjutan html)
+                        // Cek PS (Pulang antara jam 17:00 sampai 18:59)
+                        let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
+                        if (jamOut >= 17 && jamOut < 19) { 
+                            badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
+                            statusLabel = "PS"; 
+                            countPs++;
+                        }
+                        // Jika jamOut >= 19, maka otomatis tetap FULL (badgeClass default)
+                        
+                    } 
+                    // Jika baru masuk tapi belum pulang
+                    else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
+                        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
+                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
+                            countTerlambat++;
+                        }
+                        badgeClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40";
+                        statusLabel = "PROSES";
+                    }
+                } 
+                // 3. JIKA TIDAK ADA ABSEN SAMA SEKALI
+                else {
+                    badgeClass = "bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20";
+                    statusLabel = "-";
+                    jamTampil = `<span class="text-slate-400">-</span>`;
+                }
 
                 html += `
                     <div class="bg-slate-50 dark:bg-slate-950/80 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col justify-between space-y-3">
@@ -1018,24 +1038,21 @@ else {
             renderJadwalKaryawan();
         }
 
-      window.resetServerDatabase = async function() {
-    // Konfirmasi ganda supaya aman
-    let konfirmasi1 = confirm("⚠️ PERINGATAN!\n\nReset hanya akan menghapus cache laporan & daftar karyawan di Firebase.\nJadwal OFF/PS manual Anda TIDAK akan dihapus.\n\nLanjutkan?");
-    if (!konfirmasi1) return;
+        window.resetServerDatabase = async function() {
+            let konfirmasi1 = confirm("⚠️ PERINGATAN!\n\nReset hanya akan menghapus cache laporan & daftar karyawan di Firebase.\nJadwal OFF/PS manual Anda TIDAK akan dihapus.\n\nLanjutkan?");
+            if (!konfirmasi1) return;
 
-    // Hapus hanya laporan & karyawan, JANGAN sentuh jadwalOffManual
-    daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
-    dataLaporanGlobal = [];
-    // jadwalOffManual = {};  ← INI DIHAPUS, jangan reset jadwal manual!
+            daftarKaryawan = ["PONIADI", "EKO", "DEDY", "DWI", "FRIZA", "RUDI", "DEMMY", "BIMA", "AGUNG", "ZAENAL"];
+            dataLaporanGlobal = [];
 
-    await saveDataToCloudFirebase();
-    updateDropdownKaryawan();
-    renderListKaryawanAdmin();
-    renderMatrixOff();
-    renderJadwalKaryawan();
-    renderTabelRekap();
-    showModal("Reset Selesai", "Cache laporan & daftar karyawan berhasil direset.\nJadwal manual OFF/PS tetap aman.");
-}
+            await saveDataToCloudFirebase();
+            updateDropdownKaryawan();
+            renderListKaryawanAdmin();
+            renderMatrixOff();
+            renderJadwalKaryawan();
+            renderTabelRekap();
+            showModal("Reset Selesai", "Cache laporan & daftar karyawan berhasil direset.\nJadwal manual OFF/PS tetap aman.");
+        }
 
         function renderListKaryawanAdmin() {
             const container = document.getElementById('listKaryawanAdmin');
