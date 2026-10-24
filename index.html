@@ -867,107 +867,116 @@
             if(selectKaryawanEl) selectKaryawanEl.innerHTML = optionsHtml;
         }
 
-        window.renderJadwalKaryawan = function() {
-            let selectEl = document.getElementById('selectKaryawan');
-            const karyawan = (selectEl?.value || daftarKaryawan[0] || "").toUpperCase();
-            const container = document.getElementById('gridJadwal');
-            const dates = getDynamicCutOffDates();
+      window.renderJadwalKaryawan = function() {
+    let selectEl = document.getElementById('selectKaryawan');
+    const karyawan = (selectEl?.value || daftarKaryawan[0] || "").toUpperCase();
+    const container = document.getElementById('gridJadwal');
+    const dates = getDynamicCutOffDates();
 
-            let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
-            let html = "";
+    let countMasuk = 0, countOffTotal = 0, countOffWeekend = 0, countPs = 0, countTerlambat = 0;
+    let html = "";
 
-            for (let i = 0; i < dates.length; i++) {
-                let item = dates[i];
-                let manualStatus = "";
+    for (let i = 0; i < dates.length; i++) {
+        let item = dates[i];
+        let manualStatus = "";
 
-                for(let altKey of item.possibleKeys) {
-                    if (jadwalOffManual[`${karyawan}_${altKey}`]) {
-                        manualStatus = jadwalOffManual[`${karyawan}_${altKey}`];
-                    }
-                }
-
-                let dataAbsen = cariDataAbsenDariLog(karyawan, item.possibleKeys);
-                let badgeClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
-                let statusLabel = "FULL";
-                let jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
-
-                // 1. PRIORITAS UTAMA: Cek manual "OFF" (Libur)
-                if (manualStatus === "OFF") {
-                    badgeClass = "bg-red-500/20 text-red-800 dark:text-red-300 border-red-500/40";
-                    statusLabel = "OFF"; 
-                    jamTampil = "LIBUR"; 
-                    countOffTotal++;
-                    if (item.isWeekend) countOffWeekend++;
-                } 
-                // 2. JIKA BUKAN OFF, CEK APAKAH ADA DATA ABSEN
-                else if (dataAbsen.checkIn !== "-" || dataAbsen.checkOut !== "-") {
-                    
-                    // Jika ada jam masuk DAN jam pulang
-                    if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
-                        countMasuk++;
-                        
-                        // Cek Terlambat (Masuk > 08:10)
-                        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
-                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-                            countTerlambat++;
-                            badgeClass = "bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40";
-                            statusLabel = "TERLAMBAT";
-                        }
-
-                        // Cek PS (Pulang antara jam 17:00 sampai 18:59)
-                        let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
-                        if (jamOut >= 17 && jamOut < 19) { 
-                            badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
-                            statusLabel = "PS"; 
-                            countPs++;
-                        }
-                        // Jika jamOut >= 19, maka otomatis tetap FULL (badgeClass default)
-                        
-                    } 
-                    // Jika baru masuk tapi belum pulang
-                    else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
-                        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
-                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-                            countTerlambat++;
-                        }
-                        badgeClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40";
-                        statusLabel = "PROSES";
-                    }
-                } 
-                // 3. JIKA TIDAK ADA ABSEN SAMA SEKALI
-                else {
-                    badgeClass = "bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20";
-                    statusLabel = "-";
-                    jamTampil = `<span class="text-slate-400">-</span>`;
-                }
-
-                html += `
-                    <div class="bg-slate-50 dark:bg-slate-950/80 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col justify-between space-y-3">
-                        <div class="space-y-1">
-                            <span class="block text-[11px] font-bold text-slate-700 dark:text-slate-300">${item.label}</span>
-                            <div>
-                                <span class="inline-block text-[10px] px-2 py-0.5 rounded-lg border font-black tracking-wider ${badgeClass}">${statusLabel}</span>
-                            </div>
-                        </div>
-                        <div class="text-[11px] text-slate-900 dark:text-white pt-1 border-t border-slate-200/60 dark:border-slate-800/60">${jamTampil}</div>
-                    </div>
-                `;
+        for(let altKey of item.possibleKeys) {
+            if (jadwalOffManual[`${karyawan}_${altKey}`]) {
+                manualStatus = jadwalOffManual[`${karyawan}_${altKey}`];
             }
-
-            if (container) container.innerHTML = html;
-            let elMasuk = document.getElementById('statMasuk');
-            let elOff = document.getElementById('statOff');
-            let elOffSub = document.getElementById('statOffSub');
-            let elPs = document.getElementById('statPs');
-            let elTerlambat = document.getElementById('statTerlambat');
-
-            if(elMasuk) elMasuk.innerText = `${countMasuk} Hari`;
-            if(elOff) elOff.innerText = `${countOffTotal} Hari`;
-            if(elOffSub) elOffSub.innerText = `(Sab/Min: ${countOffWeekend})`;
-            if(elPs) elPs.innerText = `${countPs} Hari`;
-            if(elTerlambat) elTerlambat.innerText = `${countTerlambat} Hari`;
         }
 
+        let dataAbsen = cariDataAbsenDariLog(karyawan, item.possibleKeys);
+        
+        // Variabel untuk menyimpan kumpulan badge (bisa lebih dari 1)
+        let badgesHtml = "";
+        let jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
+
+        // 1. PRIORITAS UTAMA: REQUEST MANUAL OFF ATAU OFF DARI EXCEL
+        if (manualStatus === "OFF" || dataAbsen.statusExcel === "OFF") {
+            badgesHtml = `<span class="inline-block text-[10px] px-2 py-0.5 rounded-lg border font-black tracking-wider bg-red-500/20 text-red-800 dark:text-red-300 border-red-500/40">OFF</span>`;
+            jamTampil = "LIBUR"; 
+            countOffTotal++;
+            if (item.isWeekend) countOffWeekend++;
+        } 
+        // 2. JIKA ADA JAM ABSEN (BISA FULL, PS, TERLAMBAT, ATAU KOMBINASI)
+        else if (dataAbsen.checkIn !== "-" || dataAbsen.checkOut !== "-") {
+            
+            if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
+                countMasuk++;
+                
+                let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
+                let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
+
+                // Cek Terlambat (Masuk Lewat 08:11)
+                let isTelat = (jamIn > 8 || (jamIn === 8 && menitIn > 11));
+
+                // Cek PS (Pulang di bawah jam 19:00)
+                let isPS = (jamOut >= 17 && jamOut < 19);
+
+                // Render Badge Terlambat jika telat
+                if (isTelat) {
+                    badgesHtml += `<span class="inline-block text-[10px] px-2 py-0.5 rounded-lg border font-black tracking-wider bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40 mr-1 mb-1">TERLAMBAT</span>`;
+                    countTerlambat++;
+                }
+
+                // Render Badge PS jika PS
+                if (isPS) {
+                    badgesHtml += `<span class="inline-block text-[10px] px-2 py-0.5 rounded-lg border font-black tracking-wider bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40 mb-1">PS</span>`;
+                    countPs++;
+                }
+
+                // Jika dia tidak telat dan tidak PS, berarti FULL
+                if (!isTelat && !isPS) {
+                    badgesHtml = `<span class="inline-block text-[10px] px-2 py-0.5 rounded-lg border font-black tracking-wider bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40">FULL</span>`;
+                }
+
+            } 
+            // Jika baru masuk tapi belum pulang
+            else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
+                let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
+                let isTelat = (jamIn > 8 || (jamIn === 8 && menitIn > 11));
+                
+                if (isTelat) {
+                    badgesHtml += `<span class="inline-block text-[10px] px-2 py-0.5 rounded-lg border font-black tracking-wider bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40 mr-1 mb-1">TERLAMBAT</span>`;
+                    countTerlambat++;
+                }
+                badgesHtml += `<span class="inline-block text-[10px] px-2 py-0.5 rounded-lg border font-black tracking-wider bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40">PROSES</span>`;
+            }
+        } 
+        // 3. JIKA TIDAK ADA ABSEN SAMA SEKALI (KOSONG)
+        else {
+            badgesHtml = `<span class="inline-block text-[10px] px-2 py-0.5 rounded-lg border font-black tracking-wider bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20">-</span>`;
+            jamTampil = `<span class="text-slate-400">-</span>`;
+        }
+
+        // Masukkan ke dalam HTML
+        html += `
+            <div class="bg-slate-50 dark:bg-slate-950/80 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col justify-between space-y-3">
+                <div class="space-y-1">
+                    <span class="block text-[11px] font-bold text-slate-700 dark:text-slate-300">${item.label}</span>
+                    <div class="flex flex-wrap">
+                        ${badgesHtml}
+                    </div>
+                </div>
+                <div class="text-[11px] text-slate-900 dark:text-white pt-1 border-t border-slate-200/60 dark:border-slate-800/60">${jamTampil}</div>
+            </div>
+        `;
+    }
+
+    if (container) container.innerHTML = html;
+    let elMasuk = document.getElementById('statMasuk');
+    let elOff = document.getElementById('statOff');
+    let elOffSub = document.getElementById('statOffSub');
+    let elPs = document.getElementById('statPs');
+    let elTerlambat = document.getElementById('statTerlambat');
+
+    if(elMasuk) elMasuk.innerText = `${countMasuk} Hari`;
+    if(elOff) elOff.innerText = `${countOffTotal} Hari`;
+    if(elOffSub) elOffSub.innerText = `(Sab/Min: ${countOffWeekend})`;
+    if(elPs) elPs.innerText = `${countPs} Hari`;
+    if(elTerlambat) elTerlambat.innerText = `${countTerlambat} Hari`;
+}
         function renderTabelRekap() {
             const tbody = document.getElementById('tabelRekapBody');
             const dates = getDynamicCutOffDates();
