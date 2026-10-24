@@ -660,33 +660,21 @@ let response = await fetch(gasWebhookUrl, {
             }
         }
 
-       async function saveDataToCloudFirebase() {
+      async function saveDataToCloudFirebase() {
     try {
         const docRef = doc(db, "nexabsent_data", "main_database");
         
-        // ✅ AMBIL data cloud dulu, lalu MERGE (bukan overwrite)
-        const snap = await getDoc(docRef);
-        let existingJadwal = {};
-        if (snap.exists() && snap.data().jadwalOffManual) {
-            existingJadwal = snap.data().jadwalOffManual;
-        }
-        
-        // Merge: yang ada di memory menang, tapi yang cuma ada di cloud tetap dipertahankan
-        let mergedJadwal = { ...existingJadwal, ...jadwalOffManual };
-        
+        // HAPUS BAGIAN MERGE. Langsung simpan apa yang ada di memori.
         let laporanFlattened = dataLaporanGlobal.map(row => row.join("|||"));
         
         await setDoc(docRef, {
             karyawan: daftarKaryawan,
             laporan: laporanFlattened,
-            jadwalOffManual: mergedJadwal,
+            jadwalOffManual: jadwalOffManual, // Langsung simpan object yang sudah diupdate
             updatedAt: new Date().toISOString()
         });
         
-        // Sinkronkan balik ke memory
-        jadwalOffManual = mergedJadwal;
-        
-        console.log("✅ Save OK. Total jadwal manual:", Object.keys(mergedJadwal).length);
+        console.log("✅ Save OK. Total jadwal manual:", Object.keys(jadwalOffManual).length);
         return true;
     } catch (err) {
         console.error("Save error:", err);
@@ -865,62 +853,71 @@ let response = await fetch(gasWebhookUrl, {
 
             for (let i = 0; i < dates.length; i++) {
                 let item = dates[i];
-                let manualStatus = "";
+               // ... (kode sebelumnya)
 
-                for(let altKey of item.possibleKeys) {
-                    if (jadwalOffManual[`${karyawan}_${altKey}`]) {
-                        manualStatus = jadwalOffManual[`${karyawan}_${altKey}`];
-                    }
-                }
+let manualStatus = "";
+for(let altKey of item.possibleKeys) {
+    if (jadwalOffManual[`${karyawan}_${altKey}`]) {
+        manualStatus = jadwalOffManual[`${karyawan}_${altKey}`];
+    }
+}
 
-                let dataAbsen = cariDataAbsenDariLog(karyawan, item.possibleKeys);
-                let badgeClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
-                let statusLabel = "FULL";
-                let jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
+let dataAbsen = cariDataAbsenDariLog(karyawan, item.possibleKeys);
+let badgeClass = "bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/40";
+let statusLabel = "FULL";
+let jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`;
 
-                if (manualStatus === "OFF") {
-                    badgeClass = "bg-red-500/20 text-red-800 dark:text-red-300 border-red-500/40";
-                    statusLabel = "OFF"; 
-                    jamTampil = "LIBUR"; 
-                    countOffTotal++;
-                    if (item.isWeekend) countOffWeekend++;
-                } else if (manualStatus === "PS") {
-                    badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
-                    statusLabel = "PS"; 
-                    jamTampil = `<span class="block">In: <strong class="font-extrabold">${dataAbsen.checkIn}</strong></span><span class="block mt-0.5">Out: <strong class="font-extrabold">${dataAbsen.checkOut}</strong></span>`; 
-                    countPs++;
-                    if (dataAbsen.checkIn !== "-" || dataAbsen.checkOut !== "-") {
-                        countMasuk++;
-                    }
-                } else {
-                    if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
-                        countMasuk++;
-                        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
-                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-                            countTerlambat++;
-                            badgeClass = "bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40";
-                            statusLabel = "TERLAMBAT";
-                        }
+// 1. PRIORITAS UTAMA: Cek manual "OFF" (Libur)
+if (manualStatus === "OFF") {
+    badgeClass = "bg-red-500/20 text-red-800 dark:text-red-300 border-red-500/40";
+    statusLabel = "OFF"; 
+    jamTampil = "LIBUR"; 
+    countOffTotal++;
+    if (item.isWeekend) countOffWeekend++;
+} 
+// 2. JIKA BUKAN OFF, CEK APAKAH ADA DATA ABSEN
+else if (dataAbsen.checkIn !== "-" || dataAbsen.checkOut !== "-") {
+    
+    // Jika ada jam masuk DAN jam pulang
+    if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut !== "-") {
+        countMasuk++;
+        
+        // Cek Terlambat (Masuk > 08:10)
+        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
+        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
+            countTerlambat++;
+            badgeClass = "bg-amber-500/20 text-amber-800 dark:text-amber-300 border-amber-500/40";
+            statusLabel = "TERLAMBAT";
+        }
 
-                        let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
-                        if (jamOut < 19) {
-                            badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
-                            statusLabel = "PS"; 
-                            countPs++;
-                        }
-                    } else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
-                        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
-                        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
-                            countTerlambat++;
-                        }
-                        badgeClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40";
-                        statusLabel = "PROSES";
-                    } else {
-                        badgeClass = "bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20";
-                        statusLabel = "-";
-                        jamTampil = `<span class="text-slate-400">-</span>`;
-                    }
-                }
+        // Cek PS (Pulang antara jam 17:00 sampai 18:59)
+        let jamOut = parseInt(dataAbsen.checkOut.split(":")[0]) || 0;
+        if (jamOut >= 17 && jamOut < 19) { 
+            badgeClass = "bg-orange-500/20 text-orange-800 dark:text-orange-300 border-orange-500/40";
+            statusLabel = "PS"; 
+            countPs++;
+        }
+        // Jika jamOut >= 19, maka otomatis tetap FULL (badgeClass default)
+        
+    } 
+    // Jika baru masuk tapi belum pulang
+    else if (dataAbsen.checkIn !== "-" && dataAbsen.checkOut === "-") {
+        let [jamIn, menitIn] = dataAbsen.checkIn.split(":").map(Number);
+        if (jamIn > 8 || (jamIn === 8 && menitIn > 10)) {
+            countTerlambat++;
+        }
+        badgeClass = "bg-blue-500/20 text-blue-800 dark:text-blue-300 border-blue-500/40";
+        statusLabel = "PROSES";
+    }
+} 
+// 3. JIKA TIDAK ADA ABSEN SAMA SEKALI
+else {
+    badgeClass = "bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20";
+    statusLabel = "-";
+    jamTampil = `<span class="text-slate-400">-</span>`;
+}
+
+// ... (lanjutan html)
 
                 html += `
                     <div class="bg-slate-50 dark:bg-slate-950/80 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col justify-between space-y-3">
